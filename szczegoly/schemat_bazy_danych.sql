@@ -132,5 +132,58 @@ CREATE TABLE reservations (
         CHECK (start_time < end_time)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- Wstawianie danych testowych
+
+-- Dane testowe dla tabeli users
+INSERT INTO users (id, name, surname, email, password, phone, role, active, created_at) VALUES
+('10000000-0000-0000-0000-000000000001', 'Jan', 'Kowalski', 'jan.kowalski@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '123456789', 'client', 1, NOW()),
+('10000000-0000-0000-0000-000000000002', 'Anna', 'Nowak', 'anna.nowak@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '987654321', 'client', 1, NOW()),
+('10000000-0000-0000-0000-000000000003', 'Piotr', 'Wiśniewski', 'piotr.wisniewski@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '555666777', 'employee', 1, NOW()),
+('10000000-0000-0000-0000-000000000004', 'Maria', 'Wójcik', 'maria.wojcik@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '444333222', 'employee', 1, NOW()),
+('10000000-0000-0000-0000-000000000005', 'Adam', 'Kowalczyk', 'adam.kowalczyk@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', '111222333', 'admin', 1, NOW());
+
+-- Dane testowe dla tabeli service_categories
+INSERT INTO service_categories (id, name, description) VALUES
+('20000000-0000-0000-0000-000000000001', 'Styling', 'Usługi związane z stylizacją i fryzurami'),
+('20000000-0000-0000-0000-000000000002', 'Pieleń', 'Usługi pielęgnacyjne wizualne'),
+('20000000-0000-0000-0000-000000000003', 'Farba', 'Usługi związane z farbowaniem włosów');
+
+-- Dane testowe dla tabeli services
+INSERT INTO services (id, category_id, name, description, duration, price, active) VALUES
+('30000000-0000-0000-0000-000000000001', '20000000-0000-0000-0000-000000000001', 'Fryzura damowa klasyczna', 'Klasyczna fryzura damowa z woskiem lub farbą', 45, 80.00, 1),
+('30000000-0000-0000-0000-000000000002', '20000000-0000-0000-0000-000000000001', 'Fryzura mężczyzn', 'Prosta fryzura mężczyzn', 30, 50.00, 1),
+('30000000-0000-0000-0000-000000000003', '20000000-0000-0000-0000-000000000001', 'Fryzura z wędką', 'Zaawansowana fryzura z wędką', 60, 120.00, 1),
+('30000000-0000-0000-0000-000000000004', '20000000-0000-0000-0000-000000000002', 'Maska nawilżająca', 'Intensywna masa nawilżająca', 30, 45.00, 1),
+('30000000-0000-0000-0000-000000000005', '20000000-0000-0000-0000-000000000003', 'Farba na włosy', 'Farba profesjonalna na włosy', 90, 150.00, 1);
+
+-- Dane testowe dla tabeli employees
+INSERT INTO employees (id, user_id, description, active) VALUES
+('40000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000003', 'Doświadczony fryzjer specializee w obszarze stylizacji', 1),
+('40000000-0000-0000-0000-000000000002', '10000000-0000-0000-0000-000000000004', 'Specjalistka od pielęgnacji wizualnej', 1);
+
+-- Dane testowe dla tabeli employee_services
+INSERT INTO employee_services (employee_id, service_id) VALUES
+('40000000-0000-0000-0000-000000000001', '30000000-0000-0000-0000-000000000001'),
+('40000000-0000-0000-0000-000000000001', '30000000-0000-0000-0000-000000000002'),
+('40000000-0000-0000-0000-000000000001', '30000000-0000-0000-0000-000000000003'),
+('40000000-0000-0000-0000-000000000002', '30000000-0000-0000-0000-000000000004'),
+('40000000-0000-0000-0000-000000000002', '30000000-0000-0000-0000-000000000005');
+
+-- Dane testowe dla tabeli employee_availability
+INSERT INTO employee_availability (id, employee_id, day_of_week, start_time, end_time) VALUES
+('50000000-0000-0000-0000-000000000001', '40000000-0000-0000-0000-000000000001', 1, '09:00:00', '17:00:00'),
+('50000000-0000-0000-0000-000000000002', '40000000-0000-0000-0000-000000000001', 2, '09:00:00', '17:00:00'),
+('50000000-0000-0000-0000-000000000003', '40000000-0000-0000-0000-000000000001', 3, '09:00:00', '17:00:00'),
+('50000000-0000-0000-0000-000000000004', '40000000-0000-0000-0000-000000000002', 1, '10:00:00', '18:00:00'),
+('50000000-0000-0000-0000-000000000005', '40000000-0000-0000-0000-000000000002', 2, '10:00:00', '18:00:00');
+
+-- Dane testowe dla tabeli reservations
+INSERT INTO reservations (id, user_id, employee_id, service_id, reservation_date, start_time, end_time, status, comment, created_at) VALUES
+('60000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000001', '40000000-0000-0000-0000-000000000001', '30000000-0000-0000-0000-000000000001', '2026-10-15', '10:00:00', '10:45:00', 'confirmed', 'Proszę o wygodny termin', NOW()),
+('60000000-0000-0000-0000-000000000002', '10000000-0000-0000-0000-000000000002', '40000000-0000-0000-0000-000000000001', '30000000-0000-0000-0000-000000000002', '2026-10-16', '14:00:00', '14:30:00', 'pending', 'Przygotuj lekki stylizator', NOW()),
+('60000000-0000-0000-0000-000000000003', '10000000-0000-0000-0000-000000000001', '40000000-0000-0000-0000-000000000002', '30000000-0000-0000-0000-000000000004', '2026-10-17', '11:00:00', '11:30:00', 'completed', 'Dziękujemy za usługę', NOW()),
+('60000000-0000-0000-0000-000000000004', '10000000-0000-0000-0000-000000000002', '40000000-0000-0000-0000-000000000002', '30000000-0000-0000-0000-000000000005', '2026-10-18', '15:00:00', '16:30:00', 'confirmed', 'Zaplanować farbowanie', NOW()),
+('60000000-0000-0000-0000-000000000005', '10000000-0000-0000-0000-000000000001', '40000000-0000-0000-0000-000000000001', '30000000-0000-0000-0000-000000000003', '2026-10-19', '13:00:00', '14:00:00', 'pending', NULL, NOW());
+
 SET FOREIGN_KEY_CHECKS = 1;
 
