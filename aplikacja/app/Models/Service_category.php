@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Service_category extends Model
 {
-    /** @use HasFactory<\Database\Factories\ServiceCategorysFactory> */
+    /** @use HasFactory<\Database\Factories\ServiceCategoryFactory> */
     use HasFactory;
 
     protected $fillable = [

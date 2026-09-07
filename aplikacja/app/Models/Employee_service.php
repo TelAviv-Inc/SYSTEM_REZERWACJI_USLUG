@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Models\App\Models\Services;
 use Illuminate\Database\Eloquent\Model;
 
 class Employee_service extends Model
