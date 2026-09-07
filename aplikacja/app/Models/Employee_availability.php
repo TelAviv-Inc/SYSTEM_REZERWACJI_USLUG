@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Employee_availability extends Model
+class EmployeeAvailability extends Model
 {
     /** @use HasFactory<\Database\Factories\EmployeeAvailabilityFactory> */
     use HasFactory;

@@ -2,11 +2,11 @@
 
 namespace Database\Factories;
 
-use App\Models\Employee_availability;
+use App\Models\EmployeeAvailability;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<Employee_availability>
+ * @extends Factory<EmployeeAvailability>
  */
 class EmployeeAvailabilityFactory extends Factory
 {

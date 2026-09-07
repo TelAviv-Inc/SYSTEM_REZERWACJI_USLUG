@@ -2,13 +2,13 @@
 
 namespace Database\Factories;
 
-use App\Models\Service_categories;
+use App\Models\ServiceCategory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends Factory<Service_categories>
+ * @extends Factory<ServiceCategory>
  */
-class ServiceCategoriesFactory extends Factory
+class ServiceCategoryFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -17,8 +17,12 @@ class ServiceCategoriesFactory extends Factory
      */
     public function definition(): array
     {
+        $kategorie = ['Koloryzacja', 'Ciecie', 'Zabiegi', 'Pielegnacja'];
         return [
-            //
+            'uuid' => fake()->uuid(),
+            'name' => fake()->unique()->randomElement($kategorie),
+            'description' => fake()->text(255)
+            
         ];
     }
 }
