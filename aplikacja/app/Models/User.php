@@ -81,4 +81,20 @@ class User extends Authenticatable
     {
         return $this->uuid;
     }
+    
+    /**
+     * Get the primary key for the model.
+     */
+    public function getKeyName()
+    {
+        return 'uuid';
+    }
+
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName()
+    {
+        return 'uuid';
+    }
 }
