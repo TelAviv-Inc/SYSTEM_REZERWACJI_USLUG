@@ -23,7 +23,8 @@ Ta aplikacja jest obecnie w fazie aktywnego rozwoju z zaimplementowanymi następ
 - Podstawowe modele i fabryki
 - Struktura testów (testy jednostkowe i funkcyjne)
 - Szkiełko uwierzytelniania
-- możliwośc przetwarzania zadań w tle
+- Możliwość przetwarzania zadań w tle
+- Rejestracja i logowanie użytkowników
 
 ## Wykorzystane technologie
 
@@ -59,6 +60,7 @@ Ta aplikacja jest obecnie w fazie aktywnego rozwoju z zaimplementowanymi następ
 - Szkiełko uwierzytelniania
 - Konfiguracja frameworka testów
 - Pliki konfiguracyjne
+- Funkcjonalność rejestracji i logowania użytkowników
 
 ### W toku
 - Implementacja interfejsu frontendowego
