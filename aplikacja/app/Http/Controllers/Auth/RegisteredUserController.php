@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\RegisterRequest;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
@@ -28,22 +29,8 @@ class RegisteredUserController extends Controller
      *
      * @throws ValidationException
      */
-    public function store(Request $request): RedirectResponse
+    public function store(RegisterRequest $request): RedirectResponse
     {
-        
-        $rules = [
-            'name' => ['required', 'string', 'max:255'],
-            'surname' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'phone' => ['required', 'string', 'max:10'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()]
-        ];
-
-        if ($request->has('role'))
-        {
-            $rules['role'] = ['required', 'string', 'in:client,employee,admin'];
-        }
-        $request->validate($rules);
         $userData = [
             'name' => $request->name,
             'surname' => $request->surname,
@@ -51,6 +38,7 @@ class RegisteredUserController extends Controller
             'phone' => $request->phone,
             'password' => Hash::make($request->password),
         ];
+        
         if ($request->has('role'))
         {
             $userData['role'] = $request->role;
