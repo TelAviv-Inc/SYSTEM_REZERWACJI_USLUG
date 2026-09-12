@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer theme {
+    .bg-primary {
+        background-color: #1e40af;
+    }
+    
+    .bg-secondary {
+        background-color: #3b82f6;
+    }
+    
+    .text-primary {
+        color: #1e40af;
+    }
+    
+    .text-secondary {
+        color: #3b82f6;
+    }
+}
