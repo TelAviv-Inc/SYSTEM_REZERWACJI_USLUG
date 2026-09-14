@@ -9,7 +9,9 @@ class Employee extends Model
 {
     /** @use HasFactory<\Database\Factories\EmployeeFactory> */
     use HasFactory;
-
+    protected $primaryKey = 'uuid';   // if uuid IS your PK column
+    public $incrementing = false;
+    protected $keyType = 'string';
     protected $fillable = [
         'user_id',
         'description',
@@ -37,6 +39,6 @@ class Employee extends Model
      */
     public function availability()
     {
-        return $this->hasMany(Employee_availability::class, 'employee_id');
+        return $this->hasMany(EmployeeAvailability::class, 'employee_id');
     }
 }

@@ -9,7 +9,9 @@ class Service extends Model
 {
     /** @use HasFactory<\Database\Factories\ServicesFactory> */
     use HasFactory;
-
+    protected $primaryKey = 'uuid';   // if uuid IS your PK column
+    public $incrementing = false;
+    protected $keyType = 'string';
     protected $fillable = [
         'category_id',
         'name',

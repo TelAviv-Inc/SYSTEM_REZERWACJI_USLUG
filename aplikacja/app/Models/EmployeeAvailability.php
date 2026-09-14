@@ -11,7 +11,9 @@ class EmployeeAvailability extends Model
     use HasFactory;
 
     protected $table = 'employee_availability';
-
+    protected $primaryKey = 'uuid';   // if uuid IS your PK column
+    public $incrementing = false;
+    protected $keyType = 'string';
     protected $fillable = [
         'employee_id',
         'day_of_week',

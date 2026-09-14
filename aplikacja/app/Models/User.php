@@ -14,6 +14,9 @@ class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
+    protected $primaryKey = 'uuid';   // if uuid IS your PK column
+    public $incrementing = false;
+    protected $keyType = 'string';
 
     /**
      * The attributes that are mass assignable.
@@ -63,11 +66,7 @@ class User extends Authenticatable
         parent::boot();
 
         // Generate UUID when creating a new user
-        static::creating(function ($model) {
-            if (empty($model->uuid)) {
-                $model->uuid = Str::uuid();
-            }
-        });
+
     }
 
     #[Override]
