@@ -18,8 +18,8 @@
 
                 @elseif (auth()->user()->role === 'employee')
                     <a href="{{ route('dashboard') }}"
-                        class="text-xs font-bold text-brand-accent bg-[#eff6ff] uppercase tracking-wider p-2 rounded-lg self-start">Panel
-                        administratora</a>
+                        class="text-xs font-bold text-[#1B4332] bg-[#E8F5E9]/80 uppercase tracking-wider shadow-[#122C21] shadow-md p-2 rounded-lg self-start  transition hover:rotate-3 delay-100 duration-300">Moj
+                        Grafik</a>
                 @endif
                 <a href="{{ route('dashboard') }}"
                     class="text-xs font-bold text-brand-accent bg-[#eff6ff] uppercase tracking-wider  p-2 rounded-lg self-start">Moje
