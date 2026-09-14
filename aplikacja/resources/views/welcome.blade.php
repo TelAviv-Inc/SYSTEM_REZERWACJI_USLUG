@@ -19,7 +19,8 @@
             <!-- Logo + Nazwa -->
             <a href="{{ url('/') }}"
                 class="flex items-center gap-2.5 text-brand-navy font-bold text-base hover:opacity-90 transition-opacity">
-                <div class="w-8 h-8 bg-brand-accent rounded-lg flex items-center justify-center text-white">
+                <div
+                    class="w-8 h-8 bg-gradient-to-r from-primary to-secondary rounded-lg flex items-center justify-center text-white">
                     <i class="fa-regular fa-user"></i>
                 </div>
                 <span>System Rezerwacji Usług</span>
@@ -71,7 +72,8 @@
 
             <!-- Klient -->
             <div class="p-6 flex flex-col">
-                <span class="text-xs font-bold text-brand-accent uppercase tracking-wider mb-2">
+                <span
+                    class="text-xs font-bold text-brand-accent bg-[#eff6ff] uppercase tracking-wider mb-2 py-1.5 px-2 rounded-lg self-start">
                     Klient
                 </span>
                 <h3 class="text-base font-bold text-brand-navy mb-2">
@@ -84,7 +86,8 @@
 
             <!-- Pracownik -->
             <div class="p-6 flex flex-col">
-                <span class="text-xs font-bold text-brand-accent uppercase tracking-wider mb-2">
+                <span
+                    class="text-xs font-bold text-brand-accent bg-[#eff6ff] uppercase tracking-wider mb-2 py-1.5 px-2 rounded-lg self-start">
                     Pracownik
                 </span>
                 <h3 class="text-base font-bold text-brand-navy mb-2">
@@ -97,7 +100,8 @@
 
             <!-- Administrator -->
             <div class="p-6 flex flex-col">
-                <span class="text-xs font-bold text-brand-accent uppercase tracking-wider mb-2">
+                <span
+                    class="text-xs font-bold text-brand-accent bg-[#eff6ff] uppercase tracking-wider mb-2 py-1.5 px-2 rounded-lg self-start">
                     Administrator
                 </span>
                 <h3 class="text-base font-bold text-brand-navy mb-2">
