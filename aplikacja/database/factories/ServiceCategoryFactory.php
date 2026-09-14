@@ -28,10 +28,10 @@ class ServiceCategoryFactory extends Factory
         ];
 
         $ikony = [
-            'fa-regular fa-palette',
-            'fa-regular fa-scissors',
-            'fa-regular fa-spa',
-            'fa-regular fa-pump-medical'
+            'fa-solid fa-palette',
+            'fa-solid fa-scissors',
+            'fa-solid fa-spa',
+            'fa-solid fa-pump-medical'
         ];
 
         $index = static::$index % count($kategorie);
