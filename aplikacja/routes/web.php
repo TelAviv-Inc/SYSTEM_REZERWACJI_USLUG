@@ -3,6 +3,7 @@
 use App\Http\Controllers\PreviewController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TestController;
+use App\Models\ServiceCategory;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -11,6 +12,7 @@ Route::get('/', function () {
 
 
 Route::get('/dashboard', function () {
+    $categories = ServiceCategory::all(['name', 'description']);
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
