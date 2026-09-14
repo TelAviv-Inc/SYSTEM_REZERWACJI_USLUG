@@ -12,8 +12,8 @@ Route::get('/', function () {
 
 
 Route::get('/dashboard', function () {
-    $categories = ServiceCategory::all(['name', 'description']);
-    return view('dashboard');
+    $categories = ServiceCategory::all(['name', 'description', 'icon']);
+    return view('dashboard' , ['categories' => $categories]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/preview-login', [PreviewController::class, 'loginPage'])->name('preview.login');
