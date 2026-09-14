@@ -7,26 +7,12 @@
     <title>Logowanie do Systemu Rezerwacji Usług</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#1e40af',
-                        secondary: '#3b82f6',
-                        accent: '#f59e0b',
-                        dark: '#1f2937',
-                        light: '#f9fafb'
-                    }
-                }
-            }
-        }
-    </script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
 <body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen flex items-center justify-center p-4">
     <div class="bg-white rounded-xl shadow-lg overflow-hidden max-w-md w-full border border-gray-200">
-        <div class="bg-gradient-to-r from-primary to-secondary text-white p-6 text-center border-b border-gray-200">
+        <div class="bg-brand-accent text-white p-6 text-center border-b border-gray-200">
             <h2 class="text-2xl font-bold mb-1"><i class="fas fa-user-lock mr-2"></i>System Rezerwacji Usług</h2>
             <p class="text-blue-100">Zaloguj się do swojego konta</p>
         </div>
@@ -62,7 +48,7 @@
 
                 <div class="mb-6">
                     <button type="submit"
-                        class="w-full bg-gradient-to-r from-primary to-secondary text-white py-3 px-4 rounded-lg font-medium hover:from-primary hover:to-secondary transition duration-300 transform hover:-translate-y-0.5 shadow-md hover:shadow-lg">
+                        class="w-full bg-brand-accent text-white py-3 px-4 rounded-lg font-medium hover:from-primary hover:to-secondary transition duration-300 transform hover:-translate-y-0.5 shadow-md hover:shadow-lg">
                         Zaloguj się
                     </button>
                 </div>
