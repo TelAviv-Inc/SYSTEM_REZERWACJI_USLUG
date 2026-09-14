@@ -15,6 +15,7 @@ return new class extends Migration
             $table->uuid()->primary();
             $table->string('name', 64)->unique();
             $table->string('description', 255);
+            $table->string('icon', 255);
             $table->timestamps();
         });
     }
