@@ -37,7 +37,7 @@
             </div>
 
             <!-- Additional info -->
-            <div class="mt-12 p-6 bg-white rounded-xl shadow-md border border-gray-200">
+            <div class="mt-12 p-6 bg-white rounded-md shadow-md border border-gray-200">
                 <h2 class="text-xl font-bold text-gray-900 mb-4">Jak wybrać usługę?</h2>
                 <ul class="space-y-2 text-gray-600">
                     <li class="flex items-start">

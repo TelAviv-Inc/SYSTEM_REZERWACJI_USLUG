@@ -2,7 +2,7 @@
 
 <!-- resources/views/components/service-category-card.blade.php -->
 <div
-    class="flex flex-col h-full bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
+    class="flex flex-col h-full bg-white rounded-md overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300">
     <div class="rounded-sm flex items-center justify-center bg-brand-accent  text-white text-5xl py-3">
         <i class="{{$icon}}"></i>
 
