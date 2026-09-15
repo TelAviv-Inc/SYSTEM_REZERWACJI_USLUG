@@ -14,7 +14,8 @@
     <header class="border-b border-gray-200 bg-white">
         <x-navigation />
     </header>
-
+    <main>{{-- Tu rob kalej --}}</main>
+    <x-footer></x-footer>
 </body>
 
 </html>
