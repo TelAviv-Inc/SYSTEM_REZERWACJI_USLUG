@@ -12,16 +12,16 @@
             </div>
             <div class="flex gap-2.5">
                 @if (auth()->user()->role === 'admin')
-                    <a href="{{ route('dashboard') }}"
+                    <a href="{{ route('dashboard.index') }}"
                         class="text-xs font-bold text-[#A07820] bg-[#F7F1E3] uppercase tracking-wider shadow-[#D4AF37] shadow-md p-2 rounded-lg self-start hover:shadow-lg hover:shadow-[#D4AF37]  transition hover:-rotate-3 delay-100 duration-300">Panel
                         administratora</a>
 
                 @elseif (auth()->user()->role === 'employee')
-                    <a href="{{ route('dashboard') }}"
+                    <a href="{{ route('dashboard.index') }}"
                         class="text-xs font-bold text-[#1B4332] bg-[#E8F5E9]/80 uppercase tracking-wider shadow-[#122C21] shadow-md p-2 rounded-lg self-start  transition hover:rotate-3 delay-100 duration-300">Moj
                         Grafik</a>
                 @endif
-                <a href="{{ route('dashboard') }}"
+                <a href="{{ route('dashboard.index') }}"
                     class="text-xs font-bold text-brand-accent bg-[#eff6ff] uppercase tracking-wider  p-2 rounded-lg self-start">Moje
                     rezerwacje</a>
             </div>

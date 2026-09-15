@@ -15,6 +15,7 @@ return new class extends Migration
             $table->uuid()->primary();
             $table->uuid("category_id")->nullable();
             $table->string('name', 128);
+            $table->string('slug')->unique();
             $table->string('description', 400);
             $table->smallInteger('duration', false)->default(0);
             $table->decimal('price', 10, 2)->default(0);
