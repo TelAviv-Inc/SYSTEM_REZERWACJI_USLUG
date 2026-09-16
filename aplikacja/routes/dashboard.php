@@ -10,9 +10,7 @@ Route::middleware(['auth', 'verified'])
 
     Route::get('/', [DashboardController::class, 'index'])->name('index');
 
-    Route::prefix('categories')->name('categories.')->group(function (){
-        Route::get('/{category}', [DashboardController::class, 'show'])->name('show');
-    });
+
 });
 
 

@@ -11,6 +11,8 @@
     <p class="text-gray-600 text-sm text-center px-8 pb-4">{{ $description }}</p>
     <div
         class="mt-auto w-full flex justify-center items-center text-brand-accent bg-[#eff6ff] uppercase tracking-wider py-3 px-4">
-        <a href="{{ route('dashboard.categories.show', $name) }}" class="text-md font-bold">Zobacz Uslugi</a>
+        <a href="#" wire:click="$dispatch('categorySelected', { categoryName: '{{ $name }}' })"
+            class="text-md font-bold">Zobacz
+            Uslugi</a>
     </div>
 </div>

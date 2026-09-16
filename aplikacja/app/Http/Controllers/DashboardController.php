@@ -10,12 +10,9 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $categories = ServiceCategory::all(['name', 'description', 'icon']);
-        return view('dashboard.dashboard', ["categories" => $categories]);
+        
+        return view('dashboard.dashboard');
     }
 
-    public function show(ServiceCategory $category)
-    {       
-        return view('dashboard.categories.category-view', ['services' => $category->services]);
-    }
+
 }
