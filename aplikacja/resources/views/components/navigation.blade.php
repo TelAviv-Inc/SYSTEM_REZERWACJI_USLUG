@@ -31,14 +31,15 @@
 
         <div class="flex items-center gap-2.5">
             <!-- User Dropdown -->
-            <div class="relative group">
-                <button class="flex items-center gap-2 text-gray-700 font-medium cursor-pointer">
+            <div class="relative group" x-data="{dropdownOpen: false}">
+                <button class="flex items-center gap-2 text-gray-700 font-medium cursor-pointer"
+                    @click="dropdownOpen = !dropdownOpen">
                     <i class="fas fa-user-circle text-xl"></i>
                     <span>{{ auth()->user()->name }} {{ auth()->user()->surname }}</span>
                     <i class="fas fa-chevron-down ml-1"></i>
                 </button>
-                <div
-                    class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 hidden group-hover:block z-10 border border-gray-200">
+                <div x-show="dropdownOpen" x-transition
+                    class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 border border-gray-200">
                     <a href="#" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"><i
                             class="fas fa-user"></i>Profil</a>
                     <form action="{{ route('logout') }}" method="post">
