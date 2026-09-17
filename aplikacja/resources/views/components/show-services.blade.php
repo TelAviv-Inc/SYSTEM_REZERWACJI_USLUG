@@ -1,4 +1,4 @@
-@props(['categories' => []])
+@props(['categories' => [], 'services' => []])
 <div class="mt-4">
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
         <!-- Service Category Cards -->
@@ -10,7 +10,7 @@
     
     @if (!empty($selectedCategory))
         <div class="mt-8">
-            <x-category-service :name="$selectedCategory" />
+                <x-category-service :name="$selectedCategory" :services="$services" />
         </div>
     @endif
 </div>
