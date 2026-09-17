@@ -15,7 +15,6 @@ new class extends Component {
         $categoryUUID = ServiceCategory::where('name', $this->selectedCategory)->value('uuid');
         $this->services = Service::where('category_id', $categoryUUID)->get();
     }
-
     public function render()
     {
         $categories = ServiceCategory::all(['name', 'description', 'icon']);

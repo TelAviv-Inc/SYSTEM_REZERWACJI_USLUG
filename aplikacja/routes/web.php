@@ -8,15 +8,9 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
-});
+})->middleware('guest')->name('home');
 
 
-Route::get('/dashboard', function () {
-    $categories = ServiceCategory::all(['name', 'description', 'icon']);
-    return view('dashboard.dashboard' , ['categories' => $categories]);
-})->middleware(['auth', 'verified'])->name('dashboard');
-
-Route::get('/preview-login', [PreviewController::class, 'loginPage'])->name('preview.login');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

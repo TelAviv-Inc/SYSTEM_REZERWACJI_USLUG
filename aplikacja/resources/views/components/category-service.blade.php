@@ -16,7 +16,7 @@
                     <p class="text-base font-bold text-brand-navy mt-2">{{ $service->price }} PLN</p>
                     <p class="text-sm font-semibold text-brand-muted mt-2">{{ $service->duration }} min</p>
                 </div>
-                <button
+                <button wire:click="$dispatch('serviceChosen', {serviceID: '{{ $service->uuid }}'})"
                     class="bg-brand-accent text-white text-sm font-semibold rounded-md px-3 py-1.5 hover:shadow-lg hover:scale-105 transition duration-300">Rezerwuj</button>
 
             </div>

@@ -1,15 +1,19 @@
 <nav class="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto">
     @auth
         <div class="flex justify-between gap-10">
-            <div class="flex items-center gap-2.5 font-bold text-lg">
-                <span class="w-8 h-8 rounded-lg flex items-center justify-center bg-brand-accent">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                        <path d="M12 12a4 4 0 100-8 4 4 0 000 8zM4 20c0-3.3 3.6-6 8-6s8 2.7 8 6" stroke="#fff"
-                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                </span>
-                <p>System Rezerwacji Usług</p>
-            </div>
+            <a href="{{ route('dashboard.index') }}">
+                <div class="flex items-center gap-2.5 font-bold text-lg">
+                    <span
+                        class="w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-r from-primary to-secondary">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <path d="M12 12a4 4 0 100-8 4 4 0 000 8zM4 20c0-3.3 3.6-6 8-6s8 2.7 8 6" stroke="#fff"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </span>
+                    <p>System Rezerwacji Usług</p>
+                </div>
+            </a>
+
             <div class="flex gap-2.5">
                 @if (auth()->user()->role === 'admin')
                     <a href="{{ route('dashboard.index') }}"

@@ -29,6 +29,7 @@
 
 
             @livewire('show-services')
+            @livewire('reserve-service')
 
 
             <!-- Additional info -->
