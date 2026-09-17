@@ -4,15 +4,19 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Service extends Model
 {
     /** @use HasFactory<\Database\Factories\ServicesFactory> */
     use HasFactory;
-
+    protected $primaryKey = 'uuid';   // if uuid IS your PK column
+    public $incrementing = false;
+    protected $keyType = 'string';
     protected $fillable = [
         'category_id',
         'name',
+        'slug',
         'description',
         'duration',
         'price',
@@ -41,5 +45,17 @@ class Service extends Model
     public function reservations()
     {
         return $this->hasMany(Reservation::class, 'service_id');
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($service){
+            $service->slug = Str::slug($service->name);
+        });
+    }
+    public function getRouteKeyName()
+    {
+        return 'slug';
     }
 }

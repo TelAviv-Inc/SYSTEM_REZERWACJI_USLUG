@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -13,7 +14,10 @@ use Override;
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasUuids; //HasUuids - auto generowien uuid przy tworzeniu
+    protected $primaryKey = 'uuid';   // if uuid IS your PK column
+    public $incrementing = false;
+    protected $keyType = 'string';
 
     /**
      * The attributes that are mass assignable.
@@ -63,38 +67,8 @@ class User extends Authenticatable
         parent::boot();
 
         // Generate UUID when creating a new user
-        static::creating(function ($model) {
-            if (empty($model->uuid)) {
-                $model->uuid = Str::uuid();
-            }
-        });
+        
+
     }
 
-    #[Override]
-    public function getAuthIdentifierName()
-    {
-        return 'uuid';
-    }
-
-    #[Override]
-    public function getAuthIdentifier()
-    {
-        return $this->uuid;
-    }
-    
-    /**
-     * Get the primary key for the model.
-     */
-    public function getKeyName()
-    {
-        return 'uuid';
-    }
-
-    /**
-     * Get the route key for the model.
-     */
-    public function getRouteKeyName()
-    {
-        return 'uuid';
-    }
 }

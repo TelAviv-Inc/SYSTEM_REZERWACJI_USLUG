@@ -25,6 +25,8 @@ Ta aplikacja jest obecnie w fazie aktywnego rozwoju z zaimplementowanymi następ
 - Szkiełko uwierzytelniania
 - Możliwość przetwarzania zadań w tle
 - Rejestracja i logowanie użytkowników
+- Wdrożenie UUID jako podstawowego klucza dla modeli
+- Interfejs użytkownika z kategoriami usług i panelami administratora/empoyee
 
 ## Wykorzystane technologie
 
@@ -67,6 +69,7 @@ Ta aplikacja jest obecnie w fazie aktywnego rozwoju z zaimplementowanymi następ
 - Funkcjonalność rezerwacji
 - Funkcje zarządzania użytkownikami
 - Panel administratora
+- Obsługa zapisów do bazy danych dla pracowników i ich dostępności
 
 ## Licencja
 

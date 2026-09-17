@@ -1,7 +1,7 @@
 @extends('layouts.guest')
 
 @section('content')
-    <div class="bg-gradient-to-r from-[#1e40af] to-[#3b82f6] text-white p-6 text-center border-b border-gray-200">
+    <div class="bg-brand-accent text-white p-6 text-center border-b border-gray-200">
         <h2 class="text-2xl font-bold mb-1"><i class="fas fa-user-lock mr-2"></i>{{__('System Rezerwacji Usług')}}</h2>
         <p class="text-blue-100">{{ __('Zarejestruj się w systemie') }}</p>
     </div>
@@ -80,7 +80,7 @@
                 </a>
 
                 <button type="submit"
-                    class="ml-4 bg-gradient-to-r from-primary to-secondary text-white py-3 px-4 rounded-lg font-medium hover:from-primary hover:to-secondary transition duration-300 transform hover:-translate-y-0.5 shadow-md hover:shadow-lg">
+                    class="ml-4 bg-brand-accent text-white py-3 px-4 rounded-lg font-medium hover:from-primary hover:to-secondary transition duration-300 transform hover:-translate-y-0.5 shadow-md hover:shadow-lg">
                     {{ __('Zarejestruj się') }}
                 </button>
             </div>

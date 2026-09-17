@@ -3,6 +3,7 @@
 use App\Http\Controllers\PreviewController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TestController;
+use App\Models\ServiceCategory;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -11,7 +12,8 @@ Route::get('/', function () {
 
 
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    $categories = ServiceCategory::all(['name', 'description', 'icon']);
+    return view('dashboard.dashboard' , ['categories' => $categories]);
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/preview-login', [PreviewController::class, 'loginPage'])->name('preview.login');
@@ -23,3 +25,4 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+require __DIR__.'/dashboard.php';

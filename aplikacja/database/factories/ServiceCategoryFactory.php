@@ -15,13 +15,32 @@ class ServiceCategoryFactory extends Factory
      *
      * @return array<string, mixed>
      */
+    protected static int $index = 0;
     public function definition(): array
     {
+        
         $kategorie = ['Koloryzacja', 'Ciecie', 'Zabiegi', 'Pielegnacja'];
+        $opisy = [
+            'Farbowanie, balayage, refleksy i inne techniki zmiany koloru włosów.',
+            'Strzyżenie damskie, męskie i dziecięce dopasowane do kształtu twarzy.',
+            'Regeneracja, botoks do włosów i inne zabiegi specjalistyczne.',
+            'Stylizacja, maski i produkty do codziennej pielęgnacji włosów.',
+        ];
+
+        $ikony = [
+            'fa-solid fa-palette',
+            'fa-solid fa-scissors',
+            'fa-solid fa-spa',
+            'fa-solid fa-pump-medical'
+        ];
+
+        $index = static::$index % count($kategorie);
+        static::$index++;
         return [
             'uuid' => fake()->uuid(),
-            'name' => fake()->unique()->randomElement($kategorie),
-            'description' => fake()->text(255)
+            'name' => $kategorie[$index],
+            'description' => $opisy[$index],
+            'icon' => $ikony[$index]
             
         ];
     }
