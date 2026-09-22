@@ -26,7 +26,7 @@
 
                     <div class="grid grid-cols-1 gap-2 max-h-60 overflow-y-auto pr-1">
                         @forelse($employees as $employee)
-                            <label
+                            <label wire:click="selectEmployee('{{ $employee->uuid }}')"
                                 class="flex items-center justify-between p-3 rounded-lg border border-brand-border hover:border-brand-accent cursor-pointer transition-all hover:bg-slate-50">
                                 <div class="flex items-center gap-3">
                                     <div
@@ -42,8 +42,34 @@
                             <p class="text-sm text-gray-500 italic">Brak dostępnych pracowników.</p>
                         @endforelse
                     </div>
+                    @if (!empty($selectedEmployee))
+                        <div class="space-y-2" wire:ignore>
+                            <p class="text-sm font-semibold text-brand-muted">Wybierz datę:</p>
+                            <input type="text" id="reservation-date-picker" readonly placeholder="Kliknij, aby wybrać dzień"
+                                class="w-full rounded-lg border border-brand-border p-2 text-sm cursor-pointer">
+                        </div>
+                    @endif
+
                 </div>
             </div>
         </div>
+        <script>
+            document.addEventListener('livewire:initialized', () => {
+                let picker = null;
+
+                Livewire.on('employee-selected', ({ days }) => {
+                    if (picker) picker.destroy();
+
+                    picker = flatpickr('#reservation-date-picker', {
+                        minDate: 'today',
+                        dateFormat: 'Y-m-d',
+                        disable: [date => !days.includes(date.getDay())],
+                        onChange: (selectedDates, dateStr) => {
+                            @this.set('selectedDate', dateStr);
+                        }
+                    });
+                });
+            });
+        </script>
     @endif
 </div>

@@ -4,8 +4,8 @@ use App\Models\Service;
 use Livewire\Component;
 use App\Models\ServiceCategory;
 new class extends Component {
-    public $selectedCategory = '';
-    public $services = [];
+    public ?ServiceCategory $selectedCategory = null;
+    public $services = null;
 
     protected $listeners = ['categorySelected'];
 

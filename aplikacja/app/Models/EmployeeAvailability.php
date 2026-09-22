@@ -10,7 +10,7 @@ class EmployeeAvailability extends Model
     /** @use HasFactory<\Database\Factories\EmployeeAvailabilityFactory> */
     use HasFactory;
 
-    protected $table = 'employee_availability';
+    protected $table = 'employee_availabilities';
     protected $primaryKey = 'uuid';   // if uuid IS your PK column
     public $incrementing = false;
     protected $keyType = 'string';
