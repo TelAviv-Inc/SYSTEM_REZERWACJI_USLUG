@@ -9,7 +9,7 @@ new class extends Component {
     public ?Employee $selectedEmployee = null;
     public ?string $selectedDate = null;
 
-    protected $listeners = ['serviceChosen'];
+    protected $listeners = ['serviceChosen', 'daySelected' => setDay];
 
     public function serviceChosen($serviceID)
     {
@@ -30,6 +30,12 @@ new class extends Component {
                 ->all()
         );
     }
+
+    public function setDay($date)
+    {
+        $this->selectedDate = $date;
+    }
+
     public function close()
     {
         $this->reset();

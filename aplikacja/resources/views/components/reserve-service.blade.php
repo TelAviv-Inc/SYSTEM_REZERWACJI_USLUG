@@ -43,33 +43,11 @@
                         @endforelse
                     </div>
                     @if (!empty($selectedEmployee))
-                        <div class="space-y-2" wire:ignore>
-                            <p class="text-sm font-semibold text-brand-muted">Wybierz datę:</p>
-                            <input type="text" id="reservation-date-picker" readonly placeholder="Kliknij, aby wybrać dzień"
-                                class="w-full rounded-lg border border-brand-border p-2 text-sm cursor-pointer">
-                        </div>
+                        <livewire:employee-week-calendar :key="$selectedEmployee->uuid" />
                     @endif
 
                 </div>
             </div>
         </div>
-        <script>
-            document.addEventListener('livewire:initialized', () => {
-                let picker = null;
-
-                Livewire.on('employee-selected', ({ days }) => {
-                    if (picker) picker.destroy();
-
-                    picker = flatpickr('#reservation-date-picker', {
-                        minDate: 'today',
-                        dateFormat: 'Y-m-d',
-                        disable: [date => !days.includes(date.getDay())],
-                        onChange: (selectedDates, dateStr) => {
-                            @this.set('selectedDate', dateStr);
-                        }
-                    });
-                });
-            });
-        </script>
     @endif
 </div>

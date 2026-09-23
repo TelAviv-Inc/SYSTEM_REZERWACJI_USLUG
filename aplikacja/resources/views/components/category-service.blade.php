@@ -1,8 +1,8 @@
-@props(['name' => "Bez nazwy", 'services' => []])
+@props(['category' => [], 'services' => []])
 <div class="bg-white rounded-xl border border-brand-border p-6 shadow-sm mt-12">
 
     <h3 class="text-base font-bold text-brand-navy border-b border-brand-border pb-3">
-        Usługi w kategorii: <span class="text-brand-accent">{{ $name }}</span>
+        Usługi w kategorii: <span class="text-brand-accent">{{ $category->name }}</span>
     </h3>
     @foreach ($services as $service)
         <div class="flex flex-row justify-between items-center border-b border-brand-border mt-4">
