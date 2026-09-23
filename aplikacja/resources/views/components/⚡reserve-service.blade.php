@@ -7,9 +7,10 @@ new class extends Component {
     public $employees = [];
     public ?Service $selectedService = null;
     public ?Employee $selectedEmployee = null;
-    public ?string $selectedDate = null;
+    public ?string $selectedDay = null;
+    public bool $showHourCalendar = false;
 
-    protected $listeners = ['serviceChosen', 'daySelected' => setDay];
+    protected $listeners = ['serviceChosen', 'daySelected' => 'setDate'];
 
     public function serviceChosen($serviceID)
     {
@@ -19,6 +20,7 @@ new class extends Component {
 
     public function selectEmployee($employeeUuid)
     {
+        $this->reset('selectedDay');
         $this->selectedEmployee = $this->employees->firstWhere('uuid', $employeeUuid);
         $this->dispatch(
             'employee-selected',
@@ -31,9 +33,22 @@ new class extends Component {
         );
     }
 
-    public function setDay($date)
+    public function setDate($date)
     {
-        $this->selectedDate = $date;
+        $this->selectedDay = $date;
+        $this->showHourCalendar = true;
+        $this->dispatch(
+            'employee-work-time-data',
+            working_hours: $this->selectedEmployee
+                ->availability
+                ->map(fn($a) => [
+                    'start_time' => $a->start_time,
+                    'end_time' => $a->end_time,
+                ])
+                ->unique()
+                ->values()
+                ->all()
+        );
     }
 
     public function close()
@@ -43,11 +58,15 @@ new class extends Component {
 
     public function render()
     {
-        return view('components.reserve-service', ['selectedService' => $this->selectedService, 'employees' => $this->employees, 'selectedEmployee' => $this->selectedEmployee]);
+        return view('components.reserve-service', ['selectedService' => $this->selectedService, 'employees' => $this->employees, 'selectedEmployee' => $this->selectedEmployee, 'selectedDay' => $this->selectedDay]);
     }
 };
 ?>
 
 <div>
     {{-- Life is available only in the present moment. - Thich Nhat Hanh --}}
+
+    @if($showHourCalendar && $selectedDay)
+        @livewire('employee-hour-calendar', ['selectedDay' => $selectedDay])
+    @endif
 </div>

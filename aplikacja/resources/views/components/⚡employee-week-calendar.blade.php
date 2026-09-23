@@ -50,7 +50,6 @@ new class extends Component {
             'weekOffset' => $this->weekOffset,
         ]);
     }
-
 };
 ?>
 
