@@ -21,9 +21,10 @@
     <div class="grid grid-cols-7 gap-2">
         @foreach ($days as $day)
             @php $disabled = !$day['isWorking'] || $day['isPast']; @endphp
-            <button wire:click="selectDay('{{ $day['date']->toDateString() }}')" @disabled($disabled)
+            <button wire:key="day-{{ $day['date']->toDateString() }}"
+                wire:click="selectDay('{{ $day['date']->toDateString() }}')" @disabled($disabled)
                 class="flex flex-col items-center justify-center rounded-md py-3 text-sm font-semibold transition
-                                            {{ $disabled
+                                                {{ $disabled
             ? 'bg-gray-100 text-brand-muted opacity-50 cursor-not-allowed'
             : 'bg-[#eff6ff] text-brand-accent hover:bg-brand-accent hover:text-black cursor-pointer transition duration-500' }}">
                 <span>{{ $day['date']->translatedFormat('D') }}</span>

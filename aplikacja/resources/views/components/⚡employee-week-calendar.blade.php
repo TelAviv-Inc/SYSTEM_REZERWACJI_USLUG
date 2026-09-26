@@ -2,23 +2,30 @@
 
 use Livewire\Component;
 use Carbon\Carbon;
+use Livewire\Attributes\On;
 new class extends Component {
     public array $workingDays = [];
     public int $weekOffset = 0;
 
     protected $listeners = ['employee-selected' => 'setAvailability'];
 
+    #[On('employee-selected')]
     public function setAvailability($days)
     {
-        $count = (int) ($days[0] ?? 0);
-        $this->workingDays = $count > 0 ? range(1, $count) : [];
+
+        foreach ($days as $day) {
+            $this->workingDays[] = $day;
+        }
+
 
         $this->weekOffset = 0;
     }
 
     public function previousWeek()
     {
-        $this->weekOffset--;
+        if ($this->weekOffset > 0) {
+            $this->weekOffset--;
+        }
     }
 
     public function nextWeek()

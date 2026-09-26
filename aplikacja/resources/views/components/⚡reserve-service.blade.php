@@ -2,6 +2,7 @@
 
 use Livewire\Component;
 use App\Models\Service;
+use Livewire\Attributes\On;
 use App\Models\Employee;
 new class extends Component {
     public $employees = [];
@@ -10,8 +11,7 @@ new class extends Component {
     public ?string $selectedDay = null;
     public bool $showHourCalendar = false;
 
-    protected $listeners = ['serviceChosen', 'daySelected' => 'setDate'];
-
+    #[On('serviceChosen')]
     public function serviceChosen($serviceID)
     {
         $this->selectedService = Service::with('employees.availability')->find($serviceID);
@@ -32,7 +32,7 @@ new class extends Component {
                 ->all()
         );
     }
-
+    #[On('daySelected')]
     public function setDate($date)
     {
         $this->selectedDay = $date;

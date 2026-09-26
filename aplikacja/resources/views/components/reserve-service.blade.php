@@ -45,9 +45,8 @@
                     @if (!empty($selectedEmployee))
                         <livewire:employee-week-calendar :key="$selectedEmployee->uuid" />
                     @endif
-                    @if (!empty($selectedDay))
-                        <p>{{$selectedDay}}</p>
-                        <!-- <livewire:employee-hour-calendar :key="$selectedDay" /> -->
+                    @if ($selectedDay && $selectedEmployee)
+                        @livewire('employee-hour-calendar', ['selectedDay' => $selectedDay, 'selectedEmployee' => $selectedEmployee, 'serviceTime' => $selectedService->duration], key($selectedEmployee->uuid . '-' . $selectedDay))
                     @endif
 
                 </div>

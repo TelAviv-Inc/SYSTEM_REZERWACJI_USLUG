@@ -14,7 +14,13 @@
             <div class="flex flex-row gap-2 items-center justify-center">
                 <div class="flex flex-col mr-2">
                     <p class="text-base font-bold text-brand-navy mt-2">{{ $service->price }} PLN</p>
-                    <p class="text-sm font-semibold text-brand-muted mt-2">{{ $service->duration }} min</p>
+                    @if ($service->duration > 60)
+                        <p class="text-sm font-semibold text-brand-muted mt-2">
+                            {{ Carbon\CarbonInterval::minutes($service->duration)->cascade()->forHumans(['short' => true]) }}
+                        </p>
+                    @else
+                        <p class="text-sm font-semibold text-brand-muted mt-2">{{ $service->duration }} min</p>
+                    @endif
                 </div>
                 <button wire:click="$dispatch('serviceChosen', {serviceID: '{{ $service->uuid }}'})"
                     class="bg-brand-accent text-white text-sm font-semibold rounded-md px-3 py-1.5 hover:shadow-lg hover:scale-105 transition duration-300">Rezerwuj</button>

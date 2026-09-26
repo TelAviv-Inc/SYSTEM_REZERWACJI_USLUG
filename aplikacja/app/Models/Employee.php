@@ -43,4 +43,9 @@ class Employee extends Model
             ->orderBy('day_of_week')
             ->orderBy('start_time');
     }
+
+    public function reservation()
+    {
+        return $this->hasMany(Reservation::class, 'employee_id');
+    }
 }
