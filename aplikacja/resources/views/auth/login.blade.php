@@ -12,29 +12,30 @@
 
 <body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen flex items-center justify-center p-4">
     <div class="bg-white rounded-xl shadow-lg overflow-hidden max-w-md w-full border border-gray-200">
-        <div class="bg-brand-accent text-white p-6 text-center border-b border-gray-200">
-            <h2 class="text-2xl font-bold mb-1"><i class="fas fa-user-lock mr-2"></i>System Rezerwacji Usług</h2>
+        <div class="bg-brand-accent text-white px-3 py-4 text-center border-b border-gray-200 sm:p-6">
+            <h2 class="text-xl font-bold mb-1 sm:text-2xl"><i class="fas fa-user-lock mr-2"></i>System Rezerwacji Usług
+            </h2>
             <p class="text-blue-100">Zaloguj się do swojego konta</p>
         </div>
 
-        <div class="p-6">
+        <div class="p-3 sm:p-6">
             <form method="POST" action="{{ route('login') }}">
                 @csrf
 
-                <div class="mb-5">
+                <div class="mb-3 sm:mb-5">
                     <label for="email" class="block text-gray-700 font-medium mb-2">Adres email</label>
                     <input type="email" id="email" name="email" value="{{ old('email') }}" required autocomplete="email"
                         autofocus
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition duration-200">
+                        class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition duration-200 sm:px-4">
                     @error('email')
                         <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                     @enderror
                 </div>
 
-                <div class="mb-5">
+                <div class="mb-3 sm:mb-5">
                     <label for="password" class="block text-gray-700 font-medium mb-2">Hasło</label>
                     <input type="password" id="password" name="password" required autocomplete="current-password"
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition duration-200">
+                        class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition duration-200 sm:px-4">
                     @error('password')
                         <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
                     @enderror

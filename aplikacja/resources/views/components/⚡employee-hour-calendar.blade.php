@@ -24,7 +24,7 @@ new class extends Component {
                 $startTime = Carbon::parse($this->selectedDay)->setTimeFromTimeString($availability->start_time);
                 $endTime = Carbon::parse($this->selectedDay)->setTimeFromTimeString($availability->end_time);
 
-                $period = CarbonPeriod::create($startTime, '100 minutes', $endTime->subMinutes($this->duration));
+                $period = CarbonPeriod::create($startTime, '30 minutes', $endTime->subMinutes(100));
 
                 $booked = $this->selectedEmployee->reservation()->whereDate('reservation_date', $this->selectedDay)
                     ->pluck('start_time')

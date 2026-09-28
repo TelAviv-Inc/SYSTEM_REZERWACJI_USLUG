@@ -14,7 +14,7 @@
 
     <!-- NAGŁÓWEK / NAVBAR -->
     <header class="bg-white border-b border-brand-border w-full">
-        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between sm:px-6">
 
             <!-- Logo + Nazwa -->
             <a href="{{ url('/') }}"
@@ -23,17 +23,17 @@
                     class="w-8 h-8 bg-gradient-to-r from-primary to-secondary rounded-lg flex items-center justify-center text-white">
                     <i class="fa-regular fa-user"></i>
                 </div>
-                <span>System Rezerwacji Usług</span>
+                <span class="hidden sm:block">System Rezerwacji Usług</span>
             </a>
 
             <!-- Przyciski po prawej -->
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-3 sm:gap-2">
                 <a href="{{ route('login') }}"
-                    class="px-4 py-2 text-sm font-semibold text-brand-accent hover:bg-brand-light-bg rounded-md transition-colors">
+                    class="px-4 py-2 text-sm font-semibold text-brand-accent hover:bg-brand-light-bg rounded-md transition-colors ">
                     Zaloguj się
                 </a>
                 <a href="{{ route('register') }}"
-                    class="px-4 py-2 text-sm font-semibold text-white bg-brand-accent hover:bg-brand-hover rounded-md transition-colors shadow-sm">
+                    class="px-4 py-2 text-sm font-semibold text-white bg-brand-accent hover:bg-brand-hover rounded-md transition-colors shadow-sm ">
                     Zarejestruj się
                 </a>
             </div>
