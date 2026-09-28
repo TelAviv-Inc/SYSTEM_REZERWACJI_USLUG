@@ -30,7 +30,8 @@ new class extends Component {
 
     public function nextWeek()
     {
-        $this->weekOffset++;
+        if ($this->weekOffset <= 6)
+            $this->weekOffset++;
     }
 
     public function selectDay($date)

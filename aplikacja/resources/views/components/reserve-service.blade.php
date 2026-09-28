@@ -47,13 +47,18 @@
                             <p class="text-sm text-gray-500 italic sm:col-span-2">Brak dostępnych pracowników.</p>
                         @endforelse
                     </div>
-                    @if (!empty($selectedEmployee))
+                    @if ($selectedEmployee)
                         <livewire:employee-week-calendar :key="$selectedEmployee->uuid" />
                     @endif
-                    @if ($selectedDay && $selectedEmployee)
+                    @if ($selectedEmployee && $selectedDay)
                         @livewire('employee-hour-calendar', ['selectedDay' => $selectedDay, 'selectedEmployee' => $selectedEmployee, 'serviceTime' => $selectedService->duration], key($selectedEmployee->uuid . '-' . $selectedDay))
                     @endif
-
+                    @if ($selectedEmployee && $selectedDay && $selectedHour)
+                        <div class="flex items-end justify-end">
+                            <button
+                                class="px-1 py-2 bg-green-500  rounded-lg text-white font-xl font-semibold tracking-wide md:px-2 md:py-3">Zarezerwuj</button>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

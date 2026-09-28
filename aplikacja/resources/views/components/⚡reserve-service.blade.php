@@ -9,6 +9,7 @@ new class extends Component {
     public ?Service $selectedService = null;
     public ?Employee $selectedEmployee = null;
     public ?string $selectedDay = null;
+    public ?string $selectedHour = null;
     public bool $showHourCalendar = false;
 
     #[On('serviceChosen')]
@@ -20,7 +21,7 @@ new class extends Component {
 
     public function selectEmployee($employeeUuid)
     {
-        $this->reset('selectedDay');
+        $this->reset('selectedDay', 'selectedHour');
         $this->selectedEmployee = $this->employees->firstWhere('uuid', $employeeUuid);
         $this->dispatch(
             'employee-selected',
@@ -36,6 +37,7 @@ new class extends Component {
     public function setDate($date)
     {
         $this->selectedDay = $date;
+        $this->reset('selectedHour');
         $this->showHourCalendar = true;
         $this->dispatch(
             'employee-work-time-data',
@@ -49,6 +51,12 @@ new class extends Component {
                 ->values()
                 ->all()
         );
+    }
+
+    #[On('hourSelected')]
+    public function setHour($time)
+    {
+        $this->selectedHour = $time;
     }
 
     public function close()
