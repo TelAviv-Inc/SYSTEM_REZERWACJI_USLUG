@@ -4,7 +4,7 @@
     <h3 class="text-base font-bold text-brand-navy border-b border-brand-border pb-3">
         Usługi w kategorii: <span class="text-brand-accent">{{ $category->name }}</span>
     </h3>
-    @foreach ($services as $service)
+    @forelse ($services as $service)
         {{-- Stacked on phones (info on top, price + button below); side by side from sm up --}}
         <div
             class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 border-b border-brand-border mt-4 pb-4">
@@ -34,6 +34,11 @@
 
         </div>
 
-    @endforeach
+    @empty
+        <div class="justify-start py-4 ">
+            <h2 class="text-md text-gray-500 italic sm:col-span-2">Brak uslug w tej kategorii</h2>
+        </div>
+    @endforelse
+
     <!-- Breathing in, I calm body and mind. Breathing out, I smile. - Thich Nhat Hanh -->
 </div>

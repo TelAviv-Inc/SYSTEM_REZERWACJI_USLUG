@@ -1,6 +1,6 @@
 <div>
 
-    @if (!empty($selectedService))
+    @if ($selectedService)
 
         {{-- Overlay: bottom sheet on phones, centered modal from sm up. Overlay itself scrolls if content is taller than
         the screen. --}}
@@ -35,10 +35,9 @@
                                 <div class="flex items-center gap-3 min-w-0">
                                     <div
                                         class="w-8 h-8 shrink-0 rounded-full bg-brand-accent/10 text-brand-accent flex items-center justify-center font-bold text-sm">
-                                        {{ substr($employee->user()->value('name') ?? 'P', 0, 1) }}
+                                        {{ substr($employee->user->name ?? 'P', 0, 1) }}
                                     </div>
-                                    <span
-                                        class="text-sm font-bold text-brand-navy truncate">{{ $employee->user()->value('name')}}</span>
+                                    <span class="text-sm font-bold text-brand-navy truncate">{{ $employee->user->name}}</span>
                                 </div>
                                 <input type="radio" name="employee" value="{{ $employee->uuid }}"
                                     class="shrink-0 text-brand-accent focus:ring-brand-accent">
@@ -56,7 +55,7 @@
                     @if ($selectedEmployee && $selectedDay && $selectedHour)
                         <div class="flex items-end justify-end">
                             <button
-                                class="px-1 py-2 bg-green-500  rounded-lg text-white font-xl font-semibold tracking-wide md:px-2 md:py-3">Zarezerwuj</button>
+                                class="px-1 py-2 bg-green-500  rounded-lg text-white font-xlfont-semibold tracking-wide md:px-2 md:py-3">Zarezerwuj</button>
                         </div>
                     @endif
                 </div>
