@@ -9,6 +9,7 @@ Route::middleware(['auth', 'verified'])
 ->group(function () {
 
     Route::get('/', [DashboardController::class, 'index'])->name('index');
+    Route::get('/profile', [DashboardController::class, 'profile'])->name('profile');
 
 
 });
