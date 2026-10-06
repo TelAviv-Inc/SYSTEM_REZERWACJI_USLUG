@@ -25,7 +25,9 @@
                     </div>
                 </div>
 
-                <div class="space-y-4">
+                <form wire:submit="reserve" method="post" class="space-y-4">
+                    @csrf
+
                     <p class="text-sm font-semibold text-brand-muted">Wybierz pracownika:</p>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 sm:max-h-60 overflow-y-auto pr-1">
@@ -46,19 +48,29 @@
                             <p class="text-sm text-gray-500 italic sm:col-span-2">Brak dostępnych pracowników.</p>
                         @endforelse
                     </div>
+
                     @if ($selectedEmployee)
-                        <livewire:employee-week-calendar :key="$selectedEmployee->uuid" />
+                        @can('create', [App\Models\Reservation::class, $selectedEmployee])
+                            <livewire:employee-week-calendar :key="$selectedEmployee->uuid" />
+                            @if ($selectedDay)
+                                @livewire('employee-hour-calendar', ['selectedDay' => $selectedDay, 'selectedEmployee' => $selectedEmployee, 'serviceTime' => $selectedService->duration], key($selectedEmployee->uuid . '-' . $selectedDay))
+                                @if ($selectedHour)
+                                    <div class="flex items-end justify-end">
+                                        <button wire:click="$dispatch('reservationMade')"
+                                            class="px-4 py-3 bg-green-600 hover:bg-green-700 rounded-lg text-white font-semibold tracking-wide shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 hover:-rotate-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">Zarezerwuj</button>
+                                    </div>
+                                @endif
+                            @endif
+                        @else
+                            <div class="justify-start py-4 ">
+                                <h2 class="text-md text-gray-500 italic sm:col-span-2">Nalezy wybrac innego pracownika.</h2>
+                            </div>
+                        @endcan
+
                     @endif
-                    @if ($selectedEmployee && $selectedDay)
-                        @livewire('employee-hour-calendar', ['selectedDay' => $selectedDay, 'selectedEmployee' => $selectedEmployee, 'serviceTime' => $selectedService->duration], key($selectedEmployee->uuid . '-' . $selectedDay))
-                    @endif
-                    @if ($selectedEmployee && $selectedDay && $selectedHour)
-                        <div class="flex items-end justify-end">
-                            <button
-                                class="px-1 py-2 bg-green-500  rounded-lg text-white font-xlfont-semibold tracking-wide md:px-2 md:py-3">Zarezerwuj</button>
-                        </div>
-                    @endif
-                </div>
+
+                </form>
+
             </div>
         </div>
     @endif

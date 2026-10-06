@@ -10,12 +10,12 @@
     @else
         <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
             @foreach($_slots as $slot)
-                <button wire:click="$dispatch('hourSelected', { time: '{{ $slot['time'] }}' })" @disabled(!$slot['isAvailable'])
-                    class="min-h-[44px] py-2 px-2 sm:px-3 rounded-md text-sm font-semibold transition {{
+                <button type="button" wire:click="$dispatch('hourSelected', { time: '{{ $slot['time'] }}' })"
+                    @disabled(!$slot['isAvailable']) class="min-h-[33px] py-0.5 px-1 sm:px-3 sm:min-h-[44px] rounded-md text-sm font-semibold transition {{
                     !$slot['isAvailable']
                     ? 'bg-gray-100 text-gray-400 line-through cursor-not-allowed'
                     : 'bg-[#eff6ff] text-brand-accent hover:bg-brand-accent hover:text-black cursor-pointer'
-                            }}">
+                                                                                                            }}">
                     {{ $slot['time'] }}
                 </button>
             @endforeach

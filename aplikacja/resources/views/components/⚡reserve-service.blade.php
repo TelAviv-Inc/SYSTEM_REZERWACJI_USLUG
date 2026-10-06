@@ -59,6 +59,11 @@ new class extends Component {
         $this->selectedHour = $time;
     }
 
+    public function reserve()
+    {
+
+    }
+
     public function close()
     {
         $this->reset();
