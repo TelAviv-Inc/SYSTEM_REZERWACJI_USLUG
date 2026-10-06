@@ -6,6 +6,7 @@ use App\Models\Employee;
 use App\Models\Service;
 use Livewire\Attributes\Validate;
 use Livewire\Form;
+use Illuminate\Validation\Rule;
 
 class ReservationForm extends Form
 {
@@ -18,7 +19,8 @@ class ReservationForm extends Form
     public function rules(): array 
     {
         return [
-            "employee_id" => ['required', 'exists:employees,uuid'],
+            'service_id' => ['required', 'exists:services,uuid'],
+            "employee_id" => ['required', 'exists:employees,uuid', Rule::exists('employee_services', 'employee_id')->where('service_id', $this->service_id),],
             "date" => ['required', 'date_format:Y-m-d', 'after_or_equal:today']
         ];
     }
