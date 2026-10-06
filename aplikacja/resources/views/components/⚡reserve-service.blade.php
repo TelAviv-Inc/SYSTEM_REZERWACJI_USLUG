@@ -61,7 +61,7 @@ new class extends Component {
 
     public function reserve()
     {
-
+        //Sprawdzanie godziny musi byc w transakcji zeby nie bylo race condition DB::transaction()
     }
 
     public function close()

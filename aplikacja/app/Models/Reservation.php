@@ -111,4 +111,13 @@ class Reservation extends Model
                $this->start_time->format('H:i') . '-' . 
                $this->end_time->format('H:i');
     }
+
+    public function scopeOverlapping($query, string $employeeId, string $date, string $start, string $end)
+    {
+        return $query->where('employee_id', $employeeId)
+            ->whereDate('reservation_date', $date)
+            ->where('status', '!=', 'cancelled')
+            ->where('start_time', '<', $end)
+            ->where('end_time', '>', $start);
+    }
 }

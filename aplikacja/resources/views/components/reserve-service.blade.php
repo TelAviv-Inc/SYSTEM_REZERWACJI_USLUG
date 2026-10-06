@@ -53,7 +53,7 @@
                         @can('create', [App\Models\Reservation::class, $selectedEmployee])
                             <livewire:employee-week-calendar :key="$selectedEmployee->uuid" />
                             @if ($selectedDay)
-                                @livewire('employee-hour-calendar', ['selectedDay' => $selectedDay, 'selectedEmployee' => $selectedEmployee, 'serviceTime' => $selectedService->duration], key($selectedEmployee->uuid . '-' . $selectedDay))
+                                @livewire('employee-hour-calendar', ['selectedDay' => $selectedDay, 'selectedEmployee' => $selectedEmployee, 'duration' => $selectedService->duration], key($selectedEmployee->uuid . '-' . $selectedDay . '-' . $selectedService->uuid))
                                 @if ($selectedHour)
                                     <div class="flex items-end justify-end">
                                         <button wire:click="$dispatch('reservationMade')"

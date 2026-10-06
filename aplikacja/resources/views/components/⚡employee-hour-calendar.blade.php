@@ -16,26 +16,42 @@ new class extends Component {
 
         if ($this->selectedDay && $this->selectedEmployee) {
             $date = Carbon::parse($this->selectedDay);
-            $dayOfWeek = $date->isoWeekday();
+            $duration = $this->duration ?: 30;
+            $now = now();
 
-            $availability = $this->selectedEmployee->availability->firstWhere('day_of_week', $dayOfWeek);
+            // an employee can have several working ranges in one day (e.g. 9-12 and 13-17)
+            $availabilities = $this->selectedEmployee->availability->where('day_of_week', $date->isoWeekday());
 
-            if ($availability) {
-                $startTime = Carbon::parse($this->selectedDay)->setTimeFromTimeString($availability->start_time);
-                $endTime = Carbon::parse($this->selectedDay)->setTimeFromTimeString($availability->end_time);
+            // raw H:i:s strings - the model casts would attach today's date instead of the selected day
+            $booked = $this->selectedEmployee->reservation()
+                ->whereDate('reservation_date', $this->selectedDay)
+                ->where('status', '!=', 'cancelled')
+                ->toBase()
+                ->get(['start_time', 'end_time'])
+                ->map(fn($r) => [
+                    $date->copy()->setTimeFromTimeString($r->start_time),
+                    $date->copy()->setTimeFromTimeString($r->end_time),
+                ]);
 
-                $period = CarbonPeriod::create($startTime, '30 minutes', $endTime->subMinutes(100));
+            foreach ($availabilities as $availability) {
+                // start_time/end_time are cast to Carbon with today's date, so take only the time part
+                $workStart = $date->copy()->setTimeFromTimeString(Carbon::parse($availability->start_time)->format('H:i:s'));
+                $workEnd = $date->copy()->setTimeFromTimeString(Carbon::parse($availability->end_time)->format('H:i:s'));
+                $lastStart = $workEnd->copy()->subMinutes($duration);
 
-                $booked = $this->selectedEmployee->reservation()->whereDate('reservation_date', $this->selectedDay)
-                    ->pluck('start_time')
-                    ->map(fn($time) => Carbon::parse($time)->format('H:i'))
-                    ->toArray();
+                if ($lastStart->lt($workStart)) {
+                    continue; // service doesn't fit in this range
+                }
 
-                foreach ($period as $slot) {
-                    $formattedSlot = $slot->format('H:i');
+                foreach (CarbonPeriod::create($workStart, '30 minutes', $lastStart) as $slotStart) {
+                    $slotEnd = $slotStart->copy()->addMinutes($duration);
+
+                    // ranges overlap when existing.start < new.end AND existing.end > new.start
+                    $overlaps = $booked->contains(fn($b) => $b[0]->lt($slotEnd) && $b[1]->gt($slotStart));
+
                     $slots[] = [
-                        'time' => $formattedSlot,
-                        'isAvailable' => !in_array($formattedSlot, $booked),
+                        'time' => $slotStart->format('H:i'),
+                        'isAvailable' => !$overlaps && $slotStart->gt($now),
                     ];
                 }
             }
