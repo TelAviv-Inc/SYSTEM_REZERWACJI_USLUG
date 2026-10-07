@@ -23,6 +23,11 @@ module.exports = {
         'brand-text': '#1E293B',      // Tekst podstawowy
         'brand-muted': '#64748B',     // Tekst przygaszony (opisy)
         'brand-dark-text': '#AAB4CC',
+        'admin-text': '#A07820',
+        'admin-bg': '#F7F1E3',
+        'employee-text': '#1B4332',
+        'employee-bg': '#EDF7ED',
+        'client-bg': '#eff6ff'
       }
     },
   },

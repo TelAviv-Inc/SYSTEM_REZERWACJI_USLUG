@@ -18,14 +18,35 @@
     <header class="border-b border-gray-200 bg-white">
         <x-navigation />
     </header>
-    <main class="flex flex-grow flex-col p-4 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <main class="flex flex-grow flex-col px-4 py-4 max-w-7xl mx-auto sm:px-6 lg:px-8 ">
         <div class=" border-b border-gray-200 ">
             <div class="max-w-7xl mx-auto p-2.5 sm:px-6 lg:px-8">
                 <h1 class="text-3xl font-bold text-gray-900">Moje konto</h1>
                 <p class="mt-2 text-gray-600">Zarządzaj swoimi danymi, hasłem i ustawieniami konta.</p>
             </div>
         </div>
+        <div class="mt-2 flex gap-4 bg-white p-2 items-center rounded-lg border border-brand-border">
+            @php
+                $role = auth()->user()->role;
+                $mail = auth()->user()->email;
+                $username = auth()->user()->name . " " . auth()->user()->surname;
+                $roleClasses = match ($role) {
+                    'admin' => 'text-admin-text bg-admin-bg',
+                    'employee' => 'text-employee-text bg-employee-bg',
+                    default => 'text-brand-accent bg-client-bg',
+                };
+            @endphp
+            <p
+                class="w-16 h-16 shrink-0 rounded-full {{ $roleClasses }} flex items-center justify-center font-bold text-2xl">
+                {{ substr(auth()->user()->name ?? 'P', 0, 1) }}
+            </p>
 
+            <div class="flex flex-col gap-1 justify-start items-start">
+                <span class="text-md font-bold text-brand-navy truncate">{{$username}}</span>
+                <span class="text-sm text-brand-muted">{{$mail}}</span>
+            </div>
+
+        </div>
         <div class="mt-4 grid grid-cols-2 gap-2 md:grid-cols-1">
             <div
                 class="flex flex-col rounded-lg border border-brand-border bg-white px-3 py-2 items-start justify-start">
@@ -69,6 +90,9 @@
                 @endif
             </div>
         </div>
+        @livewire('user-profile-menu')
     </main>
     <x-footer />
 </body>
+
+</html>
