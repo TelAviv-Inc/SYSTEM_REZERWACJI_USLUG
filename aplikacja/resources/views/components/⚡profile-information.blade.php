@@ -19,7 +19,7 @@ new class extends Component {
             <span class="font-semibold">{{ auth()->user()->uuid }}</span>
         </div>
         <div class="flex justify-start items-start gap-4">
-            <p class="w-20 shrink-0 text-brand-muted">Rola</p>
+            <p class="w-20 shrink-0 text-brand-muted">Typ Konta</p>
             <span class="uppercase font-semibold">{{ auth()->user()->role }}</span>
         </div>
 

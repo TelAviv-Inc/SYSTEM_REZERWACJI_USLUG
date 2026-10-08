@@ -20,7 +20,7 @@
     </header>
     <main class="flex flex-grow flex-col px-4 py-4 max-w-7xl mx-auto sm:px-6 lg:px-8 ">
         <div class=" border-b border-gray-200 ">
-            <div class="max-w-7xl mx-auto p-2.5 sm:px-6 lg:px-8">
+            <div class="max-w-7xl mx-auto p-2.5">
                 <h1 class="text-3xl font-bold text-gray-900">Moje konto</h1>
                 <p class="mt-2 text-gray-600">Zarządzaj swoimi danymi, hasłem i ustawieniami konta.</p>
             </div>
@@ -38,7 +38,7 @@
             @endphp
             <p
                 class="w-16 h-16 shrink-0 rounded-full {{ $roleClasses }} flex items-center justify-center font-bold text-2xl">
-                {{ substr(auth()->user()->name ?? 'P', 0, 1) }}
+                {{ substr(auth()->user()->name ?? 'P', 0, 1) }} 
             </p>
 
             <div class="flex flex-col gap-1 justify-start items-start">

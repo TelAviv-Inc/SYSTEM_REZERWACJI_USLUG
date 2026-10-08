@@ -33,6 +33,10 @@ new class extends Component {
             @case('info')
                 @livewire('profile-information', [], key('info'))
                 @break
+            
+            @case('personal')
+                @livewire('profile-data', [], key('personal'))
+                @break
             @default <p>huj</p>
         @endswitch
     </div>
