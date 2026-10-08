@@ -11,7 +11,7 @@ new class extends Component {
     <div class="rounded-lg bg-white border border-brand-border px-3 py-2">
         <div class="flex flex-col gap-1.5 ">
             <h2 class="text-lg font-bold text-brand-text">Informacje o koncie</h2>
-            <p class="text-sm italic text-brand-muted">Dane tylko do odczytu.</p>
+            <p class="text-sm italic text-brand-muted">Te dane widzą pracownicy przy rezerwacji.</p>
         </div>
 
         <div class="flex justify-start items-start gap-4">
