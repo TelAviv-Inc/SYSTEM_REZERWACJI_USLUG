@@ -7,10 +7,10 @@
                 :icon="$category->icon" />
         @endforeach
     </div>
-    
+
     @if (!empty($selectedCategory))
         <div class="mt-8">
-                <x-category-service :name="$selectedCategory" :services="$services" />
+            <x-category-service :category="$selectedCategory" :services="$services" />
         </div>
     @endif
 </div>
