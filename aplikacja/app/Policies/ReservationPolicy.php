@@ -33,7 +33,7 @@ class ReservationPolicy
 
     public function cancel (User $user, Reservation $reservation)
     {
-        return ($reservation->user_id === $user->uuid || $reservation->employee?->user_id === $user->uuid) && in_array($reservation->status, ['pending', 'confirmed']) && $reservation->reservation_date->isFuture();
+        return ($reservation->user_id === $user->uuid || $reservation->employee?->id === $user->uuid) && in_array($reservation->satus, ['pending', 'confirmed']) && $reservation->reservation_date->isFuture();
     }
 
     public function confirm(User $user, Reservation $reservation): bool

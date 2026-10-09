@@ -70,12 +70,5 @@ class User extends Authenticatable
         
 
     }
-    /**
- * Get the reservations made by the user.
- */
-    public function reservations()
-    {
-        return $this->hasMany(Reservation::class, 'user_id');
-    }
 
 }
