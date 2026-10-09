@@ -15,7 +15,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'active' => EnsureUserIsActive::class
         ]);
-        //
+
+        $middleware->web(append: [
+            'throttle:20,1',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
