@@ -17,7 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->web(append: [
-            'throttle:20,1',
+            'throttle:web', // limits defined in AppServiceProvider
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
