@@ -30,10 +30,22 @@ new class extends Component {
             <p class="text-sm italic text-brand-muted">Te dane widzą pracownicy przy rezerwacji.</p>
         </div>
 
+        @if (session('status'))
+            <p class="mt-3 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm font-medium text-green-700">
+                <i class="fa-solid fa-circle-check"></i> {{ session('status') }}
+            </p>
+        @endif
+
+        @if (session('info'))
+            <p class="mt-3 rounded-lg border border-brand-border bg-brand-bg px-3 py-2 text-sm font-medium text-brand-muted">
+                <i class="fa-solid fa-circle-info"></i> {{ session('info') }}
+            </p>
+        @endif
+
         <form wire:submit="save" class="grid grid-cols-1 gap-4 mt-3 pb-2 sm:grid-cols-2">
             <div class="flex flex-col gap-1.5">
                 <label for="email" class="text-sm font-medium text-brand-muted">Adres e-mail</label>
-                <input type="email" name="email" id="email" wire:model.blur="form.email" autocomplete="email"
+                <input type="email" name="email" id="email" wire:model.live.blur="form.email" autocomplete="email"
                     class="w-full rounded-lg border border-brand-border bg-brand-bg px-3 py-2.5 text-brand-text font-semibold placeholder:text-brand-muted focus:outline-none focus:ring-2 focus:ring-brand-accent focus:border-transparent transition duration-200">
                 @error('form.email')
                     <p class="text-sm text-red-600">{{ $message }}</p>

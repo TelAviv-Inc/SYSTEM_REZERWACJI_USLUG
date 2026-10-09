@@ -24,7 +24,8 @@ test('phone can be changed without a password', function () {
         ->set('form.phone', '+48987654321')
         ->call('save')
         ->assertHasNoErrors()
-        ->assertDispatched('profile-updated');
+        ->assertDispatched('profile-updated')
+        ->assertSee('Dane zostaly zapisane');
 
     expect($this->user->fresh()->phone)->toBe('+48987654321');
 });
@@ -120,7 +121,9 @@ test('saving without changes does not update or dispatch', function () {
     Livewire::test('profile-data')
         ->call('save')
         ->assertHasNoErrors()
-        ->assertNotDispatched('profile-updated');
+        ->assertNotDispatched('profile-updated')
+        ->assertSee('brak zmian')
+        ->assertDontSee('Dane zostaly zapisane');
 });
 
 test('password field is shown only when the email differs', function () {

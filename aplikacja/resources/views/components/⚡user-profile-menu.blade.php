@@ -37,6 +37,9 @@ new class extends Component {
             @case('personal')
                 @livewire('profile-data', [], key('personal'))
                 @break
+            @case('changePassword')
+                @livewire('profile-change-password', [], key('changePassword'))
+                @break
             @default <p>test</p>
         @endswitch
     </div>
