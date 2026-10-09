@@ -10,7 +10,7 @@ class EmployeeAvailability extends Model
     /** @use HasFactory<\Database\Factories\EmployeeAvailabilityFactory> */
     use HasFactory;
 
-    protected $table = 'employee_availability';
+    protected $table = 'employee_availabilities';
     protected $primaryKey = 'uuid';   // if uuid IS your PK column
     public $incrementing = false;
     protected $keyType = 'string';
@@ -25,8 +25,8 @@ class EmployeeAvailability extends Model
     protected $casts = [
         'day_of_week' => 'integer',
         'specific_date' => 'date',
-        'start_time' => 'time',
-        'end_time' => 'time',
+        'start_time' => 'datetime:H:i',
+        'end_time'   => 'datetime:H:i',
     ];
 
     public function employee()

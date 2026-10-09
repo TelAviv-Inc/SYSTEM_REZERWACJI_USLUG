@@ -39,6 +39,13 @@ class Employee extends Model
      */
     public function availability()
     {
-        return $this->hasMany(EmployeeAvailability::class, 'employee_id');
+        return $this->hasMany(EmployeeAvailability::class, 'employee_id')
+            ->orderBy('day_of_week')
+            ->orderBy('start_time');
+    }
+
+    public function reservation()
+    {
+        return $this->hasMany(Reservation::class, 'employee_id');
     }
 }
