@@ -44,8 +44,7 @@
                     </button>
                     <div x-show="dropdownOpen" x-transition style="display: none;"
                         class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 border border-gray-200">
-                        <a href="{{ route('dashboard.profile') }}"
-                            class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"><i
+                        <a href="#" class="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"><i
                                 class="fas fa-user"></i>Profil</a>
                         <form action="{{ route('logout') }}" method="post">
                             @csrf
@@ -92,8 +91,7 @@
                 rezerwacje</a>
 
             <div class="pt-3 border-t border-gray-200">
-                <a href="{{ route('dashboard.profile') }}"
-                    class="flex items-center gap-2 px-2 py-2 text-sm text-gray-700 rounded-md hover:bg-gray-50"><i
+                <a href="#" class="flex items-center gap-2 px-2 py-2 text-sm text-gray-700 rounded-md hover:bg-gray-50"><i
                         class="fas fa-user"></i>Profil</a>
                 <form action="{{ route('logout') }}" method="post">
                     @csrf
