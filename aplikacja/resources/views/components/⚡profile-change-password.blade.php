@@ -29,6 +29,7 @@ new class extends Component {
         @endif
 
         <form wire:submit="save" class="grid grid-cols-1 gap-4 mt-3 pb-2 sm:grid-cols-2">
+            @csrf
             <div class="flex flex-col gap-1.5">
                 <label for="current_password" class="text-sm font-medium text-brand-muted">Aktualne haslo</label>
                 <input type="password" name="current_password" id="current_password" minlength="8"

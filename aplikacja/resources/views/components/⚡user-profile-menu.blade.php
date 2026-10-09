@@ -40,6 +40,9 @@ new class extends Component {
             @case('changePassword')
                 @livewire('profile-change-password', [], key('changePassword'))
                 @break
+            @case('settings')
+                @livewire('profile-settings', [], key('settings'))
+                @break
             @default <p>test</p>
         @endswitch
     </div>

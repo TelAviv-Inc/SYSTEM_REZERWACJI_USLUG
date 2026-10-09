@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Http\Middleware\EnsureUserIsActive;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Livewire\Livewire;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,5 +23,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Password::defaults(fn () => app()->isProduction() ? Password::min(8)->letters()->mixedCase()->numbers()->symbols()->uncompromised() : Password::min(8));
+
+        Livewire::addPersistentMiddleware([
+            EnsureUserIsActive::class
+        ]);
     }
 }

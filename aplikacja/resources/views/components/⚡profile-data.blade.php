@@ -37,12 +37,14 @@ new class extends Component {
         @endif
 
         @if (session('info'))
-            <p class="mt-3 rounded-lg border border-brand-border bg-brand-bg px-3 py-2 text-sm font-medium text-brand-muted">
+            <p
+                class="mt-3 rounded-lg border border-brand-border bg-brand-bg px-3 py-2 text-sm font-medium text-brand-muted">
                 <i class="fa-solid fa-circle-info"></i> {{ session('info') }}
             </p>
         @endif
 
         <form wire:submit="save" class="grid grid-cols-1 gap-4 mt-3 pb-2 sm:grid-cols-2">
+            @csrf
             <div class="flex flex-col gap-1.5">
                 <label for="email" class="text-sm font-medium text-brand-muted">Adres e-mail</label>
                 <input type="email" name="email" id="email" wire:model.live.blur="form.email" autocomplete="email"
