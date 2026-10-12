@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 @layer theme {
     .bg-primary {
         background-color: #1e40af;

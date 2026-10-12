@@ -1,29 +1,5 @@
-@import 'tailwindcss';
 @import './custom.css';
 
-@source '../**/*.blade.php';
-@source '../**/*.js';
-@source '../**/*.vue';
-
-@theme {
-    --color-primary: #1e40af;
-    --color-secondary: #3b82f6;
-    --color-accent: #f59e0b;
-    --color-dark: #1f2937;
-    --color-light: #f9fafb;
-    --color-brand-navy: #111C3D;      /* Granat (nagłówki, CTA) */
-    --color-brand-blue: #1E3A8A;      /* Niebieski (przyciski, logo) */
-    --color-brand-accent: #2563EB;    /* Niebieski akcent (linki, hover, batony) */
-    --color-brand-hover: #16306F;     /* Niebieski hover */
-    --color-brand-bg: #F6F7F9;        /* Tło strony */
-    --color-brand-light-bg: #EEF1F6;  /* Jasne tło (ikony) */
-    --color-brand-border: #E2E8F0;    /* Obramowania */
-    --color-brand-text: #1E293B;      /* Tekst podstawowy */
-    --color-brand-muted: #64748B;     /* Tekst przygaszony (opisy) */
-    --color-brand-dark-text: #AAB4CC;
-    --color-admin-text: #A07820;
-    --color-admin-bg: #F7F1E3;
-    --color-employee-text: #1B4332;
-    --color-employee-bg: #EDF7ED;
-    --color-client-bg: #eff6ff;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

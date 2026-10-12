@@ -4,6 +4,7 @@ use Livewire\Component;
 use App\Models\Service;
 use Livewire\Attributes\On;
 use App\Models\Employee;
+use App\Livewire\Forms\ReservationForm;
 new class extends Component {
     public $employees = [];
     public ?Service $selectedService = null;
@@ -11,6 +12,9 @@ new class extends Component {
     public ?string $selectedDay = null;
     public ?string $selectedHour = null;
     public bool $showHourCalendar = false;
+    public ReservationForm $form;
+    public bool $reserved = false;
+
 
     #[On('serviceChosen')]
     public function serviceChosen($serviceID)
@@ -62,6 +66,17 @@ new class extends Component {
     public function reserve()
     {
         //Sprawdzanie godziny musi byc w transakcji zeby nie bylo race condition DB::transaction()
+        $this->form->fill([
+            'service_id' => $this->selectedService->uuid,
+            'employee_id' => $this->selectedEmployee->uuid,
+            'date' => $this->selectedDay,
+            'hour' => $this->selectedHour
+        ]);
+        $this->form->validate();
+        $this->form->reserve();
+        $this->reserved = true;
+        session()->flash('status', 'Rezerwacja dokonana pomyslnie');
+        $this->js('setTimeout(() => $wire.close(), 1000)');
     }
 
     public function close()
