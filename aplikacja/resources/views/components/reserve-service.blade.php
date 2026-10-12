@@ -56,7 +56,7 @@
                                 @livewire('employee-hour-calendar', ['selectedDay' => $selectedDay, 'selectedEmployee' => $selectedEmployee, 'duration' => $selectedService->duration], key($selectedEmployee->uuid . '-' . $selectedDay . '-' . $selectedService->uuid))
                                 @if ($selectedHour && !$reserved)
                                     <div class="flex items-end justify-end">
-                                        <button wire:click="$dispatch('reservationMade')"
+                                        <button wire:click="$dispatch('reservationMade')" type="submit"
                                             class="px-4 py-3 cursor-pointer bg-green-600 hover:bg-green-700 rounded-lg text-white font-semibold tracking-wide shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 hover:-rotate-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">Zarezerwuj</button>
                                     </div>
                                 @endif

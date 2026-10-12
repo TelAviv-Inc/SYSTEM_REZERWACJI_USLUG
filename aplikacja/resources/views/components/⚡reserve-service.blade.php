@@ -72,7 +72,7 @@ new class extends Component {
             'date' => $this->selectedDay,
             'hour' => $this->selectedHour
         ]);
-        $this->validate();
+        $this->form->validate();
         $this->form->reserve();
         $this->reserved = true;
         session()->flash('status', 'Rezerwacja dokonana pomyslnie');

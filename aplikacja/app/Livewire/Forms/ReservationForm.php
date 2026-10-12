@@ -73,7 +73,7 @@ class ReservationForm extends Form
         
         return DB::transaction(function () use ($start,$end) {
             Employee::whereKey($this->employee_id)->lockForUpdate()->first();
-            $taken = Reservation::overlapping($this->employee_id, $this->date, $start, $end)->lockForUpdate()->exists();
+            $taken = Reservation::overlapping($this->employee_id, $this->date, $start, $end)->exists();
 
             if (Reservation::overlapping($this->employee_id, $this->date, $start, $end)->exists()) {
                 throw ValidationException::withMessages([
