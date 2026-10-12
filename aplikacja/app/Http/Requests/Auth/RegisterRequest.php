@@ -2,8 +2,10 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Support\Phone;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Password;
 
 class RegisterRequest extends FormRequest
 {
@@ -15,19 +17,33 @@ class RegisterRequest extends FormRequest
         return true;
     }
 
+
+    /**
+     * Strip spaces and dashes from the phone number before validation.
+     */
+    protected function prepareForValidation(): void
+    {
+        if ($this->filled('phone')) {
+            $this->merge([
+                'phone' => Phone::normalize($this->input('phone')),
+            ]);
+        }
+    }
     /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, ValidationRule|array<mixed>|string>
      */
+
     public function rules(): array
     {
         $rules = [
             'name' => ['required', 'string', 'max:255'],
             'surname' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users'],
-            'phone' => ['required', 'string', 'max:10'],
-            'password' => ['required', 'confirmed', 'min:8'],
+            'phone' => ['required', 'string', 'regex:/^(\+48)?\d{9}$/'],
+
+            'password' => ['required', 'confirmed', Password::defaults()],
         ];
 
         // Add role validation only if the field is present
