@@ -11,7 +11,13 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        $middleware->alias([
+            'active' => EnsureUserIsActive::class
+        ]);
+
+        $middleware->web(append: [
+            'throttle:web', // limits defined in AppServiceProvider
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
