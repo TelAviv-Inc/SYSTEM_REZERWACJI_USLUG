@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('comment')->nullable();
             $table->timestamps();
 
-           $table->foreign('user_id')->references('uuid')->on('users');
+           $table->foreign('user_id')->references('uuid')->on('users')->cascadeOnDelete();
            $table->foreign('employee_id')->references('uuid')->on('employees');
            $table->foreign('service_id')->references('uuid')->on('services');
         });

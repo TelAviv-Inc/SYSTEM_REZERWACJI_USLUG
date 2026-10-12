@@ -37,6 +37,8 @@ Route::middleware('guest')->group(function () {
     Route::post('reset-password', [NewPasswordController::class, 'store'])
         ->middleware('throttle:auth')
         ->name('password.store');
+
+    Route::view('konto-nieaktywne', 'auth.account-inactive')->name('account.inactive');
 });
 
 Route::middleware('auth')->group(function () {

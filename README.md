@@ -4,72 +4,100 @@ Aplikacja webowa oparta na frameworku Laravel do zarządzania rezerwacjami usłu
 
 ## O projekcie
 
-Ta aplikacja to system rezerwacji usług stworzony przy użyciu frameworka Laravel. Pozwala użytkownikom przeglądać dostępne usługi, zarządzać kategoriami usług oraz obsługiwać rezerwacje.
+Ta aplikacja to system rezerwacji usług stworzony przy użyciu frameworka Laravel. Użytkownik wybiera kategorię usług, następnie usługę, pracownika, dzień i godzinę wizyty. System sprawdza dostępność pracownika i kolizje z istniejącymi rezerwacjami.
 
 System wykorzystuje:
 - Laravel 12.x (PHP 8.2+)
+- Livewire 4 do interaktywnego interfejsu
 - Bazę danych SQLite (z możliwością użycia MySQL/PostgreSQL)
-- Migracje bazy danych do zarządzania schematem
-- Eloquent ORM do operacji na bazie danych
-- Wbudowany system uwierzytelniania Laravel
+- Migracje i seedery bazy danych
+- Eloquent ORM z kluczami głównymi UUID
+- Uwierzytelnianie oparte na Laravel Breeze
+
+Kod aplikacji znajduje się w katalogu `aplikacja/`.
 
 ## Obecny stan rozwoju
 
 **Status**: Faza rozwoju
 
-Ta aplikacja jest obecnie w fazie aktywnego rozwoju z zaimplementowanymi następującymi funkcjami:
-- Zarządzanie usługami i kategoriami usług
-- Migracje bazy danych
-- Podstawowe modele i fabryki
-- Struktura testów (testy jednostkowe i funkcyjne)
-- Szkiełko uwierzytelniania
-- Możliwość przetwarzania zadań w tle
+Zaimplementowane funkcje:
 - Rejestracja i logowanie użytkowników
-- Wdrożenie UUID jako podstawowego klucza dla modeli
-- Interfejs użytkownika z kategoriami usług i panelami administratora/empoyee
+- Role użytkowników: `admin`, `employee`, `user`
+- Kategorie usług, usługi i przypisanie pracowników do usług
+- Dostępność pracowników (dni tygodnia, konkretne daty, godziny pracy)
+- Proces rezerwacji w Livewire: wybór kategorii → usługi → pracownika → dnia → godziny
+- Kalendarz tygodniowy z wyborem dnia do 6 tygodni w przód
+- Wybór godziny z kontrolą dostępności (frontend i backend) oraz wykrywaniem nakładających się rezerwacji
+- Model rezerwacji ze statusami (`pending`, `confirmed`, `completed`, `cancelled`) i polskimi etykietami
+- Uprawnienia rezerwacji w `ReservationPolicy` i walidacja w `ReservationForm`
+- Strona profilu użytkownika z podsumowaniem konta i rezerwacji (`/dashboard/profile`)
+- Obsługa braku usług w kategorii
 
 ## Wykorzystane technologie
 
 ### Backend
 - Framework Laravel 12.x
 - PHP 8.2+
+- Livewire 4
 - Baza danych SQLite/MySQL/PostgreSQL
 - Eloquent ORM
-- Framework testów Laravel
+- Pest 3 (testy)
+- Laravel Pint (styl kodu)
 
 ### Frontend
 - Silnik szablonów Blade
+- Komponenty jednoplikowe Livewire (pliki `⚡nazwa.blade.php`)
+- Tailwind CSS i Alpine.js
 - Vite do kompilacji zasobów
-- Nowoczesny JavaScript
+- Font Awesome i flatpickr
 
 ## Instalacja
 
-1. Sklonuj repozytorium
+Wszystkie polecenia uruchamiaj w katalogu `aplikacja/`.
+
+Szybka instalacja:
+
+```bash
+composer setup
+```
+
+Polecenie instaluje zależności, kopiuje `.env`, generuje klucz, uruchamia migracje i buduje zasoby frontendu.
+
+Instalacja krok po kroku:
+
+1. Sklonuj repozytorium i przejdź do katalogu `aplikacja/`
 2. Uruchom `composer install`
 3. Skopiuj `.env.example` do `.env`
 4. Wygeneruj klucz aplikacji: `php artisan key:generate`
 5. Skonfiguruj bazę danych (SQLite domyślnie, lub skonfiguruj MySQL/PostgreSQL)
-6. Uruchom migracje: `php artisan migrate`
+6. Uruchom migracje z danymi testowymi: `php artisan migrate --seed`
 7. Zainstaluj zależności npm: `npm install`
 8. Skompiluj zasoby: `npm run build`
-9. Uruchom serwer deweloperski: `php artisan serve`
+9. Uruchom serwer deweloperski: `php artisan serve` (lub `composer dev`, aby uruchomić serwer, kolejkę, logi i Vite jednocześnie)
+
+## Testy
+
+```bash
+php artisan test
+```
 
 ## Postęp w rozwoju
 
 ### Ukończone
-- Struktura bazy danych i migracje
-- Podstawowe modele usług i kategorii
-- Szkiełko uwierzytelniania
-- Konfiguracja frameworka testów
-- Pliki konfiguracyjne
-- Funkcjonalność rejestracji i logowania użytkowników
+- Struktura bazy danych, migracje i seedery
+- Modele usług, kategorii, pracowników, dostępności i rezerwacji
+- Rejestracja i logowanie użytkowników
+- Interfejs wyboru usługi, pracownika, dnia i godziny
+- Sprawdzanie dostępności godzin i kolizji rezerwacji
+- Polityka uprawnień rezerwacji
+- Strona profilu użytkownika
 
 ### W toku
-- Implementacja interfejsu frontendowego
-- Funkcjonalność rezerwacji
-- Funkcje zarządzania użytkownikami
+- Zapis rezerwacji do bazy danych (metoda `reserve()` w komponencie `reserve-service`)
+- Zarządzanie rezerwacjami (potwierdzanie, anulowanie)
+- Panel pracownika
 - Panel administratora
-- Obsługa zapisów do bazy danych dla pracowników i ich dostępności
+- Zarządzanie użytkownikami, pracownikami i ich dostępnością z poziomu interfejsu
 
 ## Licencja
 

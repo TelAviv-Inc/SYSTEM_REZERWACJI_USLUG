@@ -26,6 +26,15 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate();
 
+        if (!Auth::user()->active){
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect()->route('account.inactive');
+        }
+
+
         $request->session()->regenerate();
 
         return redirect()->intended(route('dashboard.index', absolute: false));
