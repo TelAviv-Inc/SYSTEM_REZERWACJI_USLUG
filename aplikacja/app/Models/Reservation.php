@@ -15,6 +15,7 @@ class Reservation extends Model
     protected $keyType = 'string';
     
     protected $fillable = [
+        'uuid',
         'user_id',
         'employee_id', 
         'service_id',

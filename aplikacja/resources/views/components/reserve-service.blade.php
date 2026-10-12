@@ -54,10 +54,10 @@
                             <livewire:employee-week-calendar :key="$selectedEmployee->uuid" />
                             @if ($selectedDay)
                                 @livewire('employee-hour-calendar', ['selectedDay' => $selectedDay, 'selectedEmployee' => $selectedEmployee, 'duration' => $selectedService->duration], key($selectedEmployee->uuid . '-' . $selectedDay . '-' . $selectedService->uuid))
-                                @if ($selectedHour)
+                                @if ($selectedHour && !$reserved)
                                     <div class="flex items-end justify-end">
                                         <button wire:click="$dispatch('reservationMade')"
-                                            class="px-4 py-3 bg-green-600 hover:bg-green-700 rounded-lg text-white font-semibold tracking-wide shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 hover:-rotate-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">Zarezerwuj</button>
+                                            class="px-4 py-3 cursor-pointer bg-green-600 hover:bg-green-700 rounded-lg text-white font-semibold tracking-wide shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 hover:-rotate-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">Zarezerwuj</button>
                                     </div>
                                 @endif
                             @endif
@@ -67,6 +67,12 @@
                             </div>
                         @endcan
 
+                    @endif
+                    @if (session('status'))
+                        <p
+                            class="mt-3 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm font-medium text-green-700">
+                            <i class="fa-solid fa-circle-check"></i> {{ session('status') }}
+                        </p>
                     @endif
 
                 </form>
