@@ -13,12 +13,16 @@ class DashboardController extends Controller
         
         return view('dashboard.dashboard');
     }
+
     public function profile()
     {
         
         return view('dashboard.user-profile');
     }
-
+    public function reservations()
+    {
+        return view('dashboard.reservations');
+    }
 
 
 }
