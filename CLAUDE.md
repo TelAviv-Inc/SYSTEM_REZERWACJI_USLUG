@@ -24,11 +24,15 @@ php artisan test tests/Feature/ProfileTest.php
 
 Tests run against in-memory SQLite (configured in `phpunit.xml`).
 
+Testing gotchas:
+- `UserFactory` picks a random `role` and sets `active` to false 20% of the time. A test that hits dashboard routes or Livewire components must pin `['active' => true]` (and a role if it matters). Otherwise `EnsureUserIsActive` logs the user out at random and the test is flaky.
+- 7 old Breeze tests currently fail and are not regressions. `AuthenticationTest`, `EmailVerificationTest`, `PasswordConfirmationTest` and `RegistrationTest` expect a `dashboard` route that doesn't exist (the real one is `dashboard.index`), and `ProfileTest` uses the deleted `profile.edit` view. `ConfirmablePasswordController` also redirects to `route('dashboard')`, so password confirmation returns 500 in the app too.
+
 ## Stack
 
 - Laravel 12, PHP 8.2+, SQLite by default
 - **Livewire 4** drives the interactive UI. Breeze provides auth scaffolding (`routes/auth.php`, `app/Http/Controllers/Auth`).
-- Tailwind with Vite, plus Alpine.js. Note that `resources/views/dashboard/dashboard.blade.php` also loads the Tailwind CDN, Font Awesome and flatpickr from CDNs alongside `@vite`.
+- **Tailwind CSS v4** through `@tailwindcss/vite`, plus Alpine.js. There is no `tailwind.config.js` or `postcss.config.js`. Theme tokens (`--color-brand-*` and others) live in the `@theme` block of `resources/css/app.css`, and its `@source` lines set which files Tailwind scans. v3-only utilities such as `bg-opacity-*` and `ring-opacity-*` no longer exist, so use the slash syntax instead (`ring-green-500/50`). There is no Tailwind CDN. `resources/views/dashboard/dashboard.blade.php` still loads Font Awesome and flatpickr from CDNs alongside `@vite`.
 - UI text is in Polish.
 
 ## Architecture
@@ -36,7 +40,7 @@ Tests run against in-memory SQLite (configured in `phpunit.xml`).
 ### Primary keys are `uuid` columns
 Every domain table uses `$table->uuid()->primary()`, which creates a column named `uuid`, not `id`. The models set `$primaryKey = 'uuid'`, `$incrementing = false` and `$keyType = 'string'`, and foreign keys reference `uuid`. When adding a relationship, pass the key names explicitly, as the existing models do. Only `User` uses the `HasUuids` trait. For the other models, check how the UUID gets populated (factory or seeder) before creating records in app code.
 
-Domain model: `ServiceCategory` → `Service` ↔ `Employee` (pivot `employee_services`). `Employee` belongs to `User` and has many `EmployeeAvailability` rows (`day_of_week`, `specific_date`, `start_time`/`end_time`) and many `Reservation` rows. `Reservation` statuses are `pending`, `confirmed`, `completed` and `cancelled`, and the model provides scopes and Polish labels for them. `User.role` is `admin`, `employee` or `user`.
+Domain model: `ServiceCategory` → `Service` ↔ `Employee` (pivot `employee_services`). `Employee` belongs to `User` and has many `EmployeeAvailability` rows (`day_of_week`, `specific_date`, `start_time`/`end_time`) and many `Reservation` rows. `Reservation` statuses are `pending`, `confirmed`, `completed` and `cancelled`, and the model provides scopes and Polish labels for them. `User.role` is an enum of `client` (the default), `employee` or `admin`. `User.active` is a boolean flag (see `EnsureUserIsActive` under Routes).
 
 ### Livewire single-file components (⚡ files)
 The reservation flow is built from Livewire 4 single-file components in `resources/views/components/`. The `⚡name.blade.php` files hold the component class (`new class extends Component`). Most of them render a **separate** plain Blade view of the same name (for example, `⚡reserve-service.blade.php` renders `view('components.reserve-service')`). So the logic lives in the ⚡ file and the markup in the file without ⚡. Edit both when you change a component.
@@ -48,9 +52,21 @@ On `/dashboard` (`DashboardController@index`), the page mounts `@livewire('show-
 2. `category-service` → `serviceChosen` → `reserve-service` opens a modal and loads the employees with their availability.
 3. Selecting an employee dispatches `employee-selected` (available weekdays) to `employee-week-calendar`, which dispatches `daySelected`.
 4. `reserve-service` then dispatches `employee-work-time-data` and mounts `employee-hour-calendar`, which dispatches `hourSelected`.
-5. `reserve()` is still a stub. `app/Livewire/Forms/ReservationForm.php` and `app/Policies/ReservationPolicy.php` are in-progress pieces for persisting reservations.
+5. `reserve()` fills and validates `app/Livewire/Forms/ReservationForm.php`, then calls `ReservationForm::reserve()`. That method saves the reservation inside `DB::transaction`, locks the employee row with `lockForUpdate` and checks `Reservation::overlapping()`, so two users can't book the same slot. It sets the reservation's `uuid` with `Str::uuid()`. `app/Policies/ReservationPolicy.php` holds the create, view, cancel and confirm rules. Covered by `tests/Feature/ReservationTest.php`.
 
 When you add a step, follow this pattern: dispatch an event and handle it with `#[On('...')]` or `$listeners`, instead of nesting component state.
 
+### User profile
+`/dashboard/profile` (`DashboardController@profile`, view `dashboard/user-profile`) mounts `profile-summary` and `user-profile-menu`. The menu switches between the `profile-information`, `profile-data`, `profile-change-password` and `profile-settings` tabs (deactivating and deleting the account live in settings). The form objects are `app/Livewire/Forms/ProfileDataForm.php` and `UpdatePasswordForm.php`. Phone numbers go through `App\Support\Phone::normalize()` at registration and in the profile. The old Breeze `/profile` routes and `ProfileController` remain in `routes/web.php`, but their views were deleted.
+
 ### Routes
-`routes/web.php` requires `auth.php` and `dashboard.php`. Dashboard routes use `auth` + `verified` middleware, the `/dashboard` prefix and the `dashboard.` name prefix.
+`routes/web.php` requires `auth.php` and `dashboard.php`. Dashboard routes use `auth` + `verified` + `active` middleware, the `/dashboard` prefix and the `dashboard.` name prefix.
+
+`active` is the alias for `App\Http\Middleware\EnsureUserIsActive`, registered in `bootstrap/app.php`. It logs out users whose `active` is false and redirects them to `account.inactive` (`/konto-nieaktywne`). `AppServiceProvider` also registers it as Livewire persistent middleware, so it runs on Livewire update requests as well.
+
+### Rate limiting
+`bootstrap/app.php` appends `throttle:web` to the whole `web` group. `AppServiceProvider::boot()` defines the named limiters:
+- `web`: 120 requests/min per user (or IP for guests). Livewire update requests get a separate 300/min bucket. They are matched by the route name `*livewire.update`, not by the `X-Livewire` header, so the header can't be spoofed to get the higher limit.
+- `auth`: 10 requests/min with a separate counter per path. Used as `throttle:auth` in `routes/auth.php` on the register, login, forgot-password, reset-password and confirm-password POSTs and on PUT password.
+
+Covered by `tests/Feature/RateLimitTest.php`.
