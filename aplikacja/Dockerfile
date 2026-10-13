@@ -15,7 +15,7 @@ FROM php:8.3-apache
 # System libs + PHP extensions (pdo_sqlite and mbstring ship with the base image)
 RUN apt-get update \
     && apt-get install -y --no-install-recommends unzip libzip-dev libicu-dev sqlite3 \
-    && docker-php-ext-install opcache zip intl \
+    && docker-php-ext-install opcache zip intl pdo_mysql \
     && rm -rf /var/lib/apt/lists/*
 
 # Production php.ini + opcache tuning

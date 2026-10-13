@@ -15,7 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'active' => EnsureUserIsActive::class
         ]);
-
+        $middleware->trustProxies(at: '*');
         $middleware->web(append: [
             'throttle:web', // limits defined in AppServiceProvider
         ]);
