@@ -1,0 +1,24 @@
+.git
+.env
+.env.*
+!.env.example
+node_modules
+vendor
+public/build
+public/hot
+public/storage
+storage/logs/*
+storage/framework/cache/data/*
+storage/framework/sessions/*
+storage/framework/views/*
+storage/pail
+bootstrap/cache/*.php
+database/*.sqlite*
+# local dev SQLite DB (DB_DATABASE=laravel in .env)
+laravel
+tests
+phpunit.xml
+.phpunit.result.cache
+docker-compose.yml
+Dockerfile
+.dockerignore
