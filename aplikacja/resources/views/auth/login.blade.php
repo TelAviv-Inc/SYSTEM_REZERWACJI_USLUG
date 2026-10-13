@@ -18,7 +18,7 @@
         </div>
 
         <div class="p-3 sm:p-6">
-            <form method="POST" action="{{ route('login') }}">
+            <form method="POST" action="{{ route('login') }}" onsubmit="this.querySelector('[type=submit]').disabled = true">
                 @csrf
 
                 <div class="mb-3 sm:mb-5">
@@ -50,8 +50,9 @@
 
     <div class="mb-6">
         <button type="submit"
-            class="w-full bg-brand-accent text-white py-3 px-4 rounded-lg font-medium hover:from-primary hover:to-secondary transition duration-300 transform hover:-translate-y-0.5 shadow-md hover:shadow-lg">
-            Zaloguj się
+            class="group w-full bg-brand-accent text-white py-3 px-4 rounded-lg font-medium hover:from-primary hover:to-secondary transition duration-300 transform hover:-translate-y-0.5 shadow-md hover:shadow-lg disabled:opacity-75 disabled:cursor-wait disabled:hover:translate-y-0 disabled:hover:shadow-md">
+            <span class="group-disabled:hidden">Zaloguj się</span>
+            <span class="hidden group-disabled:inline"><i class="fas fa-spinner fa-spin mr-2"></i>Logowanie...</span>
         </button>
     </div>
 
@@ -76,6 +77,13 @@
     </div>
     </div>
     </div>
+
+    <script>
+        // Re-enable the button when the page is restored from the back/forward cache
+        window.addEventListener('pageshow', (e) => {
+            if (e.persisted) document.querySelectorAll('button[type=submit]').forEach((b) => b.disabled = false);
+        });
+    </script>
 </body>
 
 </html>

@@ -8,7 +8,7 @@
     </div>
 
     <div class="p-3 sm:p-6">
-        <form method="POST" action="{{ route('register') }}">
+        <form method="POST" action="{{ route('register') }}" onsubmit="this.querySelector('[type=submit]').disabled = true">
             @csrf
 
             <!-- Name -->
@@ -81,11 +81,19 @@
                 </a>
 
                 <button type="submit"
-                    class="ml-4 bg-brand-accent text-white px-2 py-3 rounded-lg font-medium hover:from-primary hover:to-secondary transition duration-300 transform hover:-translate-y-0.5 shadow-md hover:shadow-lg sm:py-3 sm:px-4">
-                    {{ __('Zarejestruj się') }}
+                    class="group ml-4 bg-brand-accent text-white px-2 py-3 rounded-lg font-medium hover:from-primary hover:to-secondary transition duration-300 transform hover:-translate-y-0.5 shadow-md hover:shadow-lg disabled:opacity-75 disabled:cursor-wait disabled:hover:translate-y-0 disabled:hover:shadow-md sm:py-3 sm:px-4">
+                    <span class="group-disabled:hidden">{{ __('Zarejestruj się') }}</span>
+                    <span class="hidden group-disabled:inline"><i class="fas fa-spinner fa-spin mr-2"></i>{{ __('Rejestracja...') }}</span>
                 </button>
             </div>
         </form>
     </div>
+
+    <script>
+        // Re-enable the button when the page is restored from the back/forward cache
+        window.addEventListener('pageshow', (e) => {
+            if (e.persisted) document.querySelectorAll('button[type=submit]').forEach((b) => b.disabled = false);
+        });
+    </script>
 
 @endsection
