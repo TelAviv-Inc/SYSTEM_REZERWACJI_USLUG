@@ -17,6 +17,14 @@ if [ "$DB_CONNECTION" = "sqlite" ] && [ ! -f "$DB_DATABASE" ]; then
     touch "$DB_DATABASE"
 fi
 
+# Secret files (e.g. Render's /etc/secrets) may be readable only by root, but Apache
+# runs as www-data - copy the DB CA certificate somewhere it can read
+if [ -n "$MYSQL_ATTR_SSL_CA" ] && [ -f "$MYSQL_ATTR_SSL_CA" ]; then
+    cp "$MYSQL_ATTR_SSL_CA" /usr/local/share/db-ca.pem
+    chmod 644 /usr/local/share/db-ca.pem
+    export MYSQL_ATTR_SSL_CA=/usr/local/share/db-ca.pem
+fi
+
 php artisan migrate --force
 
 php artisan storage:link 2>/dev/null || true
