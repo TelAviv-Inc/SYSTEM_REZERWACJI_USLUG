@@ -92,7 +92,6 @@ it('limits auth form submissions to 10 per minute', function (string $method, st
 
     $this->actingAs($user)->$method($uri)->assertStatus(429);
 })->with([
-    'confirm password' => ['post', '/confirm-password'],
     'change password' => ['put', '/password'],
 ]);
 

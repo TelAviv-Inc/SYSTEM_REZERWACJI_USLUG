@@ -2,6 +2,7 @@
 
 use Livewire\Component;
 use App\Models\Service;
+use App\Models\Reservation;
 use Livewire\Attributes\On;
 use App\Models\Employee;
 use App\Livewire\Forms\ReservationForm;
@@ -19,14 +20,17 @@ new class extends Component {
     #[On('serviceChosen')]
     public function serviceChosen($serviceID)
     {
-        $this->selectedService = Service::with('employees.availability')->find($serviceID);
+        $this->selectedService = Service::with('employees.availability')->findOrFail($serviceID);
         $this->employees = $this->selectedService->employees;
     }
 
     public function selectEmployee($employeeUuid)
     {
+        $employee = $this->selectedService?->employees->firstWhere('uuid', $employeeUuid);
+        if (!$employee)
+            return;
         $this->reset('selectedDay', 'selectedHour');
-        $this->selectedEmployee = $this->employees->firstWhere('uuid', $employeeUuid);
+        $this->selectedEmployee = $employee;
         $this->dispatch(
             'employee-selected',
             days: $this->selectedEmployee
@@ -40,6 +44,9 @@ new class extends Component {
     #[On('daySelected')]
     public function setDate($date)
     {
+        if (!$this->selectedEmployee)
+            return;
+
         $this->selectedDay = $date;
         $this->reset('selectedHour');
         $this->showHourCalendar = true;
@@ -67,12 +74,13 @@ new class extends Component {
     {
         //Sprawdzanie godziny musi byc w transakcji zeby nie bylo race condition DB::transaction()
         $this->form->fill([
-            'service_id' => $this->selectedService->uuid,
-            'employee_id' => $this->selectedEmployee->uuid,
+            'service_id' => $this->selectedService?->uuid,
+            'employee_id' => $this->selectedEmployee?->uuid,
             'date' => $this->selectedDay,
             'hour' => $this->selectedHour
         ]);
         $this->form->validate();
+        $this->authorize('create', [Reservation::class, $this->selectedEmployee]);
         $this->form->reserve();
         $this->reserved = true;
         session()->flash('status', 'Rezerwacja dokonana pomyslnie');

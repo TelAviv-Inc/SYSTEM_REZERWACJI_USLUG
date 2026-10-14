@@ -28,7 +28,7 @@ class ReservationPolicy
 
     public function view(User $user, Reservation $reservation)
     {
-        return $reservation->user_id === $user->uuid || $reservation->employee?->id === $user->uuid;
+        return $reservation->user_id === $user->uuid || $reservation->employee?->user_id === $user->uuid;
     }
 
     public function cancel (User $user, Reservation $reservation)

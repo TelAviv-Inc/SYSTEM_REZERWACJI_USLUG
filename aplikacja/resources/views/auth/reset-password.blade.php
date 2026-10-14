@@ -1,39 +1,33 @@
-<x-guest-layout>
-    <form method="POST" action="{{ route('password.store') }}">
+@extends('layouts.auth')
+
+@section('title', 'Nowe hasło — System Rezerwacji Usług')
+@section('icon', 'fa-lock')
+@section('heading', 'Ustaw nowe hasło')
+@section('subheading', 'Wpisz swój adres e-mail i nowe hasło do konta.')
+
+@section('form')
+    <form method="POST" action="{{ route('password.store') }}" class="mt-6 space-y-4"
+        onsubmit="this.querySelector('[type=submit]').disabled = true">
         @csrf
 
-        <!-- Password Reset Token -->
         <input type="hidden" name="token" value="{{ $request->route('token') }}">
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email', $request->email)" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+        <x-auth-input name="email" type="email" label="Adres email" icon="fa-envelope"
+            :value="old('email', $request->email)" required autofocus autocomplete="username"
+            placeholder="jan@przyklad.pl" />
 
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-            <x-text-input id="password" class="block mt-1 w-full" type="password" name="password" required autocomplete="new-password" />
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
+        <x-auth-input name="password" type="password" label="Nowe hasło" icon="fa-lock" required
+            autocomplete="new-password" placeholder="••••••••" />
 
-        <!-- Confirm Password -->
-        <div class="mt-4">
-            <x-input-label for="password_confirmation" :value="__('Confirm Password')" />
+        <x-auth-input name="password_confirmation" type="password" label="Potwierdź nowe hasło" icon="fa-lock" required
+            autocomplete="new-password" placeholder="••••••••" />
 
-            <x-text-input id="password_confirmation" class="block mt-1 w-full"
-                                type="password"
-                                name="password_confirmation" required autocomplete="new-password" />
-
-            <x-input-error :messages="$errors->get('password_confirmation')" class="mt-2" />
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            <x-primary-button>
-                {{ __('Reset Password') }}
-            </x-primary-button>
-        </div>
+        <x-auth-submit loading="Zapisywanie...">Zmień hasło</x-auth-submit>
     </form>
-</x-guest-layout>
+@endsection
+
+@section('footer')
+    <a href="{{ route('login') }}"
+        class="font-semibold text-brand-accent transition duration-200 hover:text-brand-blue hover:underline">Wróć do
+        logowania</a>
+@endsection

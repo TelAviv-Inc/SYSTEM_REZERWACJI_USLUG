@@ -39,10 +39,6 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ];
         
-        if ($request->has('role'))
-        {
-            $userData['role'] = $request->role;
-        }
         
 
         $user = User::create($userData);

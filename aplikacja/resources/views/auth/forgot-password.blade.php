@@ -1,25 +1,24 @@
-<x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600 dark:text-gray-400">
-        {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
-    </div>
+@extends('layouts.auth')
 
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+@section('title', 'Przypomnienie hasła — System Rezerwacji Usług')
+@section('icon', 'fa-key')
+@section('heading', 'Nie pamiętasz hasła?')
+@section('subheading', 'Podaj adres e-mail, a wyślemy Ci link do ustawienia nowego hasła.')
 
-    <form method="POST" action="{{ route('password.email') }}">
+@section('form')
+    <form method="POST" action="{{ route('password.email') }}" class="mt-6 space-y-4"
+        onsubmit="this.querySelector('[type=submit]').disabled = true">
         @csrf
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+        <x-auth-input name="email" type="email" label="Adres email" icon="fa-envelope" :value="old('email')" required
+            autofocus autocomplete="email" placeholder="jan@przyklad.pl" />
 
-        <div class="flex items-center justify-end mt-4">
-            <x-primary-button>
-                {{ __('Email Password Reset Link') }}
-            </x-primary-button>
-        </div>
+        <x-auth-submit loading="Wysyłanie...">Wyślij link</x-auth-submit>
     </form>
-</x-guest-layout>
+@endsection
+
+@section('footer')
+    Pamiętasz hasło?
+    <a href="{{ route('login') }}"
+        class="font-semibold text-brand-accent transition duration-200 hover:text-brand-blue hover:underline">Zaloguj się</a>
+@endsection

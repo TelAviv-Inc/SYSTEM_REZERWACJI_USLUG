@@ -18,6 +18,14 @@ class DashboardController extends Controller
         
         return view('dashboard.user-profile');
     }
+    public function admin()
+    {
+        return view('dashboard.admin');
+    }
+    public function employee()
+    {
+        return view('dashboard.employee');
+    }
 
 
 

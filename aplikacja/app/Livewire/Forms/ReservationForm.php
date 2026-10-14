@@ -6,7 +6,7 @@ use App\Models\Employee;
 use App\Models\EmployeeAvailability;
 use App\Models\Service;
 use App\Models\Reservation;
-use Dotenv\Exception\ValidationException;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Validate;
@@ -33,9 +33,9 @@ class ReservationForm extends Form
                 function (string $attribute, mixed $value, \Closure $fail)
                 {
                     $service = Service::find($this->service_id);
-                    [$start, $end] = $this->timeRange($service->duration);  
-
+                    
                     if (!$service || !$this->employee_id || !$this->date || !Carbon::canBeCreatedFromFormat($this->date, 'Y-m-d')) return;
+                    [$start, $end] = $this->timeRange($service->duration);  
                     
                     if (Carbon::parse("{$this->date} {$this->hour}")->isPast())
                     {
@@ -73,8 +73,7 @@ class ReservationForm extends Form
         
         return DB::transaction(function () use ($start,$end) {
             Employee::whereKey($this->employee_id)->lockForUpdate()->first();
-            $taken = Reservation::overlapping($this->employee_id, $this->date, $start, $end)->exists();
-
+            
             if (Reservation::overlapping($this->employee_id, $this->date, $start, $end)->exists()) {
                 throw ValidationException::withMessages([
                     'form.hour' => 'Ten termin jest juz zajety. Wybierz inna godzine.',

@@ -46,11 +46,6 @@ class RegisterRequest extends FormRequest
             'password' => ['required', 'confirmed', Password::defaults()],
         ];
 
-        // Add role validation only if the field is present
-        if ($this->has('role')) {
-            $rules['role'] = ['required', 'string', 'in:client,employee,admin'];
-        }
-
         return $rules;
     }
 }
