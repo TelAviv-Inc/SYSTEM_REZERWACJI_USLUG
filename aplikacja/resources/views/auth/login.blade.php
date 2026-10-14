@@ -9,73 +9,97 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl shadow-lg overflow-hidden max-w-md w-full border border-gray-200">
-        <div class="bg-brand-accent text-white px-3 py-4 text-center border-b border-gray-200 sm:p-6">
-            <h2 class="text-xl font-bold mb-1 sm:text-2xl"><i class="fas fa-user-lock mr-2"></i>System Rezerwacji Usług
-            </h2>
-            <p class="text-blue-100">Zaloguj się do swojego konta</p>
-        </div>
+@php
+    $inputClass = 'w-full rounded-lg border bg-white py-2.5 pl-10 pr-3 text-sm text-brand-text placeholder:text-brand-muted/60 transition duration-200 focus:outline-none focus:ring-2';
+    $inputOk = 'border-brand-border focus:border-brand-accent focus:ring-brand-accent/20';
+    $inputError = 'border-red-400 focus:border-red-500 focus:ring-red-500/20';
+@endphp
 
-        <div class="p-3 sm:p-6">
-            <form method="POST" action="{{ route('login') }}" onsubmit="this.querySelector('[type=submit]').disabled = true">
+<body class="bg-brand-bg min-h-screen flex items-center justify-center p-4">
+    <div class="relative w-full max-w-md overflow-hidden rounded-xl border border-brand-border bg-white shadow-sm">
+        <span class="absolute inset-x-0 top-0 h-1 bg-brand-accent"></span>
+
+        <div class="px-5 pt-8 pb-6 sm:px-8">
+            <div class="flex flex-col items-center text-center">
+                <div
+                    class="flex size-12 items-center justify-center rounded-lg bg-brand-light-bg text-xl text-brand-accent sm:size-14 sm:text-2xl">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <h1 class="mt-4 text-xl font-bold text-brand-navy sm:text-2xl">Witaj ponownie</h1>
+                <p class="mt-1 text-sm font-medium text-brand-muted">Zaloguj się do Systemu Rezerwacji Usług</p>
+            </div>
+
+            @if (session('status'))
+                <div class="mt-6 flex items-start gap-2 rounded-lg bg-employee-bg px-3 py-2.5 text-sm font-medium text-employee-text">
+                    <i class="fas fa-circle-check mt-0.5"></i>
+                    <span>{{ session('status') }}</span>
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('login') }}" class="mt-6 space-y-4"
+                onsubmit="this.querySelector('[type=submit]').disabled = true">
                 @csrf
 
-                <div class="mb-3 sm:mb-5">
-                    <label for="email" class="block text-gray-700 font-medium mb-2">Adres email</label>
-                    <input type="email" id="email" name="email" value="{{ old('email') }}" required autocomplete="email"
-                        autofocus
-                        class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition duration-200 sm:px-4">
+                <div>
+                    <label for="email" class="mb-1.5 block text-sm font-semibold text-brand-text">Adres email</label>
+                    <div class="relative">
+                        <i class="fas fa-envelope pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-brand-muted"></i>
+                        <input type="email" id="email" name="email" value="{{ old('email') }}" required
+                            autocomplete="email" autofocus placeholder="jan@przyklad.pl"
+                            class="{{ $inputClass }} {{ $errors->has('email') ? $inputError : $inputOk }}">
+                    </div>
                     @error('email')
-                                <div class="text-red-500 text-sm mt-1">{{ $message }}
-                        </div>
+                        <p class="mt-1.5 flex items-center gap-1.5 text-sm text-red-600">
+                            <i class="fas fa-circle-exclamation text-xs"></i>{{ $message }}
+                        </p>
                     @enderror
-        </div>
-
-        <div class="mb-3 sm:mb-5">
-            <label for="password" class="block text-gray-700 font-medium mb-2">Hasło</label>
-            <input type="password" id="password" name="password" required autocomplete="current-password"
-                class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent transition duration-200 sm:px-4">
-            @error('password')
-                        <div class="text-red-500 text-sm mt-1">{{ $message }}
                 </div>
-            @enderror
-    </div>
 
-    <div class="mb-6 flex items-center">
-        <input type="checkbox" id="remember" name="remember"
-            class="mr-2 h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded">
-        <label for="remember" class="text-gray-700">Zapamiętaj mnie</label>
-    </div>
+                <div>
+                    <label for="password" class="mb-1.5 block text-sm font-semibold text-brand-text">Hasło</label>
+                    <div class="relative">
+                        <i class="fas fa-lock pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-brand-muted"></i>
+                        <input type="password" id="password" name="password" required autocomplete="current-password"
+                            placeholder="••••••••"
+                            class="{{ $inputClass }} {{ $errors->has('password') ? $inputError : $inputOk }}">
+                    </div>
+                    @error('password')
+                        <p class="mt-1.5 flex items-center gap-1.5 text-sm text-red-600">
+                            <i class="fas fa-circle-exclamation text-xs"></i>{{ $message }}
+                        </p>
+                    @enderror
+                </div>
 
-    <div class="mb-6">
-        <button type="submit"
-            class="group w-full bg-brand-accent text-white py-3 px-4 rounded-lg font-medium hover:from-primary hover:to-secondary transition duration-300 transform hover:-translate-y-0.5 shadow-md hover:shadow-lg disabled:opacity-75 disabled:cursor-wait disabled:hover:translate-y-0 disabled:hover:shadow-md">
-            <span class="group-disabled:hidden">Zaloguj się</span>
-            <span class="hidden group-disabled:inline"><i class="fas fa-spinner fa-spin mr-2"></i>Logowanie...</span>
-        </button>
-    </div>
+                <div class="flex items-center justify-between gap-3 pt-1">
+                    <label for="remember" class="flex cursor-pointer items-center gap-2 text-sm text-brand-text">
+                        <input type="checkbox" id="remember" name="remember"
+                            class="size-4 rounded border-brand-border accent-brand-accent">
+                        Zapamiętaj mnie
+                    </label>
 
-    @if (Route::has('password.request'))
-            <div class="text-center mb-4">
-        <a class="text-primary hover:text-blue-800 font-medium hover:underline transition duration-200"
-            href="{{ route('password.request') }}">
-            Zapomniałeś hasła?
-        </a>
+                    @if (Route::has('password.request'))
+                        <a href="{{ route('password.request') }}"
+                            class="text-sm font-semibold text-brand-accent transition duration-200 hover:text-brand-blue hover:underline">
+                            Zapomniałeś hasła?
+                        </a>
+                    @endif
+                </div>
+
+                <button type="submit"
+                    class="group mt-2 flex w-full items-center justify-center gap-2 rounded-lg bg-brand-accent px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition duration-300 hover:-translate-y-0.5 hover:bg-brand-blue hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/50 focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-75 disabled:hover:translate-y-0 disabled:hover:bg-brand-accent disabled:hover:shadow-sm">
+                    <span class="group-disabled:hidden">Zaloguj się</span>
+                    <i class="fas fa-arrow-right text-xs transition-transform duration-300 group-hover:translate-x-1 group-disabled:hidden"></i>
+                    <span class="hidden group-disabled:inline"><i class="fas fa-spinner fa-spin mr-2"></i>Logowanie...</span>
+                </button>
+            </form>
         </div>
-    @endif
-    </form>
 
-
-    <div class="text-center">
-        <p class="text-gray-600">
+        <div class="border-t border-brand-border bg-brand-bg/60 px-5 py-4 text-center text-sm text-brand-muted sm:px-8">
             Nie masz konta?
-            <a href="{{ route('register') }}" class="text-primary font-medium hover:text-blue-800 hover:underline
-                transition duration-200">Zarejestruj
+            <a href="{{ route('register') }}"
+                class="font-semibold text-brand-accent transition duration-200 hover:text-brand-blue hover:underline">Zarejestruj
                 się</a>
-        </p>
-    </div>
-    </div>
+        </div>
     </div>
 
     <script>

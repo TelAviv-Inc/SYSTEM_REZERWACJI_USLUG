@@ -9,8 +9,8 @@
         <div
             class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4 border-b border-brand-border mt-4 pb-4">
             <div class="flex flex-col min-w-0">
-                <h4 class="text-base font-bold text-brand-navy break-words">{{ $service->name }}</h4>
-                <p class="text-sm font-medium text-brand-muted mt-1 sm:mt-2 sm:font-semibold break-words">
+                <h4 class="text-base font-bold text-brand-navy wrap-break-word">{{ $service->name }}</h4>
+                <p class="text-sm font-medium text-brand-muted mt-1 sm:mt-2 sm:font-semibold wrap-break-word">
                     {{ $service->description }}
                 </p>
             </div>
@@ -27,7 +27,7 @@
                     @endif
                 </div>
                 <button wire:click="$dispatch('serviceChosen', {serviceID: '{{ $service->uuid }}'})"
-                    class="shrink-0 bg-brand-accent text-white text-sm font-semibold rounded-md px-3 py-1.5 sm:px-3 sm:py-1.5 hover:shadow-lg hover:scale-105 transition duration-300">Rezerwuj</button>
+                    class="shrink-0 cursor-pointer bg-brand-accent text-white text-sm font-semibold rounded-md px-3 py-1.5 sm:px-3 sm:py-1.5 hover:shadow-lg hover:scale-105 transition duration-300">Rezerwuj</button>
 
             </div>
 

@@ -17,8 +17,8 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl shadow-lg overflow-hidden max-w-md w-full border border-gray-200">
+<body class="bg-brand-bg min-h-screen flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-sm overflow-hidden max-w-md w-full border border-brand-border">
 
         @yield('content')
 
