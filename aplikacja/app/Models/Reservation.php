@@ -65,6 +65,13 @@ class Reservation extends Model
     }
 
     /**
+    * Scope a query to only include active (pending or confirmed) reservations.
+    */
+    public function scopeActive($query)
+    {
+        return $query->whereIn('status', ['pending', 'confirmed']);
+    }
+    /**
      * Scope a query to only include confirmed reservations.
      */
     public function scopeConfirmed($query)
