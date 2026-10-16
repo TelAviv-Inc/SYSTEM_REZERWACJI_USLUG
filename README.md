@@ -12,6 +12,16 @@ Użytkownik wybiera kategorię usług, następnie usługę, pracownika, dzień i
 
 Kod aplikacji znajduje się w katalogu `aplikacja/`.
 
+## Konta testowe
+
+| Rola       | Email                       | Hasło      |
+|------------|-----------------------------|------------|
+| `admin`    | `mp@z.pl`                   | `admin123` |
+| `client`   | `tomasz.wojcik@example.com` | `password` |
+| `employee` | `marta.nowak@salon.test`    | `password` |
+
+Konta są dostępne w wersji online. Pochodzą ze zrzutu bazy `szczegoly/Dump20261007.sql`, a nie z seederów, więc po lokalnym `php artisan migrate --seed` ich nie będzie.
+
 ## Obecny stan rozwoju
 
 **Status**: Faza rozwoju, wersja testowa wdrożona na Render.
