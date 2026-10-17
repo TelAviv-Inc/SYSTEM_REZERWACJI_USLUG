@@ -20,7 +20,10 @@ php artisan test --filter=ProfileTest     # one test file/class or one test name
 php artisan test tests/Feature/ProfileTest.php
 
 ./vendor/bin/pint         # code style (Laravel Pint)
+npm run format            # Prettier for resources/ (Blade via @shufo/prettier-plugin-blade, JS, CSS); format:check to only check
 ```
+
+Pint formats `.php` files and skips `*.blade.php`. Prettier formats only the Blade, JS and CSS files, including the PHP class at the top of the ⚡ files. Its config is `.prettierrc.json`.
 
 Tests run against in-memory SQLite (configured in `phpunit.xml`).
 
