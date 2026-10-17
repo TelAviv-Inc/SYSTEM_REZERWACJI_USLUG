@@ -27,7 +27,7 @@
                             class="text-xs font-bold text-[#1B4332] bg-[#E8F5E9]/80 uppercase tracking-wider shadow-[#122C21] shadow-md p-2 rounded-lg self-start  transition hover:rotate-3 delay-100 duration-300">Moj
                             Grafik</a>
                     @endif
-                    <a href="{{ route('dashboard.index') }}"
+                    <a href="{{ route('dashboard.reservations') }}"
                         class="text-xs font-bold text-brand-accent bg-[#eff6ff] uppercase tracking-wider  p-2 rounded-lg self-start">Moje
                         rezerwacje</a>
                 </div>
@@ -87,7 +87,7 @@
                     class="block text-center text-xs font-bold text-[#1B4332] bg-[#E8F5E9]/80 uppercase tracking-wider shadow-[#122C21] shadow-md p-3 rounded-lg">Moj
                     Grafik</a>
             @endif
-            <a href="{{ route('dashboard.index') }}"
+            <a href="{{ route('dashboard.reservations') }}"
                 class="block text-center text-xs font-bold text-brand-accent bg-[#eff6ff] uppercase tracking-wider p-3 rounded-lg">Moje
                 rezerwacje</a>
 

@@ -36,6 +36,14 @@ class ReservationPolicy
         return ($reservation->user_id === $user->uuid || $reservation->employee?->user_id === $user->uuid) && in_array($reservation->status, ['pending', 'confirmed']) && $reservation->reservation_date->isFuture();
     }
 
+    // only the client who booked can move the visit; same time window as cancel
+    public function update(User $user, Reservation $reservation): bool
+    {
+        return $reservation->user_id === $user->uuid
+            && in_array($reservation->status, ['pending', 'confirmed'])
+            && $reservation->reservation_date->isFuture();
+    }
+
     public function confirm(User $user, Reservation $reservation): bool
     {
         // only the employee being booked can confirm

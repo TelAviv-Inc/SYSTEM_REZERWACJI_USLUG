@@ -120,12 +120,45 @@ class Reservation extends Model
                $this->end_time->format('H:i');
     }
 
-    public function scopeOverlapping($query, string $employeeId, string $date, string $start, string $end)
+    /**
+     * Scope a query to only include reservations that haven't started yet.
+     */
+    public function scopeUpcoming($query)
+    {
+        return $query->whereIn('status', ['pending', 'confirmed'])
+            ->where(function ($q) {
+                $q->whereDate('reservation_date', '>', today())
+                    ->orWhere(function ($q) {
+                        $q->whereDate('reservation_date', today())
+                            ->whereTime('start_time', '>', now()->format('H:i:s'));
+                    });
+            });
+    }
+
+    /**
+     * Scope a query to only include reservations that have already started.
+     */
+    public function scopePast($query)
+    {
+        return $query->where(function ($q) {
+            $q->whereDate('reservation_date', '<', today())
+                ->orWhere(function ($q) {
+                    $q->whereDate('reservation_date', today())
+                        ->whereTime('start_time', '<=', now()->format('H:i:s'));
+                });
+        });
+    }
+
+    /**
+     * $exceptUuid skips one reservation, so a rescheduled visit doesn't collide with its own old slot.
+     */
+    public function scopeOverlapping($query, string $employeeId, string $date, string $start, string $end, ?string $exceptUuid = null)
     {
         return $query->where('employee_id', $employeeId)
             ->whereDate('reservation_date', $date)
             ->where('status', '!=', 'cancelled')
             ->where('start_time', '<', $end)
-            ->where('end_time', '>', $start);
+            ->where('end_time', '>', $start)
+            ->when($exceptUuid, fn($q) => $q->whereKeyNot($exceptUuid));
     }
 }
