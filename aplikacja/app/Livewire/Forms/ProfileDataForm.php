@@ -38,7 +38,7 @@ class ProfileDataForm extends Form
     {
         return [
             'email.unique' => 'Ten adres email jest juz zajety',
-            'phone.regex' => 'Podaj poprawny numer telefenu',
+            'phone.regex' => 'Podaj poprawny numer telefonu',
             'current_password.required' => 'Podaj obecne haslo aby zmienic email',
             'current_password.current_password' => 'Nieprawidlowe haslo'
         ];

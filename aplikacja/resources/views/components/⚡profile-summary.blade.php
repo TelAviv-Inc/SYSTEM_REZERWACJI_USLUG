@@ -5,7 +5,9 @@ use Livewire\Attributes\On;
 new class extends Component {
     // Empty handler: receiving the event is enough to re-render with fresh user data
     #[On('profile-updated')]
-    public function refreshSummary() {}
+    public function refreshSummary()
+    {
+    }
 };
 ?>
 
@@ -32,25 +34,21 @@ new class extends Component {
 
     </div>
     <div class="mt-4 grid grid-cols-2 gap-2 md:grid-cols-1">
-        <div
-            class="flex flex-col rounded-lg border border-brand-border bg-white px-3 py-2 items-start justify-start">
+        <div class="flex flex-col rounded-lg border border-brand-border bg-white px-3 py-2 items-start justify-start">
             <p class=" text-sm text-gray-600">Konto zalozone</p>
             <h3 class="text-lg font-bold">{{ $user->created_at->format('d M Y') }}</h3>
         </div>
-        <div
-            class="flex flex-col rounded-lg border border-brand-border bg-white px-3 py-2 items-start justify-start">
+        <div class="flex flex-col rounded-lg border border-brand-border bg-white px-3 py-2 items-start justify-start">
             <p class=" text-sm text-gray-600 md:text-md">Status konta</p>
             <h3 class="text-lg font-bold {{ $user->active ? 'text-green-600' : 'text-red-600' }}">
                 &bull; {{ $user->active ? 'Aktywne' : 'Nieczynne' }}
             </h3>
         </div>
-        <div
-            class="flex flex-col rounded-lg border border-brand-border bg-white px-3 py-2 items-start justify-start">
+        <div class="flex flex-col rounded-lg border border-brand-border bg-white px-3 py-2 items-start justify-start">
             <p class=" text-sm text-gray-600 md:text-md">Ostatnia zmiana</p>
             <h3 class="text-lg font-bold">{{ $user->updated_at->format('d M Y') }}</h3>
         </div>
-        <div
-            class="flex flex-col rounded-lg border border-brand-border bg-white px-3 py-2 items-start justify-start">
+        <div class="flex flex-col rounded-lg border border-brand-border bg-white px-3 py-2 items-start justify-start">
             <p class=" text-sm text-gray-600 md:text-md">Rezerwacje</p>
             @if (!$user->reservations()->exists())
                 <h3 class="text-base text-gray-500 italic sm:col-span-2">Brak aktywnych rezerwacji</h3>
@@ -58,7 +56,7 @@ new class extends Component {
                 @php
                     $totalReservations = $user->reservations()->count();
                     $pendingReservations = $user->reservations()
-                        ->confirmed()
+                        ->active()
                         ->where(function ($q) {
                             $q->whereDate('reservation_date', '>', today())
                                 ->orWhere(function ($q) {

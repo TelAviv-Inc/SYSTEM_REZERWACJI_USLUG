@@ -2,6 +2,7 @@
 .DS_Store
 .env
 .env.backup
+.env.docker
 .env.production
 .phpactor.json
 .phpunit.result.cache
@@ -23,3 +24,4 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 /graphify-out
+dump.sql

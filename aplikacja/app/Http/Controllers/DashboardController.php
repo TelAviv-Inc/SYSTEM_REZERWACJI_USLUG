@@ -23,6 +23,15 @@ class DashboardController extends Controller
     {
         return view('dashboard.reservations');
     }
+    public function admin()
+    {
+        return view('dashboard.admin');
+    }
+    public function employee()
+    {
+        return view('dashboard.employee');
+    }
+
 
 
 }

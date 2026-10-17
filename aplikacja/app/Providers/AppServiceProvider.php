@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Http\Middleware\EnsureHasRole;
 use App\Http\Middleware\EnsureUserIsActive;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -29,6 +30,10 @@ class AppServiceProvider extends ServiceProvider
 
         Livewire::addPersistentMiddleware([
             EnsureUserIsActive::class
+        ]);
+
+        Livewire::addPersistentMiddleware([
+            EnsureHasRole::class
         ]);
 
         // Livewire update requests get their own, looser bucket so interactive

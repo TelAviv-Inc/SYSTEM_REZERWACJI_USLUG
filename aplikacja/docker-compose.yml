@@ -1,0 +1,17 @@
+services:
+  app:
+    build: .
+    image: system-rezerwacji:latest
+    ports:
+      - "8080:80"
+    environment:
+      APP_NAME: "System Rezerwacji"
+      APP_KEY: ${APP_KEY:?set APP_KEY in a .env file next to docker-compose.yml}
+      APP_URL: ${APP_URL:-http://localhost:8080}
+      APP_LOCALE: pl
+    volumes:
+      - app-storage:/var/www/html/storage
+    restart: unless-stopped
+
+volumes:
+  app-storage:
