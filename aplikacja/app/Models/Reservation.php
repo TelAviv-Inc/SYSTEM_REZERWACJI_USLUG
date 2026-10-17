@@ -113,6 +113,34 @@ class Reservation extends Model
                $this->end_time->format('H:i');
     }
 
+    /**
+     * Scope a query to only include reservations that haven't started yet.
+     */
+    public function scopeUpcoming($query)
+    {
+        return $query->where(function ($q) {
+            $q->whereDate('reservation_date', '>', today())
+                ->orWhere(function ($q) {
+                    $q->whereDate('reservation_date', today())
+                        ->whereTime('start_time', '>', now()->format('H:i:s'));
+                });
+        });
+    }
+
+    /**
+     * Scope a query to only include reservations that have already started.
+     */
+    public function scopePast($query)
+    {
+        return $query->where(function ($q) {
+            $q->whereDate('reservation_date', '<', today())
+                ->orWhere(function ($q) {
+                    $q->whereDate('reservation_date', today())
+                        ->whereTime('start_time', '<=', now()->format('H:i:s'));
+                });
+        });
+    }
+
     public function scopeOverlapping($query, string $employeeId, string $date, string $start, string $end)
     {
         return $query->where('employee_id', $employeeId)

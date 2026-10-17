@@ -36,23 +36,22 @@
             @php
                 $user = auth()->user();
                 $totalReservations = $user->reservations()->count();
-                $pendingReservations = $user->reservations()->confirmed()
-                    ->where(function ($q) {
-                        $q->whereDate('reservation_date', '>', today())
-                            ->orWhere(function ($q) {
-                                $q->whereDate('reservation_date', today())
-                                    ->whereTime('start_time', '>', now()->format('H:i:s'));
-                            });
-                    })
-                    ->count();
+                $upcomingReservations = $user->reservations()->confirmed()->upcoming()->count();
             @endphp
             @if ($totalReservations)
-
-                <div
-                    class="flex flex-col rounded-lg border border-brand-border bg-white px-3 py-2 items-start justify-start">
-                    <h3 class="text-lg font-bold">{{ $pendingReservations }}</h3>
-                    <p class=" text-sm text-gray-600">Nadchodzące</p>
+                <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
+                    <div
+                        class="flex flex-col rounded-lg border border-brand-border bg-white px-3 py-2 items-start justify-start sm:px-5 sm:py-4">
+                        <h3 class="text-lg font-bold sm:text-2xl">{{ $totalReservations }}</h3>
+                        <p class="text-sm text-gray-600">Wszystkie</p>
+                    </div>
+                    <div
+                        class="flex flex-col rounded-lg border border-brand-border bg-white px-3 py-2 items-start justify-start sm:px-5 sm:py-4">
+                        <h3 class="text-lg font-bold sm:text-2xl">{{ $upcomingReservations }}</h3>
+                        <p class="text-sm text-gray-600">Nadchodzące</p>
+                    </div>
                 </div>
+                @livewire('reservations-menu')
             @else
                 <div class="justify-start py-4 items-start">
                     <h2 class="text-md text-gray-500 italic sm:col-span-2">Najpierw dokonaj rezerwacji</h2>
