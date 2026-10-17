@@ -118,13 +118,14 @@ class Reservation extends Model
      */
     public function scopeUpcoming($query)
     {
-        return $query->where(function ($q) {
-            $q->whereDate('reservation_date', '>', today())
-                ->orWhere(function ($q) {
-                    $q->whereDate('reservation_date', today())
-                        ->whereTime('start_time', '>', now()->format('H:i:s'));
-                });
-        });
+        return $query->whereIn('status', ['pending', 'confirmed'])
+            ->where(function ($q) {
+                $q->whereDate('reservation_date', '>', today())
+                    ->orWhere(function ($q) {
+                        $q->whereDate('reservation_date', today())
+                            ->whereTime('start_time', '>', now()->format('H:i:s'));
+                    });
+            });
     }
 
     /**

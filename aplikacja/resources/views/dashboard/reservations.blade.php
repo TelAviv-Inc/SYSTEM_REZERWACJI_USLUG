@@ -31,12 +31,11 @@
                 </div>
             </div>
         </div>
-        <!-- Podsumowanie Rezerwacji -->
         <div class="w-full max-w-7xl mx-auto p-2.5 sm:px-6 lg:px-8 py-8">
             @php
                 $user = auth()->user();
                 $totalReservations = $user->reservations()->count();
-                $upcomingReservations = $user->reservations()->confirmed()->upcoming()->count();
+                $upcomingReservations = $user->reservations()->upcoming()->count();
             @endphp
             @if ($totalReservations)
                 <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">

@@ -18,7 +18,7 @@ new class extends Component {
                 $q->past()->orWhereIn('status', ['completed', 'cancelled']);
             });
         } else {
-            $query->upcoming()->whereIn('status', ['pending', 'confirmed']);
+            $query->upcoming();
         }
 
         if (in_array($this->sort, ['category', 'price'])) {
@@ -42,19 +42,17 @@ new class extends Component {
 <div class="flex flex-col mt-4">
     <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div class="flex justify-start">
-            <button type="button" wire:click="$set('option', 'upcoming')"
-                @class([
-                    'font-semibold text-base cursor-pointer border-b-2 p-2 transition',
-                    'text-brand-accent border-brand-accent' => $option === 'upcoming',
-                    'text-brand-text border-brand-border' => $option !== 'upcoming',
-                ])>Nadchodzące
+            <button type="button" wire:click="$set('option', 'upcoming')" @class([
+                'font-semibold text-base cursor-pointer border-b-2 p-2 transition',
+                'text-brand-accent border-brand-accent' => $option === 'upcoming',
+                'text-brand-text border-brand-border' => $option !== 'upcoming',
+            ])>Nadchodzące
             </button>
-            <button type="button" wire:click="$set('option', 'archived')"
-                @class([
-                    'font-semibold text-base cursor-pointer border-b-2 p-2 transition',
-                    'text-brand-accent border-brand-accent' => $option === 'archived',
-                    'text-brand-text border-brand-border' => $option !== 'archived',
-                ])>Archiwalne
+            <button type="button" wire:click="$set('option', 'archived')" @class([
+                'font-semibold text-base cursor-pointer border-b-2 p-2 transition',
+                'text-brand-accent border-brand-accent' => $option === 'archived',
+                'text-brand-text border-brand-border' => $option !== 'archived',
+            ])>Archiwalne
             </button>
         </div>
 
