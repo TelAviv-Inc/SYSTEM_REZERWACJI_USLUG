@@ -142,12 +142,16 @@ class Reservation extends Model
         });
     }
 
-    public function scopeOverlapping($query, string $employeeId, string $date, string $start, string $end)
+    /**
+     * $exceptUuid skips one reservation, so a rescheduled visit doesn't collide with its own old slot.
+     */
+    public function scopeOverlapping($query, string $employeeId, string $date, string $start, string $end, ?string $exceptUuid = null)
     {
         return $query->where('employee_id', $employeeId)
             ->whereDate('reservation_date', $date)
             ->where('status', '!=', 'cancelled')
             ->where('start_time', '<', $end)
-            ->where('end_time', '>', $start);
+            ->where('end_time', '>', $start)
+            ->when($exceptUuid, fn($q) => $q->whereKeyNot($exceptUuid));
     }
 }

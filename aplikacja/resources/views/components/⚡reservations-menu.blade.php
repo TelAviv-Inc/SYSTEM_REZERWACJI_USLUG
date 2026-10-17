@@ -6,6 +6,9 @@ new class extends Component {
     public string $option = 'upcoming';
     public string $sort = 'nearest';
 
+    // reservation-edit dispatches this after a reschedule or cancel
+    protected $listeners = ['reservationUpdated' => '$refresh'];
+
     #[Computed]
     public function reservations()
     {
@@ -76,16 +79,25 @@ new class extends Component {
                     <h3 class="font-bold">{{ $reservation->service->name }}</h3>
                     <p class="text-sm text-gray-600">
                         {{ $reservation->service->category?->name }}
-                        · {{ $reservation->employee->user->name }} {{ $reservation->employee->user->surname }}
+                        · {{ $reservation->employee->user?->name }} {{ $reservation->employee->user->surname }}
                     </p>
                 </div>
-                <div class="flex flex-col sm:items-end">
-                    <p class="font-semibold">{{ $reservation->full_date_time }}</p>
-                    <p class="text-sm text-gray-600">
-                        {{ number_format($reservation->service->price, 2, ',', ' ') }} zł
-                        · {{ $reservation->status_label }}
-                    </p>
+                <div class="flex flex-col gap-8 lg:flex-row sm:items-end">
+                    <div class="flex flex-col sm:items-end">
+                        <p class="font-semibold">{{ $reservation->full_date_time }}</p>
+                        <p class="text-sm text-gray-600">
+                            {{ number_format($reservation->service->price, 2, ',', ' ') }} zł
+                            · {{ $reservation->status_label }}
+                        </p>
+                    </div>
+                    <button type="button" wire:key="{{ $reservation->uuid }}"
+                        wire:click="$dispatch('editReservation', { uuid: '{{ $reservation->uuid }}' })"
+                        aria-label="Szczegóły rezerwacji"
+                        class="inline-flex items-center justify-center cursor-pointer gap-2 w-full sm:w-auto px-5 py-2.5 rounded-lg bg-brand-accent text-white font-semibold shadow-md transition duration-200 hover:brightness-110 hover:shadow-lg hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-brand-accent focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:translate-y-0">
+                        <i class="fa-regular fa-pen-to-square"></i>
+                    </button>
                 </div>
+
             </div>
         @empty
             <p class="py-4 text-gray-500 italic">Brak rezerwacji.</p>

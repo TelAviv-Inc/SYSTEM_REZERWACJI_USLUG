@@ -6,7 +6,7 @@ use App\Models\Employee;
 use App\Models\EmployeeAvailability;
 use App\Models\Service;
 use App\Models\Reservation;
-use Dotenv\Exception\ValidationException;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Validate;
@@ -20,6 +20,8 @@ class ReservationForm extends Form
     public ?string $employee_id = null;
     public ?string $date = null;
     public ?string $hour = null;
+    // set when rescheduling - the reservation being moved must not block its own new slot
+    public ?string $reservation_id = null;
 
     #[Validate]
     public function rules(): array 
@@ -52,7 +54,7 @@ class ReservationForm extends Form
                         return $fail('Pracownik nie jest dostępny w tym terminie.');
                     }
                     
-                    $taken = Reservation::overlapping($this->employee_id, $this->date, $start, $end)->exists();
+                    $taken = Reservation::overlapping($this->employee_id, $this->date, $start, $end, $this->reservation_id)->exists();
 
                     if ($taken) $fail('Ten termin jest juz zajety. Wybierz inna godzine.');
                 },
@@ -93,6 +95,30 @@ class ReservationForm extends Form
         });
 
     }
-    
+
+    public function reschedule(Reservation $reservation)
+    {
+        $service = Service::findOrFail($this->service_id);
+        [$start, $end] = $this->timeRange($service->duration);
+
+        return DB::transaction(function () use ($reservation, $start, $end) {
+            Employee::whereKey($this->employee_id)->lockForUpdate()->first();
+
+            if (Reservation::overlapping($this->employee_id, $this->date, $start, $end, $reservation->uuid)->exists()) {
+                throw ValidationException::withMessages([
+                    'form.hour' => 'Ten termin jest juz zajety. Wybierz inna godzine.',
+                ]);
+            }
+
+            // a new date has to be confirmed again by the employee
+            $reservation->update([
+                'reservation_date' => $this->date,
+                'start_time' => substr($start, 0, 5),
+                'end_time' => substr($end, 0, 5),
+                'status' => 'pending',
+            ]);
+        });
+    }
+
 }
 

@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>System Rezerwacji Usług — Rezerwacje</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -32,25 +31,10 @@
             </div>
         </div>
         <div class="w-full max-w-7xl mx-auto p-2.5 sm:px-6 lg:px-8 py-8">
-            @php
-                $user = auth()->user();
-                $totalReservations = $user->reservations()->count();
-                $upcomingReservations = $user->reservations()->upcoming()->count();
-            @endphp
-            @if ($totalReservations)
-                <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
-                    <div
-                        class="flex flex-col rounded-lg border border-brand-border bg-white px-3 py-2 items-start justify-start sm:px-5 sm:py-4">
-                        <h3 class="text-lg font-bold sm:text-2xl">{{ $totalReservations }}</h3>
-                        <p class="text-sm text-gray-600">Wszystkie</p>
-                    </div>
-                    <div
-                        class="flex flex-col rounded-lg border border-brand-border bg-white px-3 py-2 items-start justify-start sm:px-5 sm:py-4">
-                        <h3 class="text-lg font-bold sm:text-2xl">{{ $upcomingReservations }}</h3>
-                        <p class="text-sm text-gray-600">Nadchodzące</p>
-                    </div>
-                </div>
+            @if (auth()->user()->reservations()->exists())
+                @livewire('reservations-summary')
                 @livewire('reservations-menu')
+                @livewire('reservation-edit')
             @else
                 <div class="justify-start py-4 items-start">
                     <h2 class="text-md text-gray-500 italic sm:col-span-2">Najpierw dokonaj rezerwacji</h2>

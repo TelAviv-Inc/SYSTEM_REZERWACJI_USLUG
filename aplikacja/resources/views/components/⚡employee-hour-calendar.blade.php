@@ -8,6 +8,8 @@ new class extends Component {
     public ?string $selectedDay = null;
     public ?Employee $selectedEmployee = null;
     public ?int $duration = null;
+    // when rescheduling, the visit's current slot should show as free
+    public ?string $ignoreReservation = null;
 
 
     public function render()
@@ -26,6 +28,7 @@ new class extends Component {
             $booked = $this->selectedEmployee->reservation()
                 ->whereDate('reservation_date', $this->selectedDay)
                 ->where('status', '!=', 'cancelled')
+                ->when($this->ignoreReservation, fn($q) => $q->whereKeyNot($this->ignoreReservation))
                 ->toBase()
                 ->get(['start_time', 'end_time'])
                 ->map(fn($r) => [
