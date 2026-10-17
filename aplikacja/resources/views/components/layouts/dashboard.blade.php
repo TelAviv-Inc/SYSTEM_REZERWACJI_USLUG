@@ -19,11 +19,19 @@
 
     <main class="flex grow flex-col px-4 py-4 max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div class="border-b border-gray-200">
-            <div class="max-w-7xl mx-auto p-2.5">
-                <h1 class="text-3xl font-bold text-gray-900">{{ $title }}</h1>
-                @if ($subtitle)
-                    <p class="mt-2 text-gray-600">{{ $subtitle }}</p>
-                @endif
+            <div class="max-w-7xl mx-auto p-2.5 flex flex-col gap-2 justify-between md:flex-row">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">{{ $title }}</h1>
+                    @if ($subtitle)
+                        <p class="mt-2 text-gray-600">{{ $subtitle }}</p>
+                    @endif
+                </div>
+                {{-- optional buttons next to the title, e.g. "Nowa rezerwacja" --}}
+                @isset($actions)
+                    <div class="flex items-center">
+                        {{ $actions }}
+                    </div>
+                @endisset
             </div>
         </div>
 
