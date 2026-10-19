@@ -4,7 +4,6 @@ use App\Models\Employee;
 use App\Models\Reservation;
 use App\Models\Service;
 use App\Models\User;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -157,8 +156,10 @@ test('past reservation can no longer be changed', function () {
 test('client cannot open another user\'s reservation', function () {
     $this->reservation = makeReservation($this, User::factory()->create(['active' => 1]), '13:00:00', '14:00:00');
 
-    // a real request turns this into a 404
-    expect(fn () => editModal($this))->toThrow(ModelNotFoundException::class);
+    // the lookup is scoped to the client's own reservations, so a foreign uuid ends in 404
+    editModal($this)
+        ->assertStatus(404)
+        ->assertSet('reservation', null);
 });
 
 test('hour calendar shows the rescheduled visit\'s own slot as free', function () {

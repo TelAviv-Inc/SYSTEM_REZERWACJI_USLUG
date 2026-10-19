@@ -20,6 +20,7 @@ return new class extends Migration
             $table->time('start_time');
             $table->time('end_time');
             $table->enum('status', ['pending','confirmed', 'completed', 'cancelled'])->default('pending');
+            $table->decimal('price', 10,2)->default(0);
             $table->string('comment')->nullable();
             $table->timestamps();
 
