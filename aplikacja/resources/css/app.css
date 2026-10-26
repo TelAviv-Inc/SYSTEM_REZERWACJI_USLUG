@@ -4,6 +4,7 @@
 @source '../**/*.blade.php';
 @source '../**/*.js';
 @source '../**/*.vue';
+@source '../../vendor/livewire/livewire/src/Features/SupportPagination/views/*.blade.php';
 
 @theme {
     --color-primary: #1e40af;
