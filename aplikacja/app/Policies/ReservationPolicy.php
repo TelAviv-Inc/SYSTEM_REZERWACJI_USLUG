@@ -40,6 +40,7 @@ class ReservationPolicy
     public function update(User $user, Reservation $reservation): bool
     {
         return $reservation->user_id === $user->uuid
+            && $reservation->employee?->active
             && in_array($reservation->status, ['pending', 'confirmed'])
             && $reservation->reservation_date->isFuture();
     }

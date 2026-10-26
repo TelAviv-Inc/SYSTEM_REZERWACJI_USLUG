@@ -92,6 +92,15 @@ test('client can move a reservation to a free slot', function () {
         ->and(Reservation::count())->toBe(1);
 });
 
+test('reservation with a deactivated employee cannot be moved', function () {
+    $this->employee->update(['active' => 0]);
+
+    editModal($this)
+        ->assertDontSeeHtml('wire:click="startReschedule"')
+        ->call('startReschedule')
+        ->assertForbidden();
+});
+
 test('moving a reservation into its own old slot is allowed', function () {
     // 10:30-11:30 overlaps the current 10:00-11:00, but that's the same visit
     editModal($this)

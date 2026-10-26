@@ -2,17 +2,19 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Employee extends Model
 {
     /** @use HasFactory<\Database\Factories\EmployeeFactory> */
-    use HasFactory;
+    use HasFactory, HasUuids;
     protected $primaryKey = 'uuid';   // if uuid IS your PK column
     public $incrementing = false;
     protected $keyType = 'string';
     protected $fillable = [
+        'uuid',
         'user_id',
         'description',
         'active'

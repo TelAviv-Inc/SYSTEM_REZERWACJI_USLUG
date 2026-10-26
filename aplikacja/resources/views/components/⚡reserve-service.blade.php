@@ -20,7 +20,10 @@ new class extends Component {
     #[On('serviceChosen')]
     public function serviceChosen($serviceID)
     {
-        $this->selectedService = Service::with('employees.availability')->findOrFail($serviceID);
+        $this->selectedService = Service::with([
+            'employees' => fn ($q) => $q->where('employees.active', 1),
+            'employees.availability',
+        ])->where('active', 1)->findOrFail($serviceID);
         $this->employees = $this->selectedService->employees;
     }
 
