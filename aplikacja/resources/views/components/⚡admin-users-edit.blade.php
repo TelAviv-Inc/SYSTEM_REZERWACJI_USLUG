@@ -3,13 +3,19 @@
 use Livewire\Component;
 use App\Models\Employee;
 use App\Models\User;
+use App\Support\Phone;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 
 new class extends Component {
     public ?User $user = null;
     public ?string $selectedRole = null;
+    public string $email = '';
+    public string $phone = '';
     // details | disable
     public string $mode = 'details';
     public ?string $notice = null;
@@ -21,6 +27,46 @@ new class extends Component {
         $this->user = User::with('employee')->findOrFail($uuid);
         $this->authorize('update', $this->user);
         $this->selectedRole = $this->user->role;
+        $this->email = $this->user->email;
+        $this->phone = (string) $this->user->phone;
+    }
+
+    // same rules as ProfileDataForm, minus the password - the admin changes someone else's data
+    protected function rules(): array
+    {
+        return [
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($this->user)],
+            'phone' => ['required', 'string', 'regex:/^(\+48)?\d{9}$/'],
+        ];
+    }
+
+    protected function messages(): array
+    {
+        return [
+            'email.unique' => 'Ten adres email jest juz zajety',
+            'phone.regex' => 'Podaj poprawny numer telefonu',
+        ];
+    }
+
+    public function saveContact()
+    {
+        $this->authorize('update', $this->user);
+        $this->phone = Phone::normalize($this->phone);
+        $this->validate();
+
+        $this->user->fill($this->only(['email', 'phone']));
+        if (!$this->user->isDirty()) {
+            return;
+        }
+
+        try {
+            $this->user->save();
+        } catch (UniqueConstraintViolationException) {
+            // someone took this email between validate() and save()
+            throw ValidationException::withMessages(['email' => $this->messages()['email.unique']]);
+        }
+
+        $this->finish('Dane kontaktowe zostały zapisane.');
     }
 
     #[Computed]
@@ -158,6 +204,35 @@ new class extends Component {
                 @endif
 
                 @if ($mode === 'details')
+                    <form wire:submit="saveContact" class="mt-6">
+                        <div class="grid gap-3 sm:grid-cols-2">
+                            <div>
+                                <label for="admin-users-edit-email"
+                                    class="block text-sm font-semibold text-brand-navy mb-1">E-mail</label>
+                                <input id="admin-users-edit-email" type="email" wire:model="email" autocomplete="off"
+                                    class="w-full rounded-lg border border-brand-border p-2.5">
+                                @error('email')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                            <div>
+                                <label for="admin-users-edit-phone"
+                                    class="block text-sm font-semibold text-brand-navy mb-1">Telefon</label>
+                                <input id="admin-users-edit-phone" type="tel" wire:model="phone" autocomplete="off"
+                                    class="w-full rounded-lg border border-brand-border p-2.5">
+                                @error('phone')
+                                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="mt-3 flex justify-end">
+                            <button type="submit" wire:loading.attr="disabled"
+                                class="inline-flex w-full items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-brand-accent text-white font-semibold shadow-md cursor-pointer transition duration-200 hover:brightness-110 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-brand-accent focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed sm:w-auto">
+                                Zapisz dane
+                            </button>
+                        </div>
+                    </form>
+
                     @can('changeRole', $user)
                         <div class="mt-6">
                             <label for="admin-users-edit-role"

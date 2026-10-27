@@ -136,3 +136,67 @@ test('deactivated employee is not offered in the booking modal', function () {
 
     expect($booking()->get('employees'))->toBeEmpty();
 });
+
+function editContact($test, string $email, string $phone)
+{
+    return Livewire::actingAs($test->admin)
+        ->test('admin-users-edit')
+        ->call('open', $test->target->uuid)
+        ->set('email', $email)
+        ->set('phone', $phone)
+        ->call('saveContact');
+}
+
+test('modal is prefilled with the user\'s email and phone', function () {
+    $this->target->update(['email' => 'old@example.com', 'phone' => '123456789']);
+
+    Livewire::actingAs($this->admin)
+        ->test('admin-users-edit')
+        ->call('open', $this->target->uuid)
+        ->assertSet('email', 'old@example.com')
+        ->assertSet('phone', '123456789');
+});
+
+test('admin can change a user\'s email and phone', function () {
+    editContact($this, 'new@example.com', '+48 987 654-321')
+        ->assertHasNoErrors()
+        ->assertDispatched('userUpdated')
+        ->assertSee('Dane kontaktowe zostały zapisane.');
+
+    // no password needed, and the phone is normalized like in the profile form
+    expect($this->target->fresh()->email)->toBe('new@example.com')
+        ->and($this->target->fresh()->phone)->toBe('+48987654321');
+});
+
+test('email already used by another user is rejected', function () {
+    User::factory()->create(['email' => 'taken@example.com']);
+    $email = $this->target->email;
+
+    editContact($this, 'taken@example.com', '123456789')
+        ->assertHasErrors(['email' => 'unique'])
+        ->assertNotDispatched('userUpdated');
+
+    expect($this->target->fresh()->email)->toBe($email);
+});
+
+test('invalid contact data is rejected', function (string $email, string $phone, string $field) {
+    $before = $this->target->only(['email', 'phone']);
+
+    editContact($this, $email, $phone)->assertHasErrors([$field]);
+
+    expect($this->target->fresh()->only(['email', 'phone']))->toBe($before);
+})->with([
+    'bad email' => ['nie-email', '123456789', 'email'],
+    'empty email' => ['', '123456789', 'email'],
+    'bad phone' => ['ok@example.com', '12345', 'phone'],
+    'empty phone' => ['ok@example.com', '', 'phone'],
+]);
+
+test('saving unchanged contact data does nothing', function () {
+    $this->target->update(['phone' => '123456789']);
+
+    editContact($this, $this->target->email, '123456789')
+        ->assertHasNoErrors()
+        ->assertNotDispatched('userUpdated')
+        ->assertDontSee('Dane kontaktowe zostały zapisane.');
+});
