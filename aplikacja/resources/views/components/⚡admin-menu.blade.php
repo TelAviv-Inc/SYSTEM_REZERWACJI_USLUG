@@ -2,8 +2,7 @@
 
 use Livewire\Component;
 
-new class extends Component
-{
+new class extends Component {
     public string $option = 'employees';
 };
 ?>
@@ -37,5 +36,8 @@ new class extends Component
 
     @if ($option === 'users')
         @livewire('admin-users')
+    @elseif ($option === 'employees')
+        @livewire('admin-employees')
     @endif
+
 </div>
