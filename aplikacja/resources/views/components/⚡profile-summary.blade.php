@@ -5,9 +5,7 @@ use Livewire\Attributes\On;
 new class extends Component {
     // Empty handler: receiving the event is enough to re-render with fresh user data
     #[On('profile-updated')]
-    public function refreshSummary()
-    {
-    }
+    public function refreshSummary() {}
 };
 ?>
 
@@ -55,14 +53,17 @@ new class extends Component {
             @else
                 @php
                     $totalReservations = $user->reservations()->count();
-                    $pendingReservations = $user->reservations()
+                    $pendingReservations = $user
+                        ->reservations()
                         ->active()
                         ->where(function ($q) {
-                            $q->whereDate('reservation_date', '>', today())
-                                ->orWhere(function ($q) {
-                                    $q->whereDate('reservation_date', today())
-                                        ->whereTime('start_time', '>', now()->format('H:i:s'));
-                                });
+                            $q->whereDate('reservation_date', '>', today())->orWhere(function ($q) {
+                                $q->whereDate('reservation_date', today())->whereTime(
+                                    'start_time',
+                                    '>',
+                                    now()->format('H:i:s'),
+                                );
+                            });
                         })
                         ->count();
                 @endphp

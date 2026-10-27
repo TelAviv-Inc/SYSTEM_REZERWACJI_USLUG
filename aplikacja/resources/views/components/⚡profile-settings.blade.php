@@ -9,8 +9,9 @@ new class extends Component {
     {
         $user = auth()->user();
 
-        if (in_array($user->role, ['employee', 'admin']))
+        if (in_array($user->role, ['employee', 'admin'])) {
             return;
+        }
 
         $user->fill(['active' => false]);
         $user->save();
@@ -22,14 +23,12 @@ new class extends Component {
         $this->redirect('/');
     }
 
-
-
-
     public function delete()
     {
         $user = Auth::user();
-        if (in_array($user->role, ['employee', 'admin']))
+        if (in_array($user->role, ['employee', 'admin'])) {
             return;
+        }
 
         $this->validate([
             'password' => ['required', 'current_password'],
@@ -43,7 +42,6 @@ new class extends Component {
 
         $this->redirect('/');
     }
-
 };
 ?>
 
@@ -56,7 +54,8 @@ new class extends Component {
         </div>
         @if (in_array(auth()->user()->role, ['employee', 'admin']))
             <div class="flex flex-col gap-1.5 mt-3">
-                <h2 class="text-xl font-bold text-red-800">Nie mozesz podjac tych dzialan, Twoje konto jest zarzadzane przez
+                <h2 class="text-xl font-bold text-red-800">Nie mozesz podjac tych dzialan, Twoje konto jest zarzadzane
+                    przez
                     administratora.</h2>
             </div>
         @else

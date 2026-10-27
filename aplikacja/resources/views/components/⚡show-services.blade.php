@@ -15,8 +15,9 @@ new class extends Component {
     {
         $this->selectedCategory = ServiceCategory::where('name', $categoryName)->first();
 
-        if (!$this->selectedCategory)
+        if (!$this->selectedCategory) {
             return;
+        }
 
         $categoryUUID = $this->selectedCategory->uuid;
         $this->services = Service::where('category_id', $categoryUUID)->get();
@@ -27,7 +28,7 @@ new class extends Component {
     public function render()
     {
         $categories = ServiceCategory::all(['name', 'description', 'icon']);
-        return view('components.show-services', ["categories" => $categories]);
+        return view('components.show-services', ['categories' => $categories]);
     }
 };
 ?>

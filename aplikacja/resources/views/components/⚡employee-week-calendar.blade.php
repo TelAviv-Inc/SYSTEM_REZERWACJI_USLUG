@@ -12,11 +12,9 @@ new class extends Component {
     #[On('employee-selected')]
     public function setAvailability($days)
     {
-
         foreach ($days as $day) {
             $this->workingDays[] = $day;
         }
-
 
         $this->weekOffset = 0;
     }
@@ -30,8 +28,9 @@ new class extends Component {
 
     public function nextWeek()
     {
-        if ($this->weekOffset <= 6)
+        if ($this->weekOffset <= 6) {
             $this->weekOffset++;
+        }
     }
 
     public function selectDay($date)
@@ -51,7 +50,6 @@ new class extends Component {
                 'isWorking' => in_array($date->isoWeekday(), $this->workingDays), // 1=Mon ... 7=Sun
                 'isPast' => $date->lt($today),
             ];
-
         });
         return view('components.employee-week-calendar', [
             'days' => $days,

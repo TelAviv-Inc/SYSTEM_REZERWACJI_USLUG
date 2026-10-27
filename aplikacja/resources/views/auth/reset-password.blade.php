@@ -12,12 +12,11 @@
 
         <input type="hidden" name="token" value="{{ $request->route('token') }}">
 
-        <x-auth-input name="email" type="email" label="Adres email" icon="fa-envelope"
-            :value="old('email', $request->email)" required autofocus autocomplete="username"
-            placeholder="jan@przyklad.pl" />
+        <x-auth-input name="email" type="email" label="Adres email" icon="fa-envelope" :value="old('email', $request->email)" required autofocus
+            autocomplete="username" placeholder="jan@przyklad.pl" />
 
-        <x-auth-input name="password" type="password" label="Nowe hasło" icon="fa-lock" required
-            autocomplete="new-password" placeholder="••••••••" />
+        <x-auth-input name="password" type="password" label="Nowe hasło" icon="fa-lock" required autocomplete="new-password"
+            placeholder="••••••••" />
 
         <x-auth-input name="password_confirmation" type="password" label="Potwierdź nowe hasło" icon="fa-lock" required
             autocomplete="new-password" placeholder="••••••••" />

@@ -3,7 +3,6 @@
         @livewire('show-services')
         @livewire('reserve-service')
 
-
         <!-- Additional info -->
         <div class="mt-12 p-6 bg-white rounded-md shadow-md border border-gray-200">
             <h2 class="text-xl font-bold text-gray-900 mb-4">Jak wybrać usługę?</h2>

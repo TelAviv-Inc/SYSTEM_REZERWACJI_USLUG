@@ -5,17 +5,16 @@
         Dostępne godziny na {{ \Carbon\Carbon::parse($selectedDay)->format('d.m.Y') }}
     </h3>
 
-    @if(empty($_slots))
+    @if (empty($_slots))
         <p class="text-sm text-brand-muted">Brak dostępnych godzin w tym dniu.</p>
     @else
         <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
-            @foreach($_slots as $slot)
+            @foreach ($_slots as $slot)
                 <button type="button" wire:click="$dispatch('hourSelected', { time: '{{ $slot['time'] }}' })"
-                    @disabled(!$slot['isAvailable']) class="min-h-[33px] py-0.5 px-1 sm:px-3 sm:min-h-[44px] rounded-md text-sm font-semibold transition {{
-                    !$slot['isAvailable']
-                    ? 'bg-gray-100 text-gray-400 line-through cursor-not-allowed'
-                    : 'bg-[#eff6ff] text-brand-accent hover:bg-brand-accent hover:text-black cursor-pointer'
-                                                                                                            }}">
+                    @disabled(!$slot['isAvailable'])
+                    class="min-h-[33px] py-0.5 px-1 sm:px-3 sm:min-h-[44px] rounded-md text-sm font-semibold transition {{ !$slot['isAvailable']
+                        ? 'bg-gray-100 text-gray-400 line-through cursor-not-allowed'
+                        : 'bg-[#eff6ff] text-brand-accent hover:bg-brand-accent hover:text-black cursor-pointer' }}">
                     {{ $slot['time'] }}
                 </button>
             @endforeach

@@ -15,8 +15,7 @@
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
         <!-- Service Category Cards -->
         @foreach ($categories as $category)
-            <x-service-category-card :name="$category->name" :description="$category->description"
-                :icon="$category->icon" />
+            <x-service-category-card :name="$category->name" :description="$category->description" :icon="$category->icon" />
         @endforeach
     </div>
 

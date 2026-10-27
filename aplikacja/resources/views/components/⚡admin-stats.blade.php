@@ -3,13 +3,12 @@
 use Livewire\Component;
 use Livewire\Attributes\Computed;
 use App\Support\AdminStats;
-new class extends Component
-{
-    public int $weeks = 12; 
+new class extends Component {
+    public int $weeks = 12;
 
     public function updatedWeeks(): void
     {
-        if (!in_array($this->weeks, [4,12,52], true)) {
+        if (!in_array($this->weeks, [4, 12, 52], true)) {
             $this->weeks = 12;
         }
     }
@@ -41,13 +40,11 @@ new class extends Component
     </div>
 
     <div class="grid gap-6 mt-6 lg:grid-cols-2">
-        <div class="h-64 min-w-0 sm:h-72" wire:key="reservations-{{ $weeks }}"
-            x-data="statsChart({ type: 'bar', label: 'Ilosc Rezerwacji', ...@js($this->reservations) })">
+        <div class="h-64 min-w-0 sm:h-72" wire:key="reservations-{{ $weeks }}" x-data="statsChart({ type: 'bar', label: 'Ilosc Rezerwacji', ...@js($this->reservations) })">
             <canvas x-ref="canvas" wire:ignore></canvas>
         </div>
 
-        <div class="h-64 min-w-0 sm:h-72" wire:key="income-{{ $weeks }}"
-            x-data="statsChart({ type: 'line', label: 'Przychód', money: true, ...@js($this->income) })">
+        <div class="h-64 min-w-0 sm:h-72" wire:key="income-{{ $weeks }}" x-data="statsChart({ type: 'line', label: 'Przychód', money: true, ...@js($this->income) })">
             <canvas x-ref="canvas" wire:ignore></canvas>
         </div>
     </div>

@@ -20,7 +20,9 @@ new class extends Component {
     {
         $this->close();
         // scoped to the user's own reservations, so a foreign uuid ends in 404
-        $this->reservation = auth()->user()->reservations()
+        $this->reservation = auth()
+            ->user()
+            ->reservations()
             ->with(['service.category', 'employee.user', 'employee.availability'])
             ->findOrFail($uuid);
     }
@@ -55,7 +57,9 @@ new class extends Component {
     #[On('daySelected')]
     public function setDate($date)
     {
-        if ($this->mode !== 'reschedule') return;
+        if ($this->mode !== 'reschedule') {
+            return;
+        }
 
         $this->selectedDay = $date;
         $this->reset('selectedHour');
@@ -64,7 +68,9 @@ new class extends Component {
     #[On('hourSelected')]
     public function setHour($time)
     {
-        if ($this->mode !== 'reschedule') return;
+        if ($this->mode !== 'reschedule') {
+            return;
+        }
 
         $this->selectedHour = $time;
     }
@@ -177,7 +183,8 @@ new class extends Component {
                 </dl>
 
                 @if ($notice)
-                    <p class="mt-4 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm font-medium text-green-700">
+                    <p
+                        class="mt-4 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm font-medium text-green-700">
                         <i class="fa-solid fa-circle-check"></i> {{ $notice }}
                     </p>
                 @endif
@@ -199,24 +206,31 @@ new class extends Component {
                             @endcan
                         </div>
                     @else
-                        <p class="mt-4 text-sm text-brand-muted italic">Tej rezerwacji nie można już zmienić ani anulować.</p>
+                        <p class="mt-4 text-sm text-brand-muted italic">Tej rezerwacji nie można już zmienić ani anulować.
+                        </p>
                     @endcanany
-
                 @elseif ($mode === 'reschedule')
-                    <livewire:employee-week-calendar :working-days="$this->workingDays"
-                        :key="'reschedule-week-' . $reservation->uuid" />
+                    <livewire:employee-week-calendar :working-days="$this->workingDays" :key="'reschedule-week-' . $reservation->uuid" />
 
                     @if ($selectedDay)
-                        @livewire('employee-hour-calendar', [
-                            'selectedDay' => $selectedDay,
-                            'selectedEmployee' => $reservation->employee,
-                            'duration' => $reservation->service->duration,
-                            'ignoreReservation' => $reservation->uuid,
-                        ], key('reschedule-hours-' . $reservation->uuid . '-' . $selectedDay))
+                        @livewire(
+                            'employee-hour-calendar',
+                            [
+                                'selectedDay' => $selectedDay,
+                                'selectedEmployee' => $reservation->employee,
+                                'duration' => $reservation->service->duration,
+                                'ignoreReservation' => $reservation->uuid,
+                            ],
+                            key('reschedule-hours-' . $reservation->uuid . '-' . $selectedDay)
+                        )
                     @endif
 
-                    @error('form.date') <p class="mt-3 text-sm text-red-600">{{ $message }}</p> @enderror
-                    @error('form.hour') <p class="mt-3 text-sm text-red-600">{{ $message }}</p> @enderror
+                    @error('form.date')
+                        <p class="mt-3 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                    @error('form.hour')
+                        <p class="mt-3 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
 
                     <div class="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <button type="button" wire:click="back"
@@ -239,9 +253,9 @@ new class extends Component {
                             </button>
                         </div>
                     </div>
-
                 @elseif ($mode === 'cancel')
-                    <div class="mt-4 flex gap-3 rounded-xl border border-red-200 bg-red-50 p-3 sm:p-4 text-sm text-red-800">
+                    <div
+                        class="mt-4 flex gap-3 rounded-xl border border-red-200 bg-red-50 p-3 sm:p-4 text-sm text-red-800">
                         <i class="fa-solid fa-triangle-exclamation mt-0.5"></i>
                         <p>
                             Czy na pewno chcesz anulować tę rezerwację? Termin zostanie zwolniony dla innych klientów,

@@ -4,7 +4,6 @@ use Livewire\Component;
 use Livewire\Attributes\On;
 new class extends Component {
     public ?string $option = 'info';
-
 };
 ?>
 
@@ -24,7 +23,7 @@ new class extends Component {
         </button>
         <button type="button" wire:click="$set('option', 'settings')"
             class="font-semibold text-base text-brand-text cursor-pointer border-b-2 border-brand-border p-2 transition delay-300 focus:text-brand-accent focus:border-brand-accent">Ustawienia
-            
+
         </button>
     </div>
 
@@ -32,18 +31,22 @@ new class extends Component {
         @switch($option)
             @case('info')
                 @livewire('profile-information', [], key('info'))
-                @break
-            
+            @break
+
             @case('personal')
                 @livewire('profile-data', [], key('personal'))
-                @break
+            @break
+
             @case('changePassword')
                 @livewire('profile-change-password', [], key('changePassword'))
-                @break
+            @break
+
             @case('settings')
                 @livewire('profile-settings', [], key('settings'))
-                @break
-            @default <p>test</p>
+            @break
+
+            @default
+                <p>test</p>
         @endswitch
     </div>
 

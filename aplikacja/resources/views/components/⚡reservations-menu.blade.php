@@ -12,7 +12,9 @@ new class extends Component {
     #[Computed]
     public function reservations()
     {
-        $query = auth()->user()->reservations()
+        $query = auth()
+            ->user()
+            ->reservations()
             ->select('reservations.*')
             ->with(['service.category', 'employee.user']);
 
@@ -29,9 +31,7 @@ new class extends Component {
         }
 
         match ($this->sort) {
-            'category' => $query
-                ->leftJoin('service_categories', 'service_categories.uuid', '=', 'services.category_id')
-                ->orderBy('service_categories.name'),
+            'category' => $query->leftJoin('service_categories', 'service_categories.uuid', '=', 'services.category_id')->orderBy('service_categories.name'),
             'price' => $query->orderBy('services.price'),
             'furthest' => $query->orderByDesc('reservation_date')->orderByDesc('start_time'),
             default => $query->orderBy('reservation_date')->orderBy('start_time'),
