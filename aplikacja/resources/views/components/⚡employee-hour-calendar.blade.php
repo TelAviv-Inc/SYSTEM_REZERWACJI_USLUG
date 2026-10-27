@@ -25,7 +25,7 @@ new class extends Component {
 
             // raw H:i:s strings - the model casts would attach today's date instead of the selected day
             $booked = $this->selectedEmployee
-                ->reservation()
+                ->reservations()
                 ->whereDate('reservation_date', $this->selectedDay)
                 ->where('status', '!=', 'cancelled')
                 ->when($this->ignoreReservation, fn($q) => $q->whereKeyNot($this->ignoreReservation))
