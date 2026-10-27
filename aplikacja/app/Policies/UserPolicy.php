@@ -23,6 +23,10 @@ class UserPolicy
     {
         return $actor->role === "admin" && ! $actor->is($target) && $target->active;
     }
+    public function activateUser(User $actor, User $target): bool
+    {
+        return $actor->role === "admin" && ! $actor->is($target) && !$target->active;
+    }
 
     public function changeRole(User $actor, User $target): bool
     {

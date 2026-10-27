@@ -95,6 +95,14 @@ new class extends Component {
         $this->finish('Konto zostało dezaktywowane.');
     }
 
+    public function enable()
+    {
+        $this->authorize('activateUser', $this->user);
+        $this->user->update(['active' => true]);
+
+        $this->finish("Konto zostało aktywowane");
+    }
+
     public function changeRole()
     {
         if (!array_key_exists($this->selectedRole, $this->roles) || $this->selectedRole === $this->user->role) {
@@ -266,6 +274,15 @@ new class extends Component {
                             <button type="button" wire:click="startDisable"
                                 class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg border border-red-200 bg-white text-red-600 font-semibold cursor-pointer transition hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500/50">
                                 <i class="fa-solid fa-user-slash"></i> Dezaktywuj konto
+                            </button>
+                        </div>
+                    @endcan
+
+                    @can('activateUser', $user)
+                        <div class="mt-6 flex justify-end border-t border-brand-border pt-4">
+                            <button type="button" wire:click="enable"
+                                class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg border border-green-200 bg-white text-green-600 font-semibold cursor-pointer transition hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-500/50">
+                                <i class="fa-solid fa-user-check"></i> Aktywuj konto
                             </button>
                         </div>
                     @endcan

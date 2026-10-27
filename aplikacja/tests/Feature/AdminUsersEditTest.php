@@ -57,6 +57,44 @@ test('admin cannot deactivate their own account', function () {
         ->assertForbidden();
 });
 
+test('admin can activate a deactivated account', function () {
+    $this->target->update(['active' => false]);
+
+    Livewire::actingAs($this->admin)
+        ->test('admin-users-edit')
+        ->call('open', $this->target->uuid)
+        ->assertSeeHtml('wire:click="enable"')
+        ->assertDontSeeHtml('wire:click="startDisable"')
+        ->call('enable')
+        ->assertDispatched('userUpdated')
+        ->assertSet('mode', 'details')
+        ->assertDontSeeHtml('wire:click="enable"');
+
+    expect($this->target->fresh()->active)->toBeTrue();
+});
+
+test('active account cannot be activated again', function () {
+    Livewire::actingAs($this->admin)
+        ->test('admin-users-edit')
+        ->call('open', $this->target->uuid)
+        ->assertDontSeeHtml('wire:click="enable"')
+        ->call('enable')
+        ->assertForbidden();
+});
+
+test('non-admin cannot activate an account', function () {
+    $this->target->update(['active' => false]);
+    $employee = User::factory()->create(['role' => 'employee', 'active' => true]);
+
+    Livewire::actingAs($employee)
+        ->test('admin-users-edit')
+        ->set('user', $this->target)
+        ->call('enable')
+        ->assertForbidden();
+
+    expect($this->target->fresh()->active)->toBeFalse();
+});
+
 test('users list opens the edit modal for a row', function () {
     Livewire::actingAs($this->admin)
         ->test('admin-users')
