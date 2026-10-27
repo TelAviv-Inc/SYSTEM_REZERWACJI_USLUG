@@ -38,6 +38,10 @@ new class extends Component {
         @livewire('admin-users')
     @elseif ($option === 'employees')
         @livewire('admin-employees')
+    @elseif ($option === 'categories')
+        @livewire('admin-categories')
+    @elseif ($option === 'services')
+        @livewire('admin-services')
     @endif
 
 </div>

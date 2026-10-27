@@ -53,6 +53,12 @@ class Service extends Model
         static::creating(function ($service){
             $service->slug = Str::slug($service->name);
         });
+        // a renamed service keeps a matching slug, so the old name can be reused
+        static::updating(function ($service){
+            if ($service->isDirty('name')) {
+                $service->slug = Str::slug($service->name);
+            }
+        });
     }
     public function getRouteKeyName()
     {
