@@ -140,5 +140,5 @@ new class extends Component {
 
     <div class="mt-3 cursor-pointer">{{ $this->employees->links() }}</div>
 
-    {{-- @livewire('admin-users-edit') --}}
+    @livewire('admin-employee-details')
 </div>

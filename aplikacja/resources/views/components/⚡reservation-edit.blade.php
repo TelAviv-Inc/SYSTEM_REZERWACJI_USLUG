@@ -19,12 +19,12 @@ new class extends Component {
     public function open($uuid)
     {
         $this->close();
-        // scoped to the user's own reservations, so a foreign uuid ends in 404
-        $this->reservation = auth()
-            ->user()
-            ->reservations()
-            ->with(['service.category', 'employee.user', 'employee.availability'])
-            ->findOrFail($uuid);
+        // admins edit any reservation (admin-employee-details); everyone else is scoped
+        // to their own reservations, so a foreign uuid ends in 404
+        $user = auth()->user();
+        $query = $user->role === 'admin' ? Reservation::query() : $user->reservations();
+
+        $this->reservation = $query->with(['user', 'service.category', 'employee.user', 'employee.availability'])->findOrFail($uuid);
     }
 
     #[Computed]
@@ -162,6 +162,15 @@ new class extends Component {
                             {{ $reservation->employee->user?->name }} {{ $reservation->employee->user?->surname }}
                         </dd>
                     </div>
+                    @if ($reservation->user_id !== auth()->id())
+                        <div class="col-span-2">
+                            <dt class="text-brand-muted"><i class="fa-regular fa-address-card mr-1"></i> Klient</dt>
+                            <dd class="font-semibold text-brand-navy break-words">
+                                {{ $reservation->user?->name }} {{ $reservation->user?->surname }}
+                                <span class="font-normal text-brand-muted">· {{ $reservation->user?->email }}</span>
+                            </dd>
+                        </div>
+                    @endif
                     <div>
                         <dt class="text-brand-muted">Cena</dt>
                         <dd class="font-semibold text-brand-navy">

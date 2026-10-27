@@ -10,10 +10,11 @@ class AdminStats
     /**
      * Number of non-cancelled reservations per week, for the last $weeks weeks
      * (the current week included). Weeks without reservations are returned as 0.
+     * Pass $employeeId to count only that employee's reservations.
      *
      * @return array{labels: list<string>, values: list<int>}
      */
-    public static function weeklyReservations(int $weeks = 12): array
+    public static function weeklyReservations(int $weeks = 12, ?string $employeeId = null): array
     {
         $from = now()->startOfWeek(Carbon::MONDAY)->subWeeks($weeks - 1);
         $to = now()->endOfWeek(Carbon::SUNDAY);
@@ -21,6 +22,7 @@ class AdminStats
         // whereDate, because the date cast can store "Y-m-d 00:00:00" and a plain
         // string comparison would then drop the last day of the range
         $counts = Reservation::where('status', '!=', 'cancelled')
+            ->when($employeeId, fn ($q) => $q->where('employee_id', $employeeId))
             ->whereDate('reservation_date', '>=', $from)
             ->whereDate('reservation_date', '<=', $to)
             ->pluck('reservation_date')
