@@ -60,7 +60,6 @@ function createEmployee(User $user): string
     return $employeeId;
 }
 
-
 test('password input is bound to the password property', function () {
     Livewire::test('profile-settings')
         ->assertSeeHtml('wire:model="password"');
@@ -138,11 +137,13 @@ test('deleting the account removes its reservations', function () {
 test('employee sees an info message instead of the actions', function () {
     $this->user->update(['role' => 'employee']);
 
-    Livewire::test('profile-settings')
-        ->assertSee('Twoje konto jest zarzadzane przez')
+    $settings = Livewire::test('profile-settings')
         ->assertDontSeeHtml('wire:click="deactivate"')
         ->assertDontSeeHtml('wire:click="delete"')
         ->assertDontSeeHtml('wire:model="password"');
+
+    // Prettier wraps the message over several lines, so compare the text the browser shows
+    expect(Str::squish(strip_tags($settings->html())))->toContain('Twoje konto jest zarzadzane przez administratora');
 });
 
 test('employee cannot delete the account', function () {

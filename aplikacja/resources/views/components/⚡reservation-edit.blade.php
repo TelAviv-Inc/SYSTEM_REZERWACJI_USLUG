@@ -24,7 +24,8 @@ new class extends Component {
         $user = auth()->user();
         $query = $user->role === 'admin' ? Reservation::query() : $user->reservations();
 
-        $this->reservation = $query->with(['user', 'service.category', 'employee.user', 'employee.availability'])->findOrFail($uuid);
+        // abort() instead of findOrFail(): Livewire tests rethrow ModelNotFoundException instead of answering 404
+        $this->reservation = $query->with(['user', 'service.category', 'employee.user', 'employee.availability'])->find($uuid) ?? abort(404);
     }
 
     #[Computed]
