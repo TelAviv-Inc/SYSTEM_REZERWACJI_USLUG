@@ -73,7 +73,7 @@ class ReservationForm extends Form
         $service = Service::findOrFail($this->service_id);
         [$start, $end] = $this->timeRange($service->duration);
         
-        return DB::transaction(function () use ($start,$end) {
+        return DB::transaction(function () use ($service, $start, $end) {
             Employee::whereKey($this->employee_id)->lockForUpdate()->first();
             
             if (Reservation::overlapping($this->employee_id, $this->date, $start, $end)->exists()) {
@@ -89,6 +89,7 @@ class ReservationForm extends Form
                'reservation_date' => $this->date,
                'start_time' => substr($start, 0,5),
                'end_time' => substr($end, 0,5),
+               'price' => $service->price,
     
            ]);
         });

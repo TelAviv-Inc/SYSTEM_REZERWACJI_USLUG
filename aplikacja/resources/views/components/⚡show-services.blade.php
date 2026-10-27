@@ -15,11 +15,13 @@ new class extends Component {
     {
         $this->selectedCategory = ServiceCategory::where('name', $categoryName)->first();
 
-        if (!$this->selectedCategory)
+        if (!$this->selectedCategory) {
             return;
+        }
 
         $categoryUUID = $this->selectedCategory->uuid;
-        $this->services = Service::where('category_id', $categoryUUID)->get();
+        // inactive services can't be booked, reserve-service would reject them anyway
+        $this->services = Service::where('category_id', $categoryUUID)->where('active', 1)->get();
 
         // Fired after the new list is in the DOM, the view scrolls to it
         $this->dispatch('category-services-shown');
@@ -27,7 +29,7 @@ new class extends Component {
     public function render()
     {
         $categories = ServiceCategory::all(['name', 'description', 'icon']);
-        return view('components.show-services', ["categories" => $categories]);
+        return view('components.show-services', ['categories' => $categories]);
     }
 };
 ?>

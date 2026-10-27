@@ -2,7 +2,8 @@
 @props(['name', 'label', 'icon', 'type' => 'text'])
 
 <div>
-    <label for="{{ $name }}" class="mb-1.5 block text-sm font-semibold text-brand-text">{{ $label }}</label>
+    <label for="{{ $name }}"
+        class="mb-1.5 block text-sm font-semibold text-brand-text">{{ $label }}</label>
     <div class="relative">
         <i
             class="fas {{ $icon }} pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-brand-muted"></i>

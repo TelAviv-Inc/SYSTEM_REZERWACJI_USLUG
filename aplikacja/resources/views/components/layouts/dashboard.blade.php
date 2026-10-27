@@ -13,7 +13,7 @@
 
 <body class="font-sans bg-gray-50 text-gray-900">
 
-    <header class="border-b border-gray-200 bg-white">
+    <header class="border-b border-gray-200 bg-white print:hidden">
         <x-navigation />
     </header>
 
@@ -38,7 +38,9 @@
         {{ $slot }}
     </main>
 
-    <x-footer />
+    <div class="print:hidden">
+        <x-footer />
+    </div>
 </body>
 
 </html>

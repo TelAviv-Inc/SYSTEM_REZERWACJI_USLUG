@@ -11,7 +11,6 @@ new class extends Component {
     // when rescheduling, the visit's current slot should show as free
     public ?string $ignoreReservation = null;
 
-
     public function render()
     {
         $slots = [];
@@ -25,16 +24,14 @@ new class extends Component {
             $availabilities = $this->selectedEmployee->availability->where('day_of_week', $date->isoWeekday());
 
             // raw H:i:s strings - the model casts would attach today's date instead of the selected day
-            $booked = $this->selectedEmployee->reservation()
+            $booked = $this->selectedEmployee
+                ->reservations()
                 ->whereDate('reservation_date', $this->selectedDay)
                 ->where('status', '!=', 'cancelled')
                 ->when($this->ignoreReservation, fn($q) => $q->whereKeyNot($this->ignoreReservation))
                 ->toBase()
                 ->get(['start_time', 'end_time'])
-                ->map(fn($r) => [
-                    $date->copy()->setTimeFromTimeString($r->start_time),
-                    $date->copy()->setTimeFromTimeString($r->end_time),
-                ]);
+                ->map(fn($r) => [$date->copy()->setTimeFromTimeString($r->start_time), $date->copy()->setTimeFromTimeString($r->end_time)]);
 
             foreach ($availabilities as $availability) {
                 // start_time/end_time are cast to Carbon with today's date, so take only the time part

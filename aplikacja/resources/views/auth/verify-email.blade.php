@@ -3,7 +3,8 @@
 @section('title', 'Potwierdzenie adresu e-mail — System Rezerwacji Usług')
 @section('icon', 'fa-envelope-open-text')
 @section('heading', 'Potwierdź adres e-mail')
-@section('subheading', 'Kliknij link, który wysłaliśmy na Twój adres e-mail. Jeśli wiadomość nie dotarła, wyślemy ją ponownie.')
+@section('subheading', 'Kliknij link, który wysłaliśmy na Twój adres e-mail. Jeśli wiadomość nie dotarła, wyślemy ją
+    ponownie.')
 
 @section('form')
     <form method="POST" action="{{ route('verification.send') }}" class="mt-6"

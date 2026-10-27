@@ -39,7 +39,8 @@
                                         class="w-8 h-8 shrink-0 rounded-full bg-brand-accent/10 text-brand-accent flex items-center justify-center font-bold text-sm">
                                         {{ substr($employee->user->name ?? 'P', 0, 1) }}
                                     </div>
-                                    <span class="text-sm font-bold text-brand-navy truncate">{{ $employee->user->name}}</span>
+                                    <span
+                                        class="text-sm font-bold text-brand-navy truncate">{{ $employee->user->name }}</span>
                                 </div>
                                 <input type="radio" name="employee" value="{{ $employee->uuid }}"
                                     class="shrink-0 text-brand-accent focus:ring-brand-accent">

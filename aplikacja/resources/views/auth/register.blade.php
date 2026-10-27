@@ -1,7 +1,8 @@
 @extends('layouts.guest')
 
 @php
-    $inputClass = 'w-full rounded-lg border bg-white py-2.5 pl-10 pr-3 text-sm text-brand-text placeholder:text-brand-muted/60 transition duration-200 focus:outline-none focus:ring-2';
+    $inputClass =
+        'w-full rounded-lg border bg-white py-2.5 pl-10 pr-3 text-sm text-brand-text placeholder:text-brand-muted/60 transition duration-200 focus:outline-none focus:ring-2';
     $inputOk = 'border-brand-border focus:border-brand-accent focus:ring-brand-accent/20';
     $inputError = 'border-red-400 focus:border-red-500 focus:ring-red-500/20';
     $iconClass = 'pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-brand-muted';
@@ -18,7 +19,8 @@
                     <i class="fas fa-user-plus"></i>
                 </div>
                 <h1 class="mt-4 text-xl font-bold text-brand-navy sm:text-2xl">{{ __('Załóż konto') }}</h1>
-                <p class="mt-1 text-sm font-medium text-brand-muted">{{ __('Zarejestruj się w Systemie Rezerwacji Usług') }}</p>
+                <p class="mt-1 text-sm font-medium text-brand-muted">{{ __('Zarejestruj się w Systemie Rezerwacji Usług') }}
+                </p>
             </div>
 
             <form method="POST" action="{{ route('register') }}" class="mt-6 space-y-4"
@@ -31,8 +33,8 @@
                         <label for="name" class="mb-1.5 block text-sm font-semibold text-brand-text">Imię</label>
                         <div class="relative">
                             <i class="fas fa-user {{ $iconClass }}"></i>
-                            <input type="text" id="name" name="name" value="{{ old('name') }}" placeholder="Maria"
-                                required autofocus autocomplete="given-name"
+                            <input type="text" id="name" name="name" value="{{ old('name') }}"
+                                placeholder="Maria" required autofocus autocomplete="given-name"
                                 class="{{ $inputClass }} {{ $errors->has('name') ? $inputError : $inputOk }}">
                         </div>
                         @error('name')
@@ -80,8 +82,8 @@
                     <label for="phone" class="mb-1.5 block text-sm font-semibold text-brand-text">Telefon</label>
                     <div class="relative">
                         <i class="fas fa-phone {{ $iconClass }}"></i>
-                        <input type="tel" id="phone" name="phone" value="{{ old('phone') }}" placeholder="123456789"
-                            required autocomplete="tel"
+                        <input type="tel" id="phone" name="phone" value="{{ old('phone') }}"
+                            placeholder="123456789" required autocomplete="tel"
                             class="{{ $inputClass }} {{ $errors->has('phone') ? $inputError : $inputOk }}">
                     </div>
                     @error('phone')
@@ -127,8 +129,10 @@
                 <button type="submit"
                     class="group mt-2 flex w-full items-center justify-center gap-2 rounded-lg bg-brand-accent px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition duration-300 hover:-translate-y-0.5 hover:bg-brand-blue hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/50 focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-75 disabled:hover:translate-y-0 disabled:hover:bg-brand-accent disabled:hover:shadow-sm">
                     <span class="group-disabled:hidden">{{ __('Zarejestruj się') }}</span>
-                    <i class="fas fa-arrow-right text-xs transition-transform duration-300 group-hover:translate-x-1 group-disabled:hidden"></i>
-                    <span class="hidden group-disabled:inline"><i class="fas fa-spinner fa-spin mr-2"></i>{{ __('Rejestracja...') }}</span>
+                    <i
+                        class="fas fa-arrow-right text-xs transition-transform duration-300 group-hover:translate-x-1 group-disabled:hidden"></i>
+                    <span class="hidden group-disabled:inline"><i
+                            class="fas fa-spinner fa-spin mr-2"></i>{{ __('Rejestracja...') }}</span>
                 </button>
             </form>
         </div>

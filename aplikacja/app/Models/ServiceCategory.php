@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
@@ -10,7 +11,7 @@ use Override;
 class ServiceCategory extends Model
 {
     /** @use HasFactory<\Database\Factories\ServiceCategoryFactory> */
-    use HasFactory;
+    use HasFactory, HasUuids;
     protected $primaryKey = 'uuid';   // if uuid IS your PK column
     public $incrementing = false;
     protected $keyType = 'string';

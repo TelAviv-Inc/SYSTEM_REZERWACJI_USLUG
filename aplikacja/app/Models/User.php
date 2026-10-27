@@ -78,4 +78,12 @@ class User extends Authenticatable
         return $this->hasMany(Reservation::class, 'user_id');
     }
 
+    /**
+     * Get the employee profile of the user.
+     */
+    public function employee()
+    {
+        return $this->hasOne(Employee::class, 'user_id', 'uuid');
+    }
+
 }

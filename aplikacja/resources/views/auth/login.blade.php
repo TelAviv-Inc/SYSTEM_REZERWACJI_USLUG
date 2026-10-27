@@ -10,7 +10,8 @@
 </head>
 
 @php
-    $inputClass = 'w-full rounded-lg border bg-white py-2.5 pl-10 pr-3 text-sm text-brand-text placeholder:text-brand-muted/60 transition duration-200 focus:outline-none focus:ring-2';
+    $inputClass =
+        'w-full rounded-lg border bg-white py-2.5 pl-10 pr-3 text-sm text-brand-text placeholder:text-brand-muted/60 transition duration-200 focus:outline-none focus:ring-2';
     $inputOk = 'border-brand-border focus:border-brand-accent focus:ring-brand-accent/20';
     $inputError = 'border-red-400 focus:border-red-500 focus:ring-red-500/20';
 @endphp
@@ -30,7 +31,8 @@
             </div>
 
             @if (session('status'))
-                <div class="mt-6 flex items-start gap-2 rounded-lg bg-employee-bg px-3 py-2.5 text-sm font-medium text-employee-text">
+                <div
+                    class="mt-6 flex items-start gap-2 rounded-lg bg-employee-bg px-3 py-2.5 text-sm font-medium text-employee-text">
                     <i class="fas fa-circle-check mt-0.5"></i>
                     <span>{{ session('status') }}</span>
                 </div>
@@ -43,7 +45,8 @@
                 <div>
                     <label for="email" class="mb-1.5 block text-sm font-semibold text-brand-text">Adres email</label>
                     <div class="relative">
-                        <i class="fas fa-envelope pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-brand-muted"></i>
+                        <i
+                            class="fas fa-envelope pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-brand-muted"></i>
                         <input type="email" id="email" name="email" value="{{ old('email') }}" required
                             autocomplete="email" autofocus placeholder="jan@przyklad.pl"
                             class="{{ $inputClass }} {{ $errors->has('email') ? $inputError : $inputOk }}">
@@ -58,7 +61,8 @@
                 <div>
                     <label for="password" class="mb-1.5 block text-sm font-semibold text-brand-text">Hasło</label>
                     <div class="relative">
-                        <i class="fas fa-lock pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-brand-muted"></i>
+                        <i
+                            class="fas fa-lock pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm text-brand-muted"></i>
                         <input type="password" id="password" name="password" required autocomplete="current-password"
                             placeholder="••••••••"
                             class="{{ $inputClass }} {{ $errors->has('password') ? $inputError : $inputOk }}">
@@ -88,8 +92,10 @@
                 <button type="submit"
                     class="group mt-2 flex w-full items-center justify-center gap-2 rounded-lg bg-brand-accent px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition duration-300 hover:-translate-y-0.5 hover:bg-brand-blue hover:shadow-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent/50 focus-visible:ring-offset-2 disabled:cursor-wait disabled:opacity-75 disabled:hover:translate-y-0 disabled:hover:bg-brand-accent disabled:hover:shadow-sm">
                     <span class="group-disabled:hidden">Zaloguj się</span>
-                    <i class="fas fa-arrow-right text-xs transition-transform duration-300 group-hover:translate-x-1 group-disabled:hidden"></i>
-                    <span class="hidden group-disabled:inline"><i class="fas fa-spinner fa-spin mr-2"></i>Logowanie...</span>
+                    <i
+                        class="fas fa-arrow-right text-xs transition-transform duration-300 group-hover:translate-x-1 group-disabled:hidden"></i>
+                    <span class="hidden group-disabled:inline"><i
+                            class="fas fa-spinner fa-spin mr-2"></i>Logowanie...</span>
                 </button>
             </form>
         </div>

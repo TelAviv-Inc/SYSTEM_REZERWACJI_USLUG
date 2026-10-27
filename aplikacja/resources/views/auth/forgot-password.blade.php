@@ -10,8 +10,8 @@
         onsubmit="this.querySelector('[type=submit]').disabled = true">
         @csrf
 
-        <x-auth-input name="email" type="email" label="Adres email" icon="fa-envelope" :value="old('email')" required
-            autofocus autocomplete="email" placeholder="jan@przyklad.pl" />
+        <x-auth-input name="email" type="email" label="Adres email" icon="fa-envelope" :value="old('email')" required autofocus
+            autocomplete="email" placeholder="jan@przyklad.pl" />
 
         <x-auth-submit loading="Wysyłanie...">Wyślij link</x-auth-submit>
     </form>
@@ -20,5 +20,6 @@
 @section('footer')
     Pamiętasz hasło?
     <a href="{{ route('login') }}"
-        class="font-semibold text-brand-accent transition duration-200 hover:text-brand-blue hover:underline">Zaloguj się</a>
+        class="font-semibold text-brand-accent transition duration-200 hover:text-brand-blue hover:underline">Zaloguj
+        się</a>
 @endsection

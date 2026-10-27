@@ -1,4 +1,4 @@
-@props(['name' => 'Domyslna nazwa', 'description' => "Brak opisu", 'icon' => "no-icon"])
+@props(['name' => 'Domyslna nazwa', 'description' => 'Brak opisu', 'icon' => 'no-icon'])
 
 <!-- resources/views/components/service-category-card.blade.php -->
 <button type="button" wire:click="$dispatch('categorySelected', { categoryName: @js($name) })"
