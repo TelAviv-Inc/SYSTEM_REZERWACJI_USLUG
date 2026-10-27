@@ -198,3 +198,166 @@ test('admin can cancel an employee\'s reservation and the details refresh', func
     $details = employeeDetails($this)->dispatch('reservationUpdated');
     expect($details->get('upcomingCount'))->toBe(0);
 });
+
+test('admin can add a service to an employee', function () {
+    $category = ServiceCategory::create(['name' => 'Kosmetyka', 'description' => 'Opis', 'icon' => 'fa-spa']);
+    $manicure = Service::forceCreate([
+        'uuid' => (string) Str::uuid(),
+        'category_id' => $category->uuid,
+        'name' => 'Manicure',
+        'description' => 'Opis uslugi',
+        'duration' => 30,
+        'price' => 80,
+        'active' => 1,
+    ]);
+
+    $details = employeeDetails($this);
+    // already assigned services are not offered again
+    expect($details->get('availableServices')->flatten()->pluck('uuid')->all())->toBe([$manicure->uuid]);
+
+    $details->set('serviceToAdd', $manicure->uuid)
+        ->call('addService')
+        ->assertHasNoErrors()
+        ->assertSet('serviceToAdd', '')
+        ->assertDispatched('employeeUpdated')
+        ->assertSee('Manicure');
+
+    expect($this->employee->services()->pluck('services.uuid')->sort()->values()->all())
+        ->toBe(collect([$this->service->uuid, $manicure->uuid])->sort()->values()->all());
+});
+
+test('a service can\'t be added twice or when it is inactive', function () {
+    $inactive = Service::forceCreate([
+        'uuid' => (string) Str::uuid(),
+        'category_id' => $this->service->category_id,
+        'name' => 'Koloryzacja',
+        'description' => 'Opis uslugi',
+        'duration' => 90,
+        'price' => 200,
+        'active' => 0,
+    ]);
+
+    employeeDetails($this)
+        ->set('serviceToAdd', $this->service->uuid)
+        ->call('addService')
+        ->assertHasErrors(['serviceToAdd' => 'not_in'])
+        ->set('serviceToAdd', $inactive->uuid)
+        ->call('addService')
+        ->assertHasErrors(['serviceToAdd' => 'exists']);
+
+    expect($this->employee->services()->count())->toBe(1);
+});
+
+test('admin can remove a service and its booked visits stay', function () {
+    employeeDetails($this)
+        ->assertSeeHtml('nadchodzących rezerwacji tej usługi')
+        ->call('removeService', $this->service->uuid)
+        ->assertDispatched('employeeUpdated')
+        ->assertSee('Pracownik nie ma przypisanych usług.');
+
+    expect($this->employee->services()->count())->toBe(0)
+        ->and($this->reservation->fresh()->status)->toBe('confirmed');
+});
+
+test('working hours are listed per weekday', function () {
+    employeeDetails($this)
+        ->assertSee('Wtorek')
+        ->assertSee('09:00–17:00')
+        ->assertSee('Wolne');
+});
+
+test('admin can add working hours that the booking flow accepts', function () {
+    employeeDetails($this)
+        ->set('day', 3)
+        ->set('startTime', '08:00')
+        ->set('endTime', '12:00')
+        ->call('saveAvailability')
+        ->assertHasNoErrors()
+        ->assertSee('08:00–12:00');
+
+    $availability = $this->employee->availability()->where('day_of_week', 3)->sole();
+    expect($availability->getRawOriginal('start_time'))->toBe('08:00:00')
+        ->and($availability->getRawOriginal('end_time'))->toBe('12:00:00');
+
+    // Wednesday 2026-10-14 11:00-12:00 ends exactly when the new range does
+    Livewire::actingAs($this->client)
+        ->test('reserve-service')
+        ->call('serviceChosen', $this->service->uuid)
+        ->call('selectEmployee', $this->employee->uuid)
+        ->call('setDate', '2026-10-14')
+        ->call('setHour', '11:00')
+        ->call('reserve')
+        ->assertHasNoErrors();
+
+    expect(Reservation::whereDate('reservation_date', '2026-10-14')->count())->toBe(1);
+});
+
+test('working hours must end after they start and not overlap the same day', function () {
+    employeeDetails($this)
+        ->set('day', 2)
+        ->set('startTime', '12:00')
+        ->set('endTime', '10:00')
+        ->call('saveAvailability')
+        ->assertHasErrors(['endTime' => 'after'])
+        ->set('startTime', '16:00')
+        ->set('endTime', '19:00')
+        ->call('saveAvailability')
+        ->assertHasErrors('startTime')
+        // touching ranges are fine
+        ->set('startTime', '17:00')
+        ->call('saveAvailability')
+        ->assertHasNoErrors();
+
+    expect($this->employee->availability()->where('day_of_week', 2)->count())->toBe(2);
+});
+
+test('admin can change and remove working hours', function () {
+    $availability = $this->employee->availability()->sole();
+
+    $details = employeeDetails($this)
+        ->call('editAvailability', $availability->uuid)
+        ->assertSet('day', 2)
+        ->assertSet('startTime', '09:00')
+        ->assertSet('endTime', '17:00')
+        // the range being edited doesn't count as an overlap with itself
+        ->set('endTime', '15:00')
+        ->call('saveAvailability')
+        ->assertHasNoErrors()
+        ->assertSet('editingAvailability', null)
+        ->assertSee('09:00–15:00');
+
+    expect($availability->fresh()->getRawOriginal('end_time'))->toBe('15:00:00');
+
+    $details->call('removeAvailability', $availability->uuid);
+    expect($this->employee->availability()->count())->toBe(0);
+});
+
+test('details warn about upcoming visits outside the working hours', function () {
+    $details = employeeDetails($this)->assertDontSee('poza godzinami pracy');
+    expect($details->get('reservationsOutsideHours'))->toBe(0);
+
+    // the Tuesday 10:00 visit no longer fits
+    $details->call('editAvailability', $this->employee->availability()->sole()->uuid)
+        ->set('startTime', '12:00')
+        ->call('saveAvailability')
+        ->assertSee('poza godzinami pracy: 1');
+});
+
+test('only an admin can manage services and working hours', function (string $role) {
+    $user = User::factory()->create(['role' => $role, 'active' => true]);
+
+    // the modal is opened in an admin session, then the action runs as someone else
+    $asOther = function (string $method, ...$params) use ($user) {
+        $component = Livewire::actingAs($this->admin)->test('admin-employee-details')->call('open', $this->employee->uuid);
+        $this->actingAs($user);
+
+        return $component->call($method, ...$params);
+    };
+
+    $asOther('removeService', $this->service->uuid)->assertForbidden();
+    $asOther('saveAvailability')->assertForbidden();
+    $asOther('removeAvailability', $this->employee->availability()->sole()->uuid)->assertForbidden();
+
+    expect($this->employee->services()->count())->toBe(1)
+        ->and($this->employee->availability()->count())->toBe(1);
+})->with(['client', 'employee']);

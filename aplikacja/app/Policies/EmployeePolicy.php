@@ -12,4 +12,10 @@ class EmployeePolicy
     {
         return $user->role === 'admin';
     }
+
+    // services and working hours, managed from the same details modal
+    public function update(User $user, Employee $employee): bool
+    {
+        return $user->role === 'admin';
+    }
 }

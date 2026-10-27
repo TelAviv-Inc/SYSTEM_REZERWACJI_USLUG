@@ -9,6 +9,9 @@ use Livewire\WithPagination;
 new class extends Component {
     use WithPagination;
 
+    // admin-employee-details dispatches this after adding or removing a service
+    protected $listeners = ['employeeUpdated' => '$refresh'];
+
     #[Url(as: 'q')]
     public string $search = '';
 
