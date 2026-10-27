@@ -4,8 +4,10 @@ namespace App\Providers;
 
 use App\Http\Middleware\EnsureHasRole;
 use App\Http\Middleware\EnsureUserIsActive;
+use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
@@ -28,12 +30,15 @@ class AppServiceProvider extends ServiceProvider
     {
         Password::defaults(fn () => app()->isProduction() ? Password::min(8)->letters()->mixedCase()->numbers()->symbols()->uncompromised() : Password::min(8));
 
+        // reports cover every category, service and employee, so they are for admins only
+        Gate::define('view-reports', fn (User $user) => $user->role === 'admin');
+
         Livewire::addPersistentMiddleware([
-            EnsureUserIsActive::class
+            EnsureUserIsActive::class,
         ]);
 
         Livewire::addPersistentMiddleware([
-            EnsureHasRole::class
+            EnsureHasRole::class,
         ]);
 
         // Livewire update requests get their own, looser bucket so interactive
