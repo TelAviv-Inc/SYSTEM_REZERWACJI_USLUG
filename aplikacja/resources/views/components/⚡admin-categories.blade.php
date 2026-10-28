@@ -189,87 +189,67 @@ new class extends Component {
     </table>
 
     @if ($showForm)
-        {{-- Same shell as admin-users-edit: bottom sheet on phones, centered modal from sm up --}}
-        <div wire:click.self="closeForm" x-on:keydown.escape.window="$wire.closeForm()"
-            class="fixed inset-0 z-50 flex items-end sm:items-center justify-center overflow-y-auto bg-black/60 p-0 sm:p-4 transition-opacity">
-
-            <div role="dialog" aria-modal="true" aria-labelledby="admin-category-form-title"
-                class="relative w-full max-w-lg max-h-[95dvh] sm:max-h-[90dvh] overflow-y-auto rounded-t-2xl sm:rounded-2xl bg-white p-4 sm:p-6 shadow-2xl border border-brand-border">
-                <button type="button" wire:click="closeForm" aria-label="Zamknij"
-                    class="absolute top-2 right-2 sm:top-4 sm:right-4 p-2 text-gray-400 hover:text-gray-600 transition-colors cursor-pointer">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
-                        </path>
-                    </svg>
-                </button>
-
-                <div class="border-b border-brand-border pb-3 sm:pb-4 mb-4 pr-8">
-                    <h3 id="admin-category-form-title" class="text-xl sm:text-2xl font-bold text-brand-navy">
-                        {{ $editing ? 'Edytuj kategorię' : 'Nowa kategoria' }}
-                    </h3>
+        <x-modal id="admin-category-form-title" close="closeForm" :title="$editing ? 'Edytuj kategorię' : 'Nowa kategoria'" width="max-w-lg">
+            <form wire:submit="save" class="flex flex-col gap-4">
+                <div>
+                    <label for="admin-category-name" class="block text-sm text-brand-muted mb-1">Nazwa</label>
+                    <input id="admin-category-name" type="text" wire:model="name" maxlength="64"
+                        class="w-full rounded-lg border border-brand-border bg-white p-2.5 text-sm">
+                    @error('name')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
                 </div>
 
-                <form wire:submit="save" class="flex flex-col gap-4">
-                    <div>
-                        <label for="admin-category-name" class="block text-sm text-brand-muted mb-1">Nazwa</label>
-                        <input id="admin-category-name" type="text" wire:model="name" maxlength="64"
+                <div>
+                    <label for="admin-category-description" class="block text-sm text-brand-muted mb-1">Opis</label>
+                    <textarea id="admin-category-description" wire:model="description" rows="3" maxlength="255"
+                        class="w-full rounded-lg border border-brand-border bg-white p-2.5 text-sm"></textarea>
+                    @error('description')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label for="admin-category-icon" class="block text-sm text-brand-muted mb-1">Ikona</label>
+                    <div class="flex items-center gap-2">
+                        <span
+                            class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-brand-light-bg text-lg text-brand-accent">
+                            <i class="{{ $icon }}"></i>
+                        </span>
+                        <input id="admin-category-icon" type="text" wire:model.live.debounce.300ms="icon"
+                            placeholder="fa-solid fa-scissors"
                             class="w-full rounded-lg border border-brand-border bg-white p-2.5 text-sm">
-                        @error('name')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
                     </div>
+                    <div class="mt-2 flex flex-wrap gap-1.5">
+                        @foreach ($this->icons as $preset)
+                            <button type="button" wire:click="$set('icon', '{{ $preset }}')"
+                                aria-label="Ikona {{ $preset }}" @class([
+                                    'flex size-9 items-center justify-center rounded-lg border cursor-pointer transition',
+                                    'border-brand-accent bg-brand-light-bg text-brand-accent' =>
+                                        $icon === $preset,
+                                    'border-brand-border bg-white text-brand-text hover:bg-brand-light-bg' =>
+                                        $icon !== $preset,
+                                ])>
+                                <i class="{{ $preset }}"></i>
+                            </button>
+                        @endforeach
+                    </div>
+                    @error('icon')
+                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
 
-                    <div>
-                        <label for="admin-category-description" class="block text-sm text-brand-muted mb-1">Opis</label>
-                        <textarea id="admin-category-description" wire:model="description" rows="3" maxlength="255"
-                            class="w-full rounded-lg border border-brand-border bg-white p-2.5 text-sm"></textarea>
-                        @error('description')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div>
-                        <label for="admin-category-icon" class="block text-sm text-brand-muted mb-1">Ikona</label>
-                        <div class="flex items-center gap-2">
-                            <span
-                                class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-brand-light-bg text-lg text-brand-accent">
-                                <i class="{{ $icon }}"></i>
-                            </span>
-                            <input id="admin-category-icon" type="text" wire:model.live.debounce.300ms="icon"
-                                placeholder="fa-solid fa-scissors"
-                                class="w-full rounded-lg border border-brand-border bg-white p-2.5 text-sm">
-                        </div>
-                        <div class="mt-2 flex flex-wrap gap-1.5">
-                            @foreach ($this->icons as $preset)
-                                <button type="button" wire:click="$set('icon', '{{ $preset }}')"
-                                    aria-label="Ikona {{ $preset }}" @class([
-                                        'flex size-9 items-center justify-center rounded-lg border cursor-pointer transition',
-                                        'border-brand-accent bg-brand-light-bg text-brand-accent' =>
-                                            $icon === $preset,
-                                        'border-brand-border bg-white text-brand-text hover:bg-brand-light-bg' =>
-                                            $icon !== $preset,
-                                    ])>
-                                    <i class="{{ $preset }}"></i>
-                                </button>
-                            @endforeach
-                        </div>
-                        @error('icon')
-                            <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div class="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-                        <button type="button" wire:click="closeForm"
-                            class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg border border-brand-border bg-white text-brand-text font-semibold cursor-pointer transition hover:bg-brand-light-bg">
-                            Anuluj
-                        </button>
-                        <button type="submit" wire:loading.attr="disabled"
-                            class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-brand-accent text-white font-semibold shadow-md cursor-pointer transition duration-200 hover:brightness-110 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-brand-accent focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed">
-                            {{ $editing ? 'Zapisz zmiany' : 'Dodaj kategorię' }}
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
+                <div class="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+                    <button type="button" wire:click="closeForm"
+                        class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg border border-brand-border bg-white text-brand-text font-semibold cursor-pointer transition hover:bg-brand-light-bg">
+                        Anuluj
+                    </button>
+                    <button type="submit" wire:loading.attr="disabled"
+                        class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-brand-accent text-white font-semibold shadow-md cursor-pointer transition duration-200 hover:brightness-110 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-brand-accent focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                        {{ $editing ? 'Zapisz zmiany' : 'Dodaj kategorię' }}
+                    </button>
+                </div>
+            </form>
+        </x-modal>
     @endif
 </div>

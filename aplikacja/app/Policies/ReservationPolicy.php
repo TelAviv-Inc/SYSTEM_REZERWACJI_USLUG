@@ -6,49 +6,75 @@ use App\Models\Employee;
 use App\Models\Reservation;
 use App\Models\User;
 
+// Admins may act on any reservation, but the status and date rules apply to them too -
+// a cancelled or completed visit can't be moved or reopened by anyone.
 class ReservationPolicy
 {
-    /**
-     * Create a new policy instance.
-     */
-    public function __construct()
+    // reservations tab in the admin panel
+    public function viewAny(User $user): bool
     {
-        //
+        return $this->isAdmin($user);
     }
 
-    public function before(User $user )
+    // an employee without an active account can't log in, so they can't be booked either
+    public function create(User $user, Employee $employee): bool
     {
-        return $user->role === 'admin' ? true : null;
+        return $employee->active && $employee->user?->active && $employee->user_id !== $user->uuid;
     }
 
-    public function create(User $user, Employee $employee) : bool
+    public function view(User $user, Reservation $reservation): bool
     {
-        return $employee->active && $employee->user_id !== $user->uuid;
+        return $this->isAdmin($user) || $this->isClient($user, $reservation) || $this->isEmployee($user, $reservation);
     }
 
-    public function view(User $user, Reservation $reservation)
+    // clients and employees up to the day before; an admin also after the start, e.g. for a no-show
+    public function cancel(User $user, Reservation $reservation): bool
     {
-        return $reservation->user_id === $user->uuid || $reservation->employee?->user_id === $user->uuid;
+        if (! $reservation->isActive()) {
+            return false;
+        }
+
+        return $this->isAdmin($user)
+            || (($this->isClient($user, $reservation) || $this->isEmployee($user, $reservation)) && $reservation->reservation_date->isFuture());
     }
 
-    public function cancel (User $user, Reservation $reservation)
-    {
-        return ($reservation->user_id === $user->uuid || $reservation->employee?->user_id === $user->uuid) && in_array($reservation->status, ['pending', 'confirmed']) && $reservation->reservation_date->isFuture();
-    }
-
-    // only the client who booked can move the visit; same time window as cancel
+    // the client who booked or an admin can move the visit; same time window as cancel
     public function update(User $user, Reservation $reservation): bool
     {
-        return $reservation->user_id === $user->uuid
+        return ($this->isAdmin($user) || $this->isClient($user, $reservation))
             && $reservation->employee?->active
-            && in_array($reservation->status, ['pending', 'confirmed'])
+            && $reservation->isActive()
             && $reservation->reservation_date->isFuture();
     }
 
+    // the employee being booked or an admin, before the visit starts
     public function confirm(User $user, Reservation $reservation): bool
     {
-        // only the employee being booked can confirm
-        return $reservation->status === 'pending'
-            && $reservation->employee?->user_id === $user->uuid;
+        return ($this->isAdmin($user) || $this->isEmployee($user, $reservation))
+            && $reservation->status === 'pending'
+            && ! $reservation->hasStarted();
+    }
+
+    // once the visit has started; a pending one too, in case nobody confirmed it in time
+    public function complete(User $user, Reservation $reservation): bool
+    {
+        return ($this->isAdmin($user) || $this->isEmployee($user, $reservation))
+            && $reservation->isActive()
+            && $reservation->hasStarted();
+    }
+
+    protected function isAdmin(User $user): bool
+    {
+        return $user->role === 'admin';
+    }
+
+    protected function isClient(User $user, Reservation $reservation): bool
+    {
+        return $reservation->user_id === $user->uuid;
+    }
+
+    protected function isEmployee(User $user, Reservation $reservation): bool
+    {
+        return $reservation->employee?->user_id === $user->uuid;
     }
 }

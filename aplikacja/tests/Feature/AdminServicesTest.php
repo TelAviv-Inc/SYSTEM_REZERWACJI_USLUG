@@ -100,10 +100,11 @@ test('filters by search, category and status', function (array $filters, string 
 
 test('changing a filter goes back to page 1', function () {
     Livewire::actingAs($this->admin)
-        ->withQueryParams(['page' => 2])
+        ->withQueryParams(['services_page' => 2])
         ->test('admin-services')
+        ->assertSet('paginators.services_page', 2)
         ->set('search', 'Strzy')
-        ->assertSet('paginators.page', 1);
+        ->assertSet('paginators.services_page', 1);
 });
 
 test('admin adds a service', function () {

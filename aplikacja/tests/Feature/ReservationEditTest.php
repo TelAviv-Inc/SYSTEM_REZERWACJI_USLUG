@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Forms\ReservationForm;
 use App\Models\Employee;
 use App\Models\Reservation;
 use App\Models\Service;
@@ -121,7 +122,7 @@ test('moving a reservation onto someone else\'s slot is rejected', function () {
         ->call('setDate', '2026-10-13')
         ->call('setHour', '13:30')
         ->call('reschedule')
-        ->assertHasErrors(['form.hour' => 'Ten termin jest juz zajety. Wybierz inna godzine.']);
+        ->assertHasErrors(['form.hour' => ReservationForm::TAKEN]);
 
     expect($this->reservation->fresh()->start_time->format('H:i'))->toBe('10:00');
 });
@@ -180,4 +181,58 @@ test('hour calendar shows the rescheduled visit\'s own slot as free', function (
             'ignoreReservation' => $this->reservation->uuid,
         ])
         ->assertViewHas('_slots', fn ($slots) => collect($slots)->firstWhere('time', '10:00')['isAvailable'] === true);
+});
+
+test('a visit can still be moved after its service was deactivated', function () {
+    $this->service->update(['active' => 0]);
+
+    editModal($this)
+        ->call('startReschedule')
+        ->call('setDate', '2026-10-13')
+        ->call('setHour', '14:00')
+        ->call('reschedule')
+        ->assertHasNoErrors();
+
+    expect($this->reservation->fresh()->start_time->format('H:i'))->toBe('14:00');
+});
+
+test('details and the reservations list show the price stored at booking', function () {
+    DB::table('reservations')->where('uuid', $this->reservation->uuid)->update(['price' => 80]);
+    $this->service->update(['price' => 150]);
+
+    editModal($this)->assertSee('80,00 zł')->assertDontSee('150,00 zł');
+
+    Livewire::actingAs($this->client)
+        ->test('reservations-menu')
+        ->assertSee('80,00 zł')
+        ->assertDontSee('150,00 zł');
+});
+
+test('client reservations sort by the price stored at booking', function () {
+    DB::table('reservations')->where('uuid', $this->reservation->uuid)->update(['price' => 120]);
+    $cheaper = makeReservation($this, $this->client, '13:00:00', '14:00:00');
+    DB::table('reservations')->where('uuid', $cheaper->uuid)->update(['price' => 90]);
+
+    $order = Livewire::actingAs($this->client)
+        ->test('reservations-menu')
+        ->set('sort', 'price')
+        ->get('reservations')
+        ->pluck('uuid')
+        ->all();
+
+    expect($order)->toBe([$cheaper->uuid, $this->reservation->uuid]);
+});
+
+test('a client cannot confirm or complete their own reservation', function () {
+    $this->reservation->update(['status' => 'pending']);
+
+    editModal($this)
+        ->assertDontSeeHtml('wire:click="confirm"')
+        ->call('confirm')
+        ->assertForbidden();
+
+    $this->travelTo(Carbon::parse('2026-10-13 12:00'));
+    editModal($this)->call('complete')->assertForbidden();
+
+    expect($this->reservation->fresh()->status)->toBe('pending');
 });

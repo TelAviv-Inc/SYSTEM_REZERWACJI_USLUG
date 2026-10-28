@@ -238,3 +238,104 @@ test('saving unchanged contact data does nothing', function () {
         ->assertNotDispatched('userUpdated')
         ->assertDontSee('Dane kontaktowe zostały zapisane.');
 });
+
+// makes the target an employee who offers one service and returns a closure counting
+// the employees a client is offered for it in the booking modal
+function offeredEmployees($test): Closure
+{
+    $service = Service::forceCreate([
+        'uuid' => (string) Str::uuid(),
+        'name' => 'Strzyzenie',
+        'description' => 'Opis uslugi',
+        'duration' => 60,
+        'price' => 100,
+        'active' => 1,
+    ]);
+
+    changeRole($test, 'employee');
+    DB::table('employee_services')->insert([
+        'uuid' => (string) Str::uuid(),
+        'employee_id' => $test->target->fresh()->employee->uuid,
+        'service_id' => $service->uuid,
+    ]);
+
+    $client = User::factory()->create(['role' => 'client', 'active' => true]);
+
+    return fn () => Livewire::actingAs($client)->test('reserve-service')->call('serviceChosen', $service->uuid)->get('employees')->count();
+}
+
+test('deactivating an account hides its employee profile from booking until it is activated again', function () {
+    $offered = offeredEmployees($this);
+    expect($offered())->toBe(1);
+
+    Livewire::actingAs($this->admin)
+        ->test('admin-users-edit')
+        ->call('open', $this->target->uuid)
+        ->call('startDisable')
+        ->assertSee('Profil pracownika tego konta zniknie z listy przy rezerwacji.')
+        ->call('disable');
+
+    expect((bool) $this->target->fresh()->employee->active)->toBeFalse()
+        ->and($offered())->toBe(0);
+
+    Livewire::actingAs($this->admin)
+        ->test('admin-users-edit')
+        ->call('open', $this->target->uuid)
+        ->call('enable')
+        ->assertSee('Konto zostało aktywowane.');
+
+    expect((bool) $this->target->fresh()->employee->active)->toBeTrue()
+        ->and($offered())->toBe(1);
+});
+
+test('an employee whose account is inactive is not offered even with an active profile', function () {
+    $offered = offeredEmployees($this);
+
+    // data from before deactivation switched the profile off too
+    $this->target->update(['active' => false]);
+
+    expect((bool) $this->target->fresh()->employee->active)->toBeTrue()
+        ->and($offered())->toBe(0);
+});
+
+test('an inactive account given the employee role stays unbookable', function () {
+    $this->target->update(['active' => false]);
+
+    changeRole($this, 'employee');
+
+    expect((bool) $this->target->fresh()->employee->active)->toBeFalse();
+});
+
+test('changing an employee\'s role says how many upcoming visits stay booked', function () {
+    offeredEmployees($this);
+    $employee = $this->target->fresh()->employee;
+    DB::table('reservations')->insert([
+        'uuid' => (string) Str::uuid(),
+        'user_id' => $this->admin->uuid,
+        'employee_id' => $employee->uuid,
+        'service_id' => $employee->services()->value('services.uuid'),
+        'reservation_date' => now()->addWeek()->toDateString(),
+        'start_time' => '10:00:00',
+        'end_time' => '11:00:00',
+        'status' => 'confirmed',
+    ]);
+
+    Livewire::actingAs($this->admin)
+        ->test('admin-users-edit')
+        ->call('open', $this->target->uuid)
+        ->set('selectedRole', 'client')
+        ->assertSee('Nadchodzące wizyty u tego pracownika (1)');
+});
+
+test('users list shows polish role names and searches by surname', function () {
+    $this->target->update(['surname' => 'Zdzisławska']);
+
+    $list = Livewire::actingAs($this->admin)
+        ->test('admin-users')
+        ->assertSeeHtml('md:p-2">Klient</td>')
+        ->assertSeeHtml('md:p-2">Administrator</td>')
+        ->assertDontSeeHtml('md:p-2">client</td>')
+        ->set('search', 'Zdzisław');
+
+    expect($list->get('users')->pluck('uuid')->all())->toBe([$this->target->uuid]);
+});

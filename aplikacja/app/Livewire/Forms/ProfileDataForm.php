@@ -13,7 +13,9 @@ use Livewire\Form;
 class ProfileDataForm extends Form
 {
     public string $email = '';
+
     public string $phone = '';
+
     public string $current_password = '';
 
     public function setUser(User $user)
@@ -26,31 +28,32 @@ class ProfileDataForm extends Form
     {
         $user = auth()->user();
 
-
         return [
-            "email" => ['required', 'string', 'email', 'max:255',  Rule::unique('users', 'email')->ignore($user)],
-            "phone" => ['required', 'string', 'regex:/^(\+48)?\d{9}$/'],
-            "current_password" => [Rule::requiredIf(fn() => $this->email !== $user->email), 'nullable', 'current_password']
+            'email' => ['required', 'string', 'email', 'max:255',  Rule::unique('users', 'email')->ignore($user)],
+            'phone' => ['required', 'string', 'regex:/^(\+48)?\d{9}$/'],
+            'current_password' => [Rule::requiredIf(fn () => $this->email !== $user->email), 'nullable', 'current_password'],
         ];
     }
 
     public function messages(): array
     {
         return [
-            'email.unique' => 'Ten adres email jest juz zajety',
+            'email.unique' => 'Ten adres e-mail jest już zajęty',
             'phone.regex' => 'Podaj poprawny numer telefonu',
             'current_password.required' => 'Podaj obecne haslo aby zmienic email',
-            'current_password.current_password' => 'Nieprawidlowe haslo'
+            'current_password.current_password' => 'Nieprawidlowe haslo',
         ];
     }
 
-    public function update(): bool 
+    public function update(): bool
     {
         $this->phone = Phone::normalize($this->phone);
         $this->validate();
         $user = auth()->user();
         $user->fill($this->only(['email', 'phone']));
-        if (! $user->isDirty()) return false;
+        if (! $user->isDirty()) {
+            return false;
+        }
 
         try {
             $user->save();
@@ -62,8 +65,10 @@ class ProfileDataForm extends Form
         }
 
         $this->reset('current_password');
+
         return true;
     }
+
     protected function normalizePhone()
     {
         $this->phone = Phone::normalize($this->phone);

@@ -19,14 +19,13 @@ return new class extends Migration
             $table->date('reservation_date');
             $table->time('start_time');
             $table->time('end_time');
-            $table->enum('status', ['pending','confirmed', 'completed', 'cancelled'])->default('pending');
-            $table->decimal('price', 10,2)->default(0);
+            $table->enum('status', ['pending', 'confirmed', 'completed', 'cancelled'])->default('pending');
             $table->string('comment')->nullable();
             $table->timestamps();
 
-           $table->foreign('user_id')->references('uuid')->on('users')->cascadeOnDelete();
-           $table->foreign('employee_id')->references('uuid')->on('employees');
-           $table->foreign('service_id')->references('uuid')->on('services');
+            $table->foreign('user_id')->references('uuid')->on('users')->cascadeOnDelete();
+            $table->foreign('employee_id')->references('uuid')->on('employees');
+            $table->foreign('service_id')->references('uuid')->on('services');
         });
     }
 

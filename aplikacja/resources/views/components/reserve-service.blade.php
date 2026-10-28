@@ -58,16 +58,25 @@
                                 @if ($selectedHour && !$reserved)
                                     <div class="flex items-end justify-end">
                                         <button wire:click="$dispatch('reservationMade')" type="submit"
-                                            class="px-4 py-3 cursor-pointer bg-green-600 hover:bg-green-700 rounded-lg text-white font-semibold tracking-wide shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 hover:-rotate-2 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-opacity-50">Zarezerwuj</button>
+                                            class="px-4 py-3 cursor-pointer bg-green-600 hover:bg-green-700 rounded-lg text-white font-semibold tracking-wide shadow-md hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 hover:-rotate-2 focus:outline-none focus:ring-2 focus:ring-green-500/50">Zarezerwuj</button>
                                     </div>
                                 @endif
                             @endif
                         @else
                             <div class="justify-start py-4 ">
-                                <h2 class="text-md text-gray-500 italic sm:col-span-2">Nalezy wybrac innego pracownika.</h2>
+                                <h2 class="text-md text-gray-500 italic sm:col-span-2">Należy wybrać innego pracownika.</h2>
                             </div>
                         @endcan
 
+                    @endif
+                    {{-- e.g. the slot was taken or the service deactivated while the modal was open --}}
+                    @if ($errors->any())
+                        <div
+                            class="mt-3 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-700">
+                            @foreach ($errors->all() as $message)
+                                <p><i class="fa-solid fa-circle-exclamation"></i> {{ $message }}</p>
+                            @endforeach
+                        </div>
                     @endif
                     @if (session('status'))
                         <p

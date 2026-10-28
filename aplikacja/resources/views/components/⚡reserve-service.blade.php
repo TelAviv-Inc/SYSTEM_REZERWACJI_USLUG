@@ -20,7 +20,7 @@ new class extends Component {
     public function serviceChosen($serviceID)
     {
         $this->selectedService = Service::with([
-            'employees' => fn($q) => $q->where('employees.active', 1),
+            'employees' => fn($q) => $q->bookable(),
             'employees.availability',
         ])
             ->where('active', 1)
@@ -82,7 +82,7 @@ new class extends Component {
         $this->authorize('create', [Reservation::class, $this->selectedEmployee]);
         $this->form->reserve();
         $this->reserved = true;
-        session()->flash('status', 'Rezerwacja dokonana pomyslnie');
+        session()->flash('status', 'Rezerwacja dokonana pomyślnie');
         $this->js('setTimeout(() => $wire.close(), 1000)');
     }
 

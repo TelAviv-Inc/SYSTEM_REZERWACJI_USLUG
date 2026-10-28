@@ -58,7 +58,7 @@ test('search with no match shows the empty state', function () {
     Livewire::actingAs($this->admin)
         ->test('admin-employees')
         ->set('search', 'nikogo-takiego')
-        ->assertSee('Brak')
+        ->assertSee('Brak pracowników.')
         ->assertDontSee('Annabella')
         ->assertDontSee('Janusz');
 });
@@ -81,8 +81,9 @@ test('search combines with the status filter', function () {
 
 test('changing the search goes back to page 1', function () {
     Livewire::actingAs($this->admin)
-        ->withQueryParams(['page' => 2])
+        ->withQueryParams(['employees_page' => 2])
         ->test('admin-employees')
+        ->assertSet('paginators.employees_page', 2)
         ->set('search', 'Annab')
-        ->assertSet('paginators.page', 1);
+        ->assertSet('paginators.employees_page', 1);
 });

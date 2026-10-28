@@ -2,22 +2,27 @@
 
 namespace App\Models;
 
+use Database\Factories\EmployeeFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Employee extends Model
 {
-    /** @use HasFactory<\Database\Factories\EmployeeFactory> */
+    /** @use HasFactory<EmployeeFactory> */
     use HasFactory, HasUuids;
+
     protected $primaryKey = 'uuid';   // if uuid IS your PK column
+
     public $incrementing = false;
+
     protected $keyType = 'string';
+
     protected $fillable = [
         'uuid',
         'user_id',
         'description',
-        'active'
+        'active',
     ];
 
     /**
@@ -49,5 +54,14 @@ class Employee extends Model
     public function reservations()
     {
         return $this->hasMany(Reservation::class, 'employee_id');
+    }
+
+    /**
+     * Employees clients can book: an active profile and an account that can log in.
+     */
+    public function scopeBookable($query)
+    {
+        return $query->where('employees.active', 1)
+            ->whereHas('user', fn ($q) => $q->where('active', true));
     }
 }

@@ -26,13 +26,10 @@ new class extends Component {
             $query->upcoming();
         }
 
-        if (in_array($this->sort, ['category', 'price'])) {
-            $query->join('services', 'services.uuid', '=', 'reservations.service_id');
-        }
-
         match ($this->sort) {
-            'category' => $query->leftJoin('service_categories', 'service_categories.uuid', '=', 'services.category_id')->orderBy('service_categories.name'),
-            'price' => $query->orderBy('services.price'),
+            'category' => $query->join('services', 'services.uuid', '=', 'reservations.service_id')->leftJoin('service_categories', 'service_categories.uuid', '=', 'services.category_id')->orderBy('service_categories.name'),
+            // the price stored at booking, the one shown on the card
+            'price' => $query->orderBy('reservations.price'),
             'furthest' => $query->orderByDesc('reservation_date')->orderByDesc('start_time'),
             default => $query->orderBy('reservation_date')->orderBy('start_time'),
         };
@@ -86,7 +83,7 @@ new class extends Component {
                     <div class="flex flex-col sm:items-end">
                         <p class="font-semibold">{{ $reservation->full_date_time }}</p>
                         <p class="text-sm text-gray-600">
-                            {{ number_format($reservation->service->price, 2, ',', ' ') }} zł
+                            {{ number_format($reservation->price, 2, ',', ' ') }} zł
                             · {{ $reservation->status_label }}
                         </p>
                     </div>

@@ -8,16 +8,24 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Str;
-use Override;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, HasUuids; //HasUuids - auto generowien uuid przy tworzeniu
+    use HasFactory, HasUuids, Notifiable; // HasUuids - auto generowien uuid przy tworzeniu
+
     protected $primaryKey = 'uuid';   // if uuid IS your PK column
+
     public $incrementing = false;
+
     protected $keyType = 'string';
+
+    // role => label shown in the admin panel
+    public const ROLES = [
+        'client' => 'Klient',
+        'employee' => 'Pracownik',
+        'admin' => 'Administrator',
+    ];
 
     /**
      * The attributes that are mass assignable.
@@ -58,7 +66,7 @@ class User extends Authenticatable
             'active' => 'boolean',
         ];
     }
-    
+
     /**
      * Boot the model.
      */
@@ -67,12 +75,12 @@ class User extends Authenticatable
         parent::boot();
 
         // Generate UUID when creating a new user
-        
 
     }
+
     /**
- * Get the reservations made by the user.
- */
+     * Get the reservations made by the user.
+     */
     public function reservations()
     {
         return $this->hasMany(Reservation::class, 'user_id');
@@ -85,5 +93,4 @@ class User extends Authenticatable
     {
         return $this->hasOne(Employee::class, 'user_id', 'uuid');
     }
-
 }

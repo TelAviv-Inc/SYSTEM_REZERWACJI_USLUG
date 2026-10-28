@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\Forms\ReservationForm;
 use App\Models\Employee;
 use App\Models\Reservation;
 use App\Models\Service;
@@ -10,9 +11,9 @@ use Illuminate\Support\Str;
 use Livewire\Livewire;
 
 // messages from ReservationForm - asserting the exact one makes sure a slot is rejected for the right reason
-const TAKEN = 'Ten termin jest juz zajety. Wybierz inna godzine.';
+const TAKEN = ReservationForm::TAKEN;
 const UNAVAILABLE = 'Pracownik nie jest dostępny w tym terminie.';
-const PAST = 'Nie mozna zarezerwowac terminu w przeszlosci';
+const PAST = 'Nie można zarezerwować terminu w przeszłości';
 
 // "Now" is Monday 2026-10-12 08:00. The employee works on Tuesdays (2026-10-13) 09:00-17:00,
 // and the service takes 60 minutes.
@@ -157,4 +158,35 @@ test('malformed hour returns a validation error instead of crashing', function (
     reserveSlot($this, '2026-10-13', 'abc')->assertHasErrors(['form.hour']);
 
     expect(Reservation::count())->toBe(0);
+});
+
+test('the reason a booking failed is shown in the modal', function () {
+    existingReservation($this, '10:00:00', '11:00:00');
+
+    reserveSlot($this, '2026-10-13', '10:00')->assertSee(TAKEN);
+});
+
+test('a service deactivated while the booking modal is open can no longer be booked', function () {
+    $booking = Livewire::actingAs($this->client)
+        ->test('reserve-service')
+        ->call('serviceChosen', $this->service->uuid)
+        ->call('selectEmployee', $this->employee->uuid)
+        ->call('setDate', '2026-10-13')
+        ->call('setHour', '10:00');
+
+    $this->service->update(['active' => 0]);
+
+    $booking->call('reserve')
+        ->assertHasErrors(['form.service_id' => 'Ta usługa nie jest już dostępna.'])
+        ->assertSee('Ta usługa nie jest już dostępna.');
+
+    expect(Reservation::count())->toBe(0);
+});
+
+test('a new booking stores the current service price', function () {
+    reserveSlot($this, '2026-10-13', '10:00')->assertHasNoErrors();
+
+    $this->service->update(['price' => 150]);
+
+    expect((float) Reservation::sole()->price)->toBe(100.0);
 });

@@ -2,22 +2,32 @@
 
 namespace App\Models;
 
+use Database\Factories\ReservationFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Reservation extends Model
 {
-    /** @use HasFactory<\Database\Factories\ReservationFactory> */
+    /** @use HasFactory<ReservationFactory> */
     use HasFactory;
 
     protected $primaryKey = 'uuid';   // if uuid IS your PK column
+
     public $incrementing = false;
+
     protected $keyType = 'string';
-    
+
+    public const STATUSES = [
+        'pending' => 'Oczekująca',
+        'confirmed' => 'Potwierdzona',
+        'completed' => 'Zakończona',
+        'cancelled' => 'Anulowana',
+    ];
+
     protected $fillable = [
         'uuid',
         'user_id',
-        'employee_id', 
+        'employee_id',
         'service_id',
         'reservation_date',
         'start_time',
@@ -66,12 +76,13 @@ class Reservation extends Model
     }
 
     /**
-    * Scope a query to only include active (pending or confirmed) reservations.
-    */
+     * Scope a query to only include active (pending or confirmed) reservations.
+     */
     public function scopeActive($query)
     {
         return $query->whereIn('status', ['pending', 'confirmed']);
     }
+
     /**
      * Scope a query to only include confirmed reservations.
      */
@@ -101,14 +112,23 @@ class Reservation extends Model
      */
     public function getStatusLabelAttribute()
     {
-        $statuses = [
-            'pending' => 'Oczekująca',
-            'confirmed' => 'Potwierdzona',
-            'completed' => 'Zakończona',
-            'cancelled' => 'Anulowana'
-        ];
+        return self::STATUSES[$this->status] ?? $this->status;
+    }
 
-        return $statuses[$this->status] ?? $this->status;
+    /**
+     * Pending or confirmed - the visit can still be confirmed, completed or cancelled.
+     */
+    public function isActive(): bool
+    {
+        return in_array($this->status, ['pending', 'confirmed'], true);
+    }
+
+    /**
+     * The visit's start time has passed (same rule as the past scope).
+     */
+    public function hasStarted(): bool
+    {
+        return $this->reservation_date->copy()->setTimeFrom($this->start_time)->lte(now());
     }
 
     /**
@@ -116,8 +136,8 @@ class Reservation extends Model
      */
     public function getFullDateTimeAttribute()
     {
-        return $this->reservation_date->format('d.m.Y') . ' ' . 
-               $this->start_time->format('H:i') . '-' . 
+        return $this->reservation_date->format('d.m.Y').' '.
+               $this->start_time->format('H:i').'-'.
                $this->end_time->format('H:i');
     }
 
@@ -160,6 +180,6 @@ class Reservation extends Model
             ->where('status', '!=', 'cancelled')
             ->where('start_time', '<', $end)
             ->where('end_time', '>', $start)
-            ->when($exceptUuid, fn($q) => $q->whereKeyNot($exceptUuid));
+            ->when($exceptUuid, fn ($q) => $q->whereKeyNot($exceptUuid));
     }
 }

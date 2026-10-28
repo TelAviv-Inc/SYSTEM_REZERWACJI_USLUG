@@ -8,13 +8,15 @@ use Livewire\WithPagination;
 
 new class extends Component {
     use WithPagination;
-    #[Url(as: 'q')]
+
+    // every admin tab has its own URL keys, so filters don't carry over to the next tab
+    #[Url(as: 'users_q')]
     public string $search = '';
 
-    #[Url]
+    #[Url(as: 'users_status')]
     public string $status = '';
 
-    #[Url]
+    #[Url(as: 'users_role')]
     public string $role = '';
 
     // admin-users-edit dispatches this after a role change or deactivation
@@ -24,7 +26,7 @@ new class extends Component {
     public function updated(string $property): void
     {
         if (in_array($property, ['search', 'status', 'role'], true)) {
-            $this->resetPage();
+            $this->resetPage('users_page');
         }
     }
 
@@ -33,24 +35,32 @@ new class extends Component {
     {
         return User::query()
             ->select(['uuid', 'name', 'surname', 'email', 'role', 'active', 'created_at'])
-            ->when($this->search, fn($q) => $q->where(fn($q) => $q->where('name', 'like', "%{$this->search}%")->orWhere('email', 'like', "%{$this->search}%")))
+            ->when(
+                $this->search,
+                fn($q) => $q->where(
+                    fn($q) => $q
+                        ->where('name', 'like', "%{$this->search}%")
+                        ->orWhere('surname', 'like', "%{$this->search}%")
+                        ->orWhere('email', 'like', "%{$this->search}%"),
+                ),
+            )
             ->when(in_array($this->status, ['active', 'inactive'], true), fn($q) => $q->where('active', $this->status === 'active'))
-            ->when(in_array($this->role, ['client', 'employee', 'admin'], true), fn($q) => $q->where('role', $this->role))
+            ->when(array_key_exists($this->role, User::ROLES), fn($q) => $q->where('role', $this->role))
             ->latest()
-            ->paginate(10);
+            ->paginate(10, pageName: 'users_page');
     }
 };
 ?>
 <div class="mt-4">
     <div class="mb-3 flex flex-col gap-2 sm:flex-row">
-        <input type="text" wire:model.live.debounce.300ms="search" placeholder="Szukaj po imieniu lub e-mailu"
+        <input type="text" wire:model.live.debounce.300ms="search" placeholder="Szukaj po imieniu, nazwisku lub e-mailu"
             class="w-full rounded border border-brand-border p-2">
 
         <select wire:model.live="role" class="w-full rounded border border-brand-border p-2 sm:w-auto">
             <option value="">Wszystkie role</option>
-            <option value="client">Klient</option>
-            <option value="employee">Pracownik</option>
-            <option value="admin">Administrator</option>
+            @foreach (User::ROLES as $value => $label)
+                <option value="{{ $value }}">{{ $label }}</option>
+            @endforeach
         </select>
 
         <select wire:model.live="status" class="w-full rounded border border-brand-border p-2 sm:w-auto">
@@ -76,13 +86,13 @@ new class extends Component {
                 <tr wire:key="user-{{ $user->uuid }}"
                     class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 rounded border border-brand-border p-3 md:table-row md:rounded-none md:border-0 md:border-b md:p-0">
                     <td class="text-xs text-gray-500 md:hidden">Imię</td>
-                    <td class="md:table-cell md:p-2">{{ $user->name }}</td>
+                    <td class="md:table-cell md:p-2">{{ $user->name }} {{ $user->surname }}</td>
 
                     <td class="text-xs text-gray-500 md:hidden">E-mail</td>
                     <td class="min-w-0 break-all md:table-cell md:p-2 md:break-normal">{{ $user->email }}</td>
 
                     <td class="text-xs text-gray-500 md:hidden">Rola</td>
-                    <td class="md:table-cell md:p-2">{{ $user->role }}</td>
+                    <td class="md:table-cell md:p-2">{{ User::ROLES[$user->role] ?? $user->role }}</td>
 
                     <td class="text-xs text-gray-500 md:hidden">Status</td>
                     <td class="md:table-cell md:p-2">{{ $user->active ? 'Aktywny' : 'Nieaktywny' }}</td>

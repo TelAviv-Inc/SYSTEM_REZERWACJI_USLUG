@@ -7,6 +7,17 @@ use Illuminate\Support\Carbon;
 
 class AdminStats
 {
+    // weeks => label of the period select, shared by every weekly chart
+    public const PERIODS = [4 => '4 tygodnie', 12 => '12 tygodni', 52 => '52 tygodnie'];
+
+    /**
+     * The period if it's one of PERIODS, 12 weeks otherwise.
+     */
+    public static function period(int $weeks): int
+    {
+        return array_key_exists($weeks, self::PERIODS) ? $weeks : 12;
+    }
+
     /**
      * Number of non-cancelled reservations per week, for the last $weeks weeks
      * (the current week included). Weeks without reservations are returned as 0.
@@ -53,8 +64,8 @@ class AdminStats
         $to = now()->endOfWeek(Carbon::SUNDAY);
 
         $income = Reservation::where('status', 'completed')
-            ->whereDate('reservation_date','>=', $from)
-            ->whereDate('reservation_date','<=', $to)
+            ->whereDate('reservation_date', '>=', $from)
+            ->whereDate('reservation_date', '<=', $to)
             ->get(['reservation_date', 'price'])
             ->groupBy(fn (Reservation $r) => $r->reservation_date->startOfWeek(Carbon::MONDAY)->toDateString())
             ->map(fn ($group) => (float) $group->sum('price'));
@@ -68,6 +79,6 @@ class AdminStats
             $values[] = $income[$week->toDateString()] ?? 0.0;
         }
 
-        return ['labels' => $labels, 'values' => $values];        
+        return ['labels' => $labels, 'values' => $values];
     }
 }

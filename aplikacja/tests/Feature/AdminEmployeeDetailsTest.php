@@ -357,7 +357,48 @@ test('only an admin can manage services and working hours', function (string $ro
     $asOther('removeService', $this->service->uuid)->assertForbidden();
     $asOther('saveAvailability')->assertForbidden();
     $asOther('removeAvailability', $this->employee->availability()->sole()->uuid)->assertForbidden();
+    $asOther('deactivate')->assertForbidden();
 
     expect($this->employee->services()->count())->toBe(1)
-        ->and($this->employee->availability()->count())->toBe(1);
+        ->and($this->employee->availability()->count())->toBe(1)
+        ->and((bool) $this->employee->fresh()->active)->toBeTrue();
 })->with(['client', 'employee']);
+
+test('admin can deactivate and activate an employee, booked visits stay', function () {
+    $offered = fn () => Livewire::actingAs($this->client)->test('reserve-service')->call('serviceChosen', $this->service->uuid)->get('employees')->count();
+
+    employeeDetails($this)
+        ->assertSeeHtml('Pracownik ma 1 nadchodzących rezerwacji')
+        ->call('deactivate')
+        ->assertDispatched('employeeUpdated')
+        ->assertSee('Nieaktywny')
+        ->assertSeeHtml('wire:click="activate"');
+
+    expect((bool) $this->employee->fresh()->active)->toBeFalse()
+        ->and($this->reservation->fresh()->status)->toBe('confirmed')
+        ->and($offered())->toBe(0);
+
+    employeeDetails($this)
+        ->call('activate')
+        ->assertDispatched('employeeUpdated')
+        ->assertSeeHtml('wire:click="deactivate"');
+
+    expect((bool) $this->employee->fresh()->active)->toBeTrue()
+        ->and($offered())->toBe(1);
+});
+
+test('an employee can only be activated with the employee role and an active account', function (array $user) {
+    $this->employee->update(['active' => 0]);
+    $this->employee->user->update($user);
+
+    employeeDetails($this)
+        ->assertDontSeeHtml('wire:click="activate"')
+        ->assertSee('Aby aktywować pracownika')
+        ->call('activate')
+        ->assertForbidden();
+
+    expect((bool) $this->employee->fresh()->active)->toBeFalse();
+})->with([
+    'role changed to client' => [['role' => 'client']],
+    'account deactivated' => [['active' => false]],
+]);

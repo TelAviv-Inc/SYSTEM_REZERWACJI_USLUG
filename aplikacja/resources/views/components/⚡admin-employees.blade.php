@@ -9,19 +9,20 @@ use Livewire\WithPagination;
 new class extends Component {
     use WithPagination;
 
-    // admin-employee-details dispatches this after adding or removing a service
+    // admin-employee-details dispatches this after a change to services or the status
     protected $listeners = ['employeeUpdated' => '$refresh'];
 
-    #[Url(as: 'q')]
+    // every admin tab has its own URL keys, so filters don't carry over to the next tab
+    #[Url(as: 'employees_q')]
     public string $search = '';
 
-    #[Url]
+    #[Url(as: 'employees_status')]
     public string $status = '';
 
-    #[Url]
+    #[Url(as: 'employees_category')]
     public string $category = '';
 
-    #[Url]
+    #[Url(as: 'employees_service')]
     public string $service = '';
 
     public function updated(string $property): void
@@ -32,7 +33,7 @@ new class extends Component {
         }
 
         if (in_array($property, ['search', 'category', 'service', 'status'], true)) {
-            $this->resetPage();
+            $this->resetPage('employees_page');
         }
     }
 
@@ -52,9 +53,8 @@ new class extends Component {
     public function employees()
     {
         return Employee::query()
-            ->with(['user:uuid,name,surname,email,phone', 'services:uuid,name'])
-            ->withCount('reservations')
-            //gdy
+            ->with('user:uuid,name,surname,email,phone')
+            ->withCount('services')
             ->when(
                 $this->search,
                 fn($q) => $q->whereHas(
@@ -70,7 +70,7 @@ new class extends Component {
             ->when($this->service, fn($q) => $q->whereHas('services', fn($q) => $q->where('services.uuid', $this->service)))
             ->when(in_array($this->status, ['active', 'inactive'], true), fn($q) => $q->where('active', $this->status === 'active'))
             ->latest()
-            ->paginate(10);
+            ->paginate(10, pageName: 'employees_page');
     }
 };
 ?>
@@ -108,6 +108,7 @@ new class extends Component {
             <tr class="border-b border-brand-border">
                 <th class="p-2">Imię</th>
                 <th class="p-2">E-mail</th>
+                <th class="p-2">Usługi</th>
                 <th class="p-2">Status</th>
                 <th class="p-2"><span class="sr-only">Akcje</span></th>
             </tr>
@@ -122,6 +123,9 @@ new class extends Component {
                     <td class="text-xs text-gray-500 md:hidden">E-mail</td>
                     <td class="min-w-0 break-all md:table-cell md:p-2 md:break-normal">{{ $emp->user->email }}</td>
 
+                    <td class="text-xs text-gray-500 md:hidden">Usługi</td>
+                    <td class="md:table-cell md:p-2">{{ $emp->services_count }}</td>
+
                     <td class="text-xs text-gray-500 md:hidden">Status</td>
                     <td class="md:table-cell md:p-2">{{ $emp->active ? 'Aktywny' : 'Nieaktywny' }}</td>
 
@@ -135,7 +139,7 @@ new class extends Component {
                 </tr>
             @empty
                 <tr class="block md:table-row">
-                    <td colspan="5" class="block p-2 md:table-cell">Brak użytkowników.</td>
+                    <td colspan="5" class="block p-2 md:table-cell">Brak pracowników.</td>
                 </tr>
             @endforelse
         </tbody>

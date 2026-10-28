@@ -18,4 +18,19 @@ class EmployeePolicy
     {
         return $user->role === 'admin';
     }
+
+    // booked visits stay, the employee just disappears from the booking modal
+    public function deactivate(User $user, Employee $employee): bool
+    {
+        return $user->role === 'admin' && $employee->active;
+    }
+
+    // only someone who still has the employee role and an account that can log in
+    public function activate(User $user, Employee $employee): bool
+    {
+        return $user->role === 'admin'
+            && ! $employee->active
+            && $employee->user?->role === 'employee'
+            && $employee->user->active;
+    }
 }
