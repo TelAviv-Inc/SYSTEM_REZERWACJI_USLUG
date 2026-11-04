@@ -98,18 +98,8 @@ new class extends Component {
         $direction = $this->direction === 'asc' ? 'asc' : 'desc';
 
         return Reservation::query()
-            ->with(['user:uuid,name,surname,email', 'service:uuid,name,category_id', 'service.category:uuid,name', 'employee:uuid,user_id,active', 'employee.user:uuid,name,surname'])
-            ->when(
-                $this->search,
-                fn($q) => $q->whereHas(
-                    'user',
-                    fn($q) => $q
-                        ->where('name', 'like', "%{$this->search}%")
-                        ->orWhere('surname', 'like', "%{$this->search}%")
-                        ->orWhere('email', 'like', "%{$this->search}%")
-                        ->orWhere('phone', 'like', "%{$this->search}%"),
-                ),
-            )
+            ->with(['user:uuid,name,surname,email', 'service:uuid,name,category_id', 'service.category:uuid,name', 'employee:uuid,user_id', 'employee.user:uuid,name,surname'])
+            ->when($this->search, fn($q) => $q->whereHas('user', fn($q) => $q->whereAny(['name', 'surname', 'email', 'phone'], 'like', "%{$this->search}%")))
             ->when($this->status === 'to_complete', fn($q) => $q->active()->past())
             ->when(array_key_exists($this->status, Reservation::STATUSES), fn($q) => $q->where('status', $this->status))
             ->when($this->employee, fn($q) => $q->where('employee_id', $this->employee))
@@ -181,11 +171,8 @@ new class extends Component {
                         <button type="button" wire:click="toggleDirection"
                             class="inline-flex items-center gap-1 font-bold cursor-pointer hover:text-brand-accent">
                             Termin
-                            <i @class([
-                                'fa-solid text-xs',
-                                'fa-arrow-up' => $direction === 'asc',
-                                'fa-arrow-down' => $direction !== 'asc',
-                            ])></i>
+                            <i
+                                class="fa-solid text-xs {{ $direction === 'asc' ? 'fa-arrow-up' : 'fa-arrow-down' }}"></i>
                             <span
                                 class="sr-only">{{ $direction === 'asc' ? 'od najstarszych' : 'od najnowszych' }}</span>
                         </button>
