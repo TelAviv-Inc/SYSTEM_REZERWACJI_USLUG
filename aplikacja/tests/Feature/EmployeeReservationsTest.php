@@ -139,6 +139,16 @@ test('the banner counts only own visits waiting for completion and opens them', 
     expect(listedUuids($component))->toBe([$waiting->uuid]);
 });
 
+test('the to confirm filter lists the same visits the info tab counts', function () {
+    $upcoming = visitOf($this->employee, $this->haircut, $this->client, '2026-10-13');
+    visitOf($this->employee, $this->haircut, $this->client, '2026-10-05'); // already started, can't be confirmed
+    visitOf($this->employee, $this->haircut, $this->client, '2026-10-14', 'confirmed');
+    visitOf($this->otherEmployee, $this->haircut, $this->client, '2026-10-13');
+
+    expect(listedUuids(visitsTab($this->employee)->set('status', 'to_confirm')))->toBe([$upcoming->uuid])
+        ->and(Livewire::actingAs($this->employee->user)->test('employee-info')->get('counts')['toConfirm'])->toBe(1);
+});
+
 test('an employee can open and confirm their own visit but cannot move it', function () {
     $visit = visitOf($this->employee, $this->haircut, $this->client, '2026-10-13');
 
@@ -162,6 +172,26 @@ test('nobody else can open a visit', function () {
             ->call('open', $visit->uuid)
             ->assertNotFound();
     }
+});
+
+test('a former employee can no longer open or change their old visits', function () {
+    $upcoming = visitOf($this->employee, $this->haircut, $this->client, '2026-10-13');
+    $started = visitOf($this->employee, $this->haircut, $this->client, '2026-10-05');
+
+    // a role change keeps the employee profile, it only turns it off
+    $former = $this->employee->user;
+    $former->update(['role' => 'client']);
+    $this->employee->update(['active' => 0]);
+
+    Livewire::actingAs($former)
+        ->test('reservation-edit')
+        ->call('open', $upcoming->uuid)
+        ->assertNotFound();
+
+    expect($former->can('view', $upcoming))->toBeFalse()
+        ->and($former->can('cancel', $upcoming))->toBeFalse()
+        ->and($former->can('confirm', $upcoming))->toBeFalse()
+        ->and($former->can('complete', $started))->toBeFalse();
 });
 
 test('an account without an employee profile sees a message instead of a crash', function () {

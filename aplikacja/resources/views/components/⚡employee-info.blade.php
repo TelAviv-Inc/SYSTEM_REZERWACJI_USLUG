@@ -197,7 +197,7 @@ new class extends Component {
                         <dt class="text-xs text-brand-muted">Do potwierdzenia</dt>
                         <dd class="text-lg font-bold text-brand-navy">
                             @if ($this->counts['toConfirm'])
-                                <a href="{{ route('dashboard.employee', ['tab' => 'reservations', 'reservation_status' => 'pending', 'reservations_order' => 'asc']) }}"
+                                <a href="{{ route('dashboard.employee', ['tab' => 'reservations', 'reservation_status' => 'to_confirm', 'reservations_order' => 'asc']) }}"
                                     class="text-brand-accent hover:underline">{{ $this->counts['toConfirm'] }}</a>
                             @else
                                 0

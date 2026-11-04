@@ -93,6 +93,7 @@ test('it counts today\'s plan and the visits waiting for the employee', function
     $component
         ->assertSee('+48600100200')
         ->assertSee('Nadchodzące wizyty poza godzinami pracy')
+        ->assertSee('reservation_status=to_confirm', false)
         ->assertSee('reservation_status=to_complete', false);
 });
 

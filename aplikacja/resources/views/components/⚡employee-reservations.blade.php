@@ -13,6 +13,8 @@ new class extends Component {
     #[Url(as: 'q')]
     public string $search = '';
 
+    // a status from Reservation::STATUSES, "to_confirm": pending visits that can still be confirmed,
+    // or "to_complete": open visits that have already started
     #[Url(as: 'reservation_status')]
     public string $status = '';
 
@@ -89,6 +91,7 @@ new class extends Component {
             ->reservations()
             ->with(['user:uuid,name,surname,email', 'service:uuid,name,category_id', 'service.category:uuid,name'])
             ->when($this->search, fn($q) => $q->whereHas('user', fn($q) => $q->whereAny(['name', 'surname', 'email', 'phone'], 'like', "%{$this->search}%")))
+            ->when($this->status === 'to_confirm', fn($q) => $q->pending()->upcoming())
             ->when($this->status === 'to_complete', fn($q) => $q->active()->past())
             ->when(array_key_exists($this->status, Reservation::STATUSES), fn($q) => $q->where('status', $this->status))
             ->when($this->service, fn($q) => $q->where('service_id', $this->service))
@@ -150,6 +153,7 @@ new class extends Component {
 
             <select wire:model.live="status" class="w-full rounded border border-brand-border p-2">
                 <option value="">Wszystkie statusy</option>
+                <option value="to_confirm">Do potwierdzenia</option>
                 <option value="to_complete">Do zakończenia</option>
                 @foreach (Reservation::STATUSES as $value => $label)
                     <option value="{{ $value }}">{{ $label }}</option>
