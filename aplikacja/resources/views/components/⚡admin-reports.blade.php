@@ -2,7 +2,6 @@
 
 use App\Models\ServiceCategory;
 use App\Support\Report;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Url;
@@ -57,15 +56,7 @@ new class extends Component {
     #[Computed]
     public function periods(): array
     {
-        return [
-            'this_month' => 'Bieżący miesiąc',
-            'last_month' => 'Poprzedni miesiąc',
-            'last_30' => 'Ostatnie 30 dni',
-            'last_90' => 'Ostatnie 90 dni',
-            'this_year' => 'Bieżący rok',
-            'last_year' => 'Poprzedni rok',
-            'custom' => 'Własny zakres',
-        ];
+        return Report::PERIODS;
     }
 
     protected function applyPeriod(): void
@@ -74,15 +65,8 @@ new class extends Component {
             $this->period = 'this_month';
         }
 
-        [$from, $to] = match ($this->period) {
-            'last_month' => [now()->subMonthNoOverflow()->startOfMonth(), now()->subMonthNoOverflow()->endOfMonth()],
-            'last_30' => [today()->subDays(29), today()],
-            'last_90' => [today()->subDays(89), today()],
-            'this_year' => [now()->startOfYear(), now()->endOfYear()],
-            'last_year' => [now()->subYear()->startOfYear(), now()->subYear()->endOfYear()],
-            // custom without dates (an old link) falls back to this month
-            default => [now()->startOfMonth(), now()->endOfMonth()],
-        };
+        // custom without dates (an old link) falls back to this month
+        [$from, $to] = Report::presetRange($this->period);
 
         $this->from = $from->toDateString();
         $this->to = $to->toDateString();
@@ -162,23 +146,7 @@ new class extends Component {
     #[Computed]
     public function range(): array|string
     {
-        $parse = function (string $value): ?Carbon {
-            if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $value) || !checkdate((int) substr($value, 5, 2), (int) substr($value, 8, 2), (int) substr($value, 0, 4))) {
-                return null;
-            }
-
-            return Carbon::createFromFormat('!Y-m-d', $value);
-        };
-
-        $from = $parse($this->from);
-        $to = $parse($this->to);
-
-        return match (true) {
-            !$from || !$to => 'Podaj poprawne daty początku i końca okresu.',
-            $from->gt($to) => 'Data początkowa nie może być późniejsza niż końcowa.',
-            $from->diffInDays($to) > 3 * 366 => 'Raport może obejmować najwyżej 3 lata.',
-            default => [$from, $to],
-        };
+        return Report::parseRange($this->from, $this->to);
     }
 
     #[Computed]
@@ -441,33 +409,7 @@ new class extends Component {
 
             <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
                 @foreach ($this->kpis as $kpi)
-                    @php($good = $kpi['change'] === null || $kpi['change'] == 0 ? null : $kpi['change'] > 0 === $kpi['goodUp'])
-                    <div class="flex min-w-0 flex-col gap-1 rounded-xl border border-brand-border bg-white p-3 sm:p-4">
-                        <span class="flex items-center gap-2 text-xs font-medium text-brand-muted">
-                            <i class="{{ $kpi['icon'] }}"></i> {{ $kpi['label'] }}
-                        </span>
-                        <span
-                            class="text-lg font-bold text-brand-navy sm:text-2xl break-words">{{ $kpi['value'] }}</span>
-                        <span class="flex flex-wrap items-center gap-x-2 text-xs text-brand-muted">
-                            @if ($kpi['change'] !== null)
-                                <span @class([
-                                    'inline-flex items-center gap-1 font-semibold',
-                                    'text-green-700' => $good === true,
-                                    'text-red-700' => $good === false,
-                                    'text-brand-muted' => $good === null,
-                                ]) title="Zmiana względem poprzedniego okresu">
-                                    <i @class([
-                                        'fa-solid',
-                                        'fa-arrow-up' => $kpi['change'] > 0,
-                                        'fa-arrow-down' => $kpi['change'] < 0,
-                                        'fa-equals' => $kpi['change'] == 0,
-                                    ])></i>
-                                    {{ ($kpi['change'] > 0 ? '+' : '') . \App\Support\Report::number($kpi['change']) . $kpi['unit'] }}
-                                </span>
-                            @endif
-                            <span>{{ $kpi['hint'] }}</span>
-                        </span>
-                    </div>
+                    <x-report-kpi :kpi="$kpi" />
                 @endforeach
             </div>
 
