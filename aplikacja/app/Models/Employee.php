@@ -6,6 +6,7 @@ use Database\Factories\EmployeeFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 class Employee extends Model
 {
@@ -63,5 +64,31 @@ class Employee extends Model
     {
         return $query->where('employees.active', 1)
             ->whereHas('user', fn ($q) => $q->where('active', true));
+    }
+
+    /**
+     * Upcoming visits that no single weekly working range covers any more. They stay
+     * booked, someone has to move them.
+     */
+    public function upcomingOutsideHoursCount(): int
+    {
+        $ranges = $this->availability()
+            ->whereNotNull('day_of_week')
+            ->toBase()
+            ->get(['day_of_week', 'start_time', 'end_time']);
+        $time = fn ($value) => Carbon::parse($value)->format('H:i:s');
+
+        return $this->reservations()
+            ->upcoming()
+            ->toBase()
+            ->get(['reservation_date', 'start_time', 'end_time'])
+            ->reject(function ($reservation) use ($ranges, $time) {
+                $day = Carbon::parse($reservation->reservation_date)->isoWeekday();
+
+                return $ranges->contains(fn ($range) => (int) $range->day_of_week === $day
+                    && $time($range->start_time) <= $time($reservation->start_time)
+                    && $time($range->end_time) >= $time($reservation->end_time));
+            })
+            ->count();
     }
 }
