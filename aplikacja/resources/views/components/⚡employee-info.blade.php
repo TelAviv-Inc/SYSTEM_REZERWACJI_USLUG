@@ -345,8 +345,7 @@ new class extends Component {
                     </ul>
                 @endif
 
-                <p class="mt-3 text-xs text-brand-muted">Usługi i godziny pracy ustala administrator. Jeśli coś się
-                    nie zgadza, skontaktuj się z nim.</p>
+                <p class="mt-3 text-xs text-brand-muted">Usługi i godziny pracy ustala administrator.</p>
             </section>
         </div>
 
