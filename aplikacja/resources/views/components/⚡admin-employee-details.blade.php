@@ -4,7 +4,6 @@ use App\Models\Employee;
 use App\Models\EmployeeAvailability;
 use App\Models\Service;
 use App\Support\AdminStats;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -109,24 +108,7 @@ new class extends Component {
     #[Computed]
     public function reservationsOutsideHours(): int
     {
-        $ranges = $this->employee
-            ->availability()
-            ->whereNotNull('day_of_week')
-            ->toBase()
-            ->get(['day_of_week', 'start_time', 'end_time']);
-        $time = fn($value) => Carbon::parse($value)->format('H:i:s');
-
-        return $this->employee
-            ->reservations()
-            ->upcoming()
-            ->toBase()
-            ->get(['reservation_date', 'start_time', 'end_time'])
-            ->reject(function ($reservation) use ($ranges, $time) {
-                $day = Carbon::parse($reservation->reservation_date)->isoWeekday();
-
-                return $ranges->contains(fn($range) => (int) $range->day_of_week === $day && $time($range->start_time) <= $time($reservation->start_time) && $time($range->end_time) >= $time($reservation->end_time));
-            })
-            ->count();
+        return $this->employee->upcomingOutsideHoursCount();
     }
 
     // booked visits stay as they are; an inactive employee just can't be booked

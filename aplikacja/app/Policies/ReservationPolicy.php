@@ -75,6 +75,6 @@ class ReservationPolicy
 
     protected function isEmployee(User $user, Reservation $reservation): bool
     {
-        return $reservation->employee?->user_id === $user->uuid;
+        return $reservation->employee?->user_id === $user->uuid && $user->role === 'employee';
     }
-}
+}  

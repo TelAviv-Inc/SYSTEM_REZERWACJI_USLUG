@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Models\Employee;
+use App\Models\EmployeeAvailability;
 use App\Models\Service;
 use App\Models\ServiceCategory;
 use Illuminate\Support\Carbon;
@@ -26,6 +27,17 @@ class Report
 
     public const STATUSES = ['completed', 'confirmed', 'pending', 'cancelled'];
 
+    // period presets of the date filter; "custom" uses the from/to dates as given
+    public const PERIODS = [
+        'this_month' => 'Bieżący miesiąc',
+        'last_month' => 'Poprzedni miesiąc',
+        'last_30' => 'Ostatnie 30 dni',
+        'last_90' => 'Ostatnie 90 dni',
+        'this_year' => 'Bieżący rok',
+        'last_year' => 'Poprzedni rok',
+        'custom' => 'Własny zakres',
+    ];
+
     // reports group reservations of services without a category under this key
     protected const NO_CATEGORY = 'none';
 
@@ -42,7 +54,52 @@ class Report
         public readonly Carbon $from,
         public readonly Carbon $to,
         public readonly ?string $categoryId = null,
+        // the employee panel's stats: only this employee's visits
+        public readonly ?string $employeeId = null,
     ) {}
+
+    /**
+     * [from, to] of a preset; an unknown preset or "custom" gives the current month.
+     *
+     * @return array{0: Carbon, 1: Carbon}
+     */
+    public static function presetRange(string $period): array
+    {
+        return match ($period) {
+            'last_month' => [now()->subMonthNoOverflow()->startOfMonth(), now()->subMonthNoOverflow()->endOfMonth()],
+            'last_30' => [today()->subDays(29), today()],
+            'last_90' => [today()->subDays(89), today()],
+            'this_year' => [now()->startOfYear(), now()->endOfYear()],
+            'last_year' => [now()->subYear()->startOfYear(), now()->subYear()->endOfYear()],
+            default => [now()->startOfMonth(), now()->endOfMonth()],
+        };
+    }
+
+    /**
+     * Y-m-d dates of the filter as [from, to], or the reason they can't be used.
+     *
+     * @return array{0: Carbon, 1: Carbon}|string
+     */
+    public static function parseRange(string $from, string $to): array|string
+    {
+        $parse = function (string $value): ?Carbon {
+            if (! preg_match('/^\d{4}-\d{2}-\d{2}$/', $value) || ! checkdate((int) substr($value, 5, 2), (int) substr($value, 8, 2), (int) substr($value, 0, 4))) {
+                return null;
+            }
+
+            return Carbon::createFromFormat('!Y-m-d', $value);
+        };
+
+        $from = $parse($from);
+        $to = $parse($to);
+
+        return match (true) {
+            ! $from || ! $to => 'Podaj poprawne daty początku i końca okresu.',
+            $from->gt($to) => 'Data początkowa nie może być późniejsza niż końcowa.',
+            $from->diffInDays($to) > 3 * 366 => 'Raport może obejmować najwyżej 3 lata.',
+            default => [$from, $to],
+        };
+    }
 
     public function days(): int
     {
@@ -54,7 +111,7 @@ class Report
     {
         $to = $this->from->copy()->subDay();
 
-        return new self($this->type, $to->copy()->subDays($this->days() - 1), $to, $this->categoryId);
+        return new self($this->type, $to->copy()->subDays($this->days() - 1), $to, $this->categoryId, $this->employeeId);
     }
 
     /**
@@ -67,6 +124,7 @@ class Report
             ->whereDate('reservations.reservation_date', '>=', $this->from->toDateString())
             ->whereDate('reservations.reservation_date', '<=', $this->to->toDateString())
             ->when($this->categoryId, fn ($q) => $q->where('services.category_id', $this->categoryId))
+            ->when($this->employeeId, fn ($q) => $q->where('reservations.employee_id', $this->employeeId))
             ->get([
                 'reservations.user_id',
                 'reservations.employee_id',
@@ -131,13 +189,14 @@ class Report
         ];
     }
 
-    // clients whose first booking (in the filtered category, if any) falls in this period
+    // clients whose first booking (in the filtered category / with the employee, if any) falls in this period
     protected function newClients(): int
     {
         return DB::table('reservations')
             ->leftJoin('services', 'services.uuid', '=', 'reservations.service_id')
             ->where('reservations.status', '!=', 'cancelled')
             ->when($this->categoryId, fn ($q) => $q->where('services.category_id', $this->categoryId))
+            ->when($this->employeeId, fn ($q) => $q->where('reservations.employee_id', $this->employeeId))
             ->groupBy('reservations.user_id')
             ->selectRaw('min(reservations.reservation_date) as first_date')
             ->get()
@@ -216,6 +275,10 @@ class Report
             ->with('category:uuid,name')
             ->withCount('employees')
             ->when($this->categoryId, fn ($q) => $q->where('category_id', $this->categoryId))
+            // for one employee: the services they offer, or had a visit of anyway
+            ->when($this->employeeId, fn ($q) => $q->where(fn ($q) => $q
+                ->whereHas('employees', fn ($q) => $q->whereKey($this->employeeId))
+                ->orWhereIn('uuid', $this->reservations()->pluck('service_id')->unique()->all())))
             ->orderBy('name')
             ->get()
             ->map(fn (Service $s) => [
@@ -250,6 +313,18 @@ class Report
                 'available_minutes' => $this->availableMinutes($e->availability),
             ])
             ->sortBy('name', SORT_NATURAL | SORT_FLAG_CASE);
+    }
+
+    /**
+     * Working minutes of the filtered employee in the period, from their weekly schedule.
+     */
+    public function scheduledMinutes(): int
+    {
+        if (! $this->employeeId) {
+            return 0;
+        }
+
+        return $this->availableMinutes(EmployeeAvailability::where('employee_id', $this->employeeId)->get());
     }
 
     // working minutes in the period from the weekly schedule (day_of_week ranges)
