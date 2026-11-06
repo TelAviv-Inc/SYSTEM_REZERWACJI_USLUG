@@ -35,6 +35,7 @@ Konta są dostępne w wersji online. Pochodzą ze zrzutu bazy `szczegoly/Dump202
 - Zapis rezerwacji w transakcji z blokadą wiersza pracownika (`lockForUpdate`) i wykrywaniem nakładających się rezerwacji
 - Statusy rezerwacji (`pending`, `confirmed`, `completed`, `cancelled`) z polskimi etykietami
 - Uprawnienia w `ReservationPolicy` (tworzenie, podgląd, anulowanie, potwierdzanie)
+- Zarządzanie rezerwacjami: podgląd, zmiana terminu, anulowanie i potwierdzanie
 
 ### Konto i profil
 - Rejestracja i logowanie (z animacją ładowania przycisków)
@@ -49,12 +50,15 @@ Konta są dostępne w wersji online. Pochodzą ze zrzutu bazy `szczegoly/Dump202
 - Własne strony błędów (403, 404, 419, 429, 500, 503)
 - Obraz Docker i wdrożenie na Render (MySQL z połączeniem SSL)
 
-### W toku
-- Strona „Moje rezerwacje” (`/dashboard/reservations`) – na razie szkielet
-- Zarządzanie rezerwacjami (zmiana terminu, anulowanie, potwierdzanie)
+### Zaimplementowane funkcjonalności
+- Panel użytkownika z kategoriami usług i procesem rezerwacji
+- Strona „Moje rezerwacje” (`/dashboard/reservations`) z możliwością zarządzania rezerwacjami
 - Panel pracownika
 - Panel administratora
 - Zarządzanie użytkownikami, pracownikami i ich dostępnością z poziomu interfejsu
+
+### W toku
+- Funkcjonalność raportów w panelu administratora
 
 ## Wykorzystane technologie
 
