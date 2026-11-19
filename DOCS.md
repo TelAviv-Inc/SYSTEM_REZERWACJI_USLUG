@@ -1,10 +1,10 @@
-# System Rezerwacji Usług - Dokumentacja Techniczna
+# System Rezerwacji Usług — dokumentacja techniczna
 
 ## Omówienie
 
-System Rezerwacji Usług to aplikacja internetowa do zarządzania rezerwacjami usług, zbudowana na podstawie frameworka Laravel. System umożliwia użytkownikom rezerwację usług u pracowników, zarządzanie dostępnością, konfliktami i rezerwacjami w sposób wydajny.
+System Rezerwacji Usług to aplikacja Laravel, w której klienci rezerwują wizyty u pracowników. Pracownicy obsługują własne wizyty i przeglądają statystyki, a administratorzy zarządzają katalogiem usług, kontami, grafikami i rezerwacjami oraz korzystają z raportów.
 
-## Struktura Projektu
+## Struktura projektu
 
 ```
 SYSTEM_REZERWACJI_USLUG/
@@ -12,158 +12,175 @@ SYSTEM_REZERWACJI_USLUG/
 │   ├── app/                # Kod aplikacji
 │   │   ├── Http/           # Kontrolery, middleware, żądania HTTP
 │   │   ├── Models/         # Modele Eloquent
-│   │   ├── Livewire/       # Komponenty Livewire
+│   │   ├── Livewire/       # Formularze Livewire
 │   │   ├── Policies/       # Polityki autoryzacji
 │   │   └── Support/        # Klasy wspomagające
-│   ├── database/           # Migracje i seedery bazy danych
-│   ├── resources/          # Widoki, CSS, JavaScript
+│   ├── database/           # Migracje, fabryki i seedery
+│   ├── resources/          # Widoki Blade, komponenty Livewire, CSS i JavaScript
 │   ├── routes/             # Trasy aplikacji
 │   └── tests/              # Zestaw testów
 ├── README.md               # Omówienie projektu
+├── DOCS.md                 # Dokumentacja techniczna
 ├── AGENTS.md               # Instrukcje dotyczące rozwoju
 └── CLAUDE.md               # Wskazówki dla Claude AI
 ```
 
-## Główne Komponenty
+## Główne komponenty
 
 ### Modele
 
-#### Model Użytkownika (`app/Models/User.php`)
-- Wykorzystuje UUID jako klucz główny
-- Ma role: klient, pracownik, administrator
-- Śledzi status aktywności użytkownika (aktywny / nieaktywny)
-- Relacje:
-  - `reservations()` - Jedno do wielu z rezerwacjami
-  - `employee()` - Jedno do jednego z profilem pracownika
+#### Model użytkownika (`app/Models/User.php`)
 
-#### Model Kategorii Usługi (`app/Models/ServiceCategory.php`)
+- Wykorzystuje UUID jako klucz główny
+- Obsługuje role klienta (`client`), pracownika (`employee`) i administratora (`admin`)
+- Śledzi status aktywności użytkownika (aktywny / nieaktywny)
+- Relacja `reservations()` łączy użytkownika z jego rezerwacjami, a `employee()` z profilem pracownika
+
+#### Model kategorii usług (`app/Models/ServiceCategory.php`)
+
 - Reprezentuje kategorie usług z ikonami
 - Ma wiele usług
 - Wykorzystuje UUID jako klucz główny
 
-#### Model Usługi (`app/Models/Service.php`)
+#### Model usługi (`app/Models/Service.php`)
+
 - Należy do kategorii usług
 - Relacja wielu do wielu z pracownikami (przez tabelę pośrednią)
 - Ma wiele rezerwacji
-- Automatycznie generuje przyjazny dla URL slug na podstawie nazwy
+- Generuje `slug` przy tworzeniu usługi i aktualizuje go po zmianie nazwy
 
-#### Model Pracownika (`app/Models/Employee.php`)
-- Należy do użytkownika (który jest pracownikiem)
+#### Model pracownika (`app/Models/Employee.php`)
+
+- Należy do użytkownika
 - Relacja wielu do wielu z usługami
 - Ma wiele rekordów dostępności i rezerwacji
 - Zakres `bookable()` dla aktywnych pracowników z aktywnymi kontami
 
-#### Model Dostępności Pracownika (`app/Models/EmployeeAvailability.php`)
-- Reprezentuje godziny pracy pracowników
-- Może być tygodniowe (day_of_week) lub określonych dat (specific_date)
-- Rekordy oparte na czasie z start_time i end_time
+#### Model dostępności pracownika (`app/Models/EmployeeAvailability.php`)
 
-#### Model Rezerwacji (`app/Models/Reservation.php`)
-- Śledzi rezerwacje usług
-- Zarządzanie statusami (oczekująca, potwierdzona, zakończona, anulowana)
-- Wykrywanie konfliktów rezerwacji
-- Relacje:
-  - Należy do użytkownika, pracownika i usługi
-  - Zakresy dla różnych typów statusów i okresów czasowych
+- Przechowuje przedziały godzin pracy w polach `start_time` i `end_time`
+- Kalendarz i walidacja rezerwacji korzystają z tygodniowych przedziałów `day_of_week`. Przedziały zapisane dla dzisiejszej lub przyszłej daty (`specific_date`) są wyświetlane w panelu pracownika
 
-### Schemat Bazy Danych
+#### Model rezerwacji (`app/Models/Reservation.php`)
 
-System korzysta z UUID jako kluczy głównych w całych modelach. Kluczowe tabele obejmują:
+- Obsługuje statusy `pending` (oczekująca), `confirmed` (potwierdzona), `completed` (zakończona) i `cancelled` (anulowana)
+- Należy do użytkownika, pracownika i usługi
+- Udostępnia zakresy zapytań do filtrowania według statusu i wykrywania kolizji oraz metodę `hasStarted()`, która porównuje datę i godzinę rozpoczęcia wizyty z bieżącym czasem
+- Przechowuje cenę usługi z chwili rezerwacji w `reservations.price`. Przy dodaniu kolumny migracja uzupełnia istniejące rekordy ceną usługi obowiązującą w momencie migracji
+
+### Schemat bazy danych
+
+Tabele domenowe korzystają z UUID jako kluczy głównych.
 
 1. **users** - Konta użytkowników z rolami i statusem aktywności
 2. **service_categories** - Kategorie usług z ikonami
 3. **services** - Indywidualne usługi w kategoriach
 4. **employees** - Profile pracowników powiązane z użytkownikami
 5. **employee_services** - Tabela pośrednia dla relacji pracownik-usługa
-6. **employee_availabilities** - Godziny pracy pracowników (tygodniowe lub określone daty)
-7. **reservations** - Rekordy rezerwacji usług
+6. **employee_availabilities** - Przedziały godzin pracy pracowników
+7. **reservations** - Terminy, statusy i zapisane ceny wizyt
 
 ### Komponenty Livewire
 
-Interfejs użytkownika jest zbudowany z komponentów Livewire 4, korzystając z wzorca komunikacji opartej na zdarzeniach:
+Komponenty jednoplikowe Livewire 4 znajdują się w `aplikacja/resources/views/components/` (pliki `⚡nazwa.blade.php`). Kalendarze i formularze komunikują się zdarzeniami Livewire.
 
 1. `show-services` - Wyświetla kategorie usług i usługi
-2. `reserve-service` - Obsługuje proces rezerwacji (wybór pracownika, wyboru daty i godziny)
+2. `reserve-service` - Obsługuje wybór pracownika, daty i godziny oraz zapis wizyty
 3. `employee-week-calendar` - Kalendarz do wyboru dni pracy
 4. `employee-hour-calendar` - Kalendarz godzinowy dostępności
-5. `profile-summary` - Omówienie profilu użytkownika
-6. `user-profile-menu` - Karty zarządzania profilem
+5. `reservations-menu` i `reservation-edit` - Lista własnych rezerwacji i wspólne okno szczegółów wizyty
+6. `profile-summary` i `user-profile-menu` - Podsumowanie konta i zarządzanie profilem
+7. `employee-menu` - Zakładki z wizytami, statystykami i informacjami pracownika
+8. `admin-menu` i `admin-reports` - Zarządzanie danymi i raporty administratora
 
-### Autoryzacja i Autoryzacja
+### Uwierzytelnianie i autoryzacja
 
 #### Middleware
-- `auth` - Wymagana autoryzacja
-- `verified` - Wymagana weryfikacja e-maila  
-- `active` - Konto użytkownika musi być aktywne (nie zawieszone)
+
+- `auth` - Wymagane zalogowanie
+- `verified` - Przypisany do tras panelu. Wymuszanie weryfikacji przez to middleware wymaga, aby model `User` implementował `MustVerifyEmail`. Obecny model `User` nie implementuje tego kontraktu
+- `active` - Wylogowuje użytkownika, którego konto jest nieaktywne
 - `role` - Kontrola dostępu oparta na rolach (administrator, pracownik, klient)
 
 #### Polityki
-- `ReservationPolicy` - Kontroluje tworzenie, przeglądanie, anulowanie i potwierdzanie rezerwacji
 
-### Przepływ Procesu Rezerwacji
+- `ReservationPolicy` określa uprawnienia do tworzenia, podglądu, zmiany terminu, anulowania, potwierdzania i kończenia wizyt. Użytkownik widzi rezerwacje dokonane na swoim koncie, pracownik widzi także przypisane mu wizyty, a administrator ma wgląd we wszystkie. [ReservationPolicy.php](aplikacja/app/Policies/ReservationPolicy.php)
+- Polityki `UserPolicy`, `EmployeePolicy`, `ServicePolicy` i `ServiceCategoryPolicy` kontrolują operacje na danych zarządzanych w panelu administratora. Raporty dodatkowo sprawdzają uprawnienie `view-reports`
 
-1. **Użytkownik wybiera kategorię usługi**
-2. **Użytkownik wybiera konkretną usługę**
-3. **System pokazuje dostępnych pracowników dla tej usługi**
-4. **Użytkownik wybiera pracownika**
-5. **Wybór daty i godziny za pomocą kalendarza**
-6. **Weryfikacja rezerwacji na konflikty**
-7. **Tworzenie rezerwacji z integralnością transakcji**
+### Przepływ rezerwacji
 
-### Kluczowe Funkcje
+1. Użytkownik wybiera kategorię i aktywną usługę, a następnie pracownika przypisanego do tej usługi. Profil i konto pracownika muszą być aktywne. Pracownik nie może zarezerwować wizyty u siebie.
+2. Użytkownik wybiera dzień i godzinę. Kalendarz tygodniowy pozwala przejść do sześciu tygodni naprzód, a kalendarz godzinowy proponuje godziny rozpoczęcia co 30 minut w przedziałach pracy, z uwzględnieniem czasu trwania usługi.
+3. Przy zapisie formularz sprawdza poprawność danych i przypisanie usługi. W transakcji sprawdza, czy termin nie jest w przeszłości, czy cały przedział mieści się w jednym przedziale pracy oraz czy nie koliduje z inną rezerwacją. Nowa wizyta otrzymuje status `pending` i bieżącą cenę usługi.
 
-#### 1. Zarządzanie Rezerwacjami
-- Wykrywanie konfliktów czasowych za pomocą transakcji bazy danych i blokowania wierszy
-- Obsługa dostępności zarówno tygodniowych, jak i określonych dat
-- Zarządzanie statusami rezerwacji (oczekująca, potwierdzona, zakończona, anulowana)
+### Kluczowe funkcje
 
-#### 2. Kontrola Dostępu Oparta na Rolach
-- Rola klienta: może tworzyć rezerwacje i zarządzać swoimi własnymi rezerwacjami
-- Rola pracownika: może przeglądać i zarządzać swoim własnym harmonogramem i rezerwacjami
-- Rola administratora: pełny dostęp do systemu zarządzania
+#### 1. Zarządzanie rezerwacjami
 
-#### 3. System Profilu Użytkownika
-- Rejestracja i logowanie z weryfikacją e-maila
+Aktywna rezerwacja ma status `pending` lub `confirmed`.
+
+| Operacja | Kto może wykonać | Warunki |
+| --- | --- | --- |
+| Anulowanie | Klient, który zarezerwował wizytę, przypisany pracownik lub administrator | Klient i pracownik mogą anulować aktywną wizytę do chwili jej rozpoczęcia, także w dniu wizyty. Administrator może anulować aktywną wizytę również po rozpoczęciu. |
+| Zmiana terminu | Klient, który zarezerwował wizytę, lub administrator | Przed dniem aktywnej wizyty, jeśli profil pracownika jest aktywny. Zmiana przywraca status `pending` i zachowuje zapisaną cenę. |
+| Potwierdzenie | Przypisany pracownik lub administrator | Przed rozpoczęciem wizyty ze statusem `pending`. |
+| Zakończenie | Przypisany pracownik lub administrator | Od godziny rozpoczęcia aktywnej wizyty. |
+
+Dezaktywacja usługi blokuje nowe rezerwacje. Termin istniejącej wizyty można nadal zmienić, jeśli usługa jest wciąż przypisana do pracownika i wizyta spełnia warunki zmiany terminu.
+
+#### 2. Panele pracownika i administratora
+
+- Pracownik przegląda własny grafik, usługi, wizyty i statystyki. Lista wizyt ma m.in. filtry „Do potwierdzenia” i „Do zakończenia”.
+- Administrator zarządza użytkownikami, pracownikami, tygodniowym grafikiem, kategoriami, usługami i rezerwacjami. Zmiana godzin pracy zachowuje istniejące wizyty. Panel pracownika w widoku administratora wskazuje nadchodzące wizyty, które wypadają poza aktualnymi godzinami pracy.
+- Raporty administratora grupują rezerwacje według kategorii, usług lub pracowników. Obejmują porównanie okresów, wykresy, obłożenie grafiku w raporcie pracowników, eksport CSV i wydruk. Przychód jest sumą zapisanych cen zakończonych wizyt. Raport osobno pokazuje wartość wizyt oczekujących i potwierdzonych oraz anulowanych. [Report.php](aplikacja/app/Support/Report.php)
+
+#### 3. Konto i profil użytkownika
+
+- Rejestracja, logowanie, resetowanie hasła i trasy weryfikacji adresu e-mail
 - Zarządzanie profilem (dane osobowe, zmiana hasła)
 - Możliwość dezaktywacji i usunięcia konta
 - Normalizacja numeru telefonu
 
-#### 4. Ograniczenia Prędkości
-- 120 żądań/minuty dla zalogowanych użytkowników
-- 300 żąda段/minuty dla aktualizacji Livewire
-- 10 żądań/minuty dla działań autoryzacyjnych
-- Ochrona przed atakami siły bruto
+#### 4. Limity żądań
 
-## Architektura Techniczna
+- 120 żądań na minutę dla zwykłych tras webowych i osobny limit 300 na minutę dla aktualizacji Livewire, według identyfikatora użytkownika lub adresu IP dla gościa
+- 10 żądań na minutę na ścieżkę dla formularzy objętych `throttle:auth`, m.in. rejestracji, logowania i resetowania hasła
 
-### Szczegóły Frameworku
+## Architektura techniczna
+
+### Technologie
+
 - Laravel 12.x z PHP 8.2+
-- Wykorzystuje UUID jako klucze główne dla wszystkich modeli
-- SQLite domyślnie, MySQL w środowisku produkcyjnym
-- Tailwind CSS v4 z Alpine.js dla interfejsu前端
-- Livewire 4 dla interaktywnych komponentów interfejsu
+- Eloquent z kluczami UUID w tabelach domenowych
+- Domyślnie SQLite, z konfiguracją dla MySQL
+- Blade, Livewire 4, Alpine.js, Tailwind CSS v4, Vite i Chart.js
+- Domyślna strefa czasowa `Europe/Warsaw`, konfigurowana przez `APP_TIMEZONE`
 
-### Operacje na Bazie Danych
-- Tworzenie rezerwacji w transakcji z `lockForUpdate`, aby zapobiec konfliktom
-- Wykrywanie konfliktów rezerwacji w zapytaniach do bazy danych
-- Poprawne ograniczenia kluczy obcych i definicje relacji
+### Zapis rezerwacji w bazie danych
 
-### Funkcje Bezpieczeństwa
+Tworzenie i zmiana terminu używają tej samej walidacji terminu w `ReservationForm`. Po rozpoczęciu transakcji formularz wywołuje `lockForUpdate()` dla wiersza pracownika, pobiera czas trwania usługi i sprawdza pasujący wiersz grafiku również z `lockForUpdate()`. Brak pasującego przedziału lub wykrycie kolizji przerywa zapis i zwraca błąd formularza. W MySQL te odczyty blokują wiersze do końca transakcji. SQLite korzysta z własnego mechanizmu blokad transakcyjnych. [ReservationForm.php](aplikacja/app/Livewire/Forms/ReservationForm.php)
+
+Zapytanie o kolizje pomija anulowane wizyty. Przy zmianie terminu pomija też rezerwację, której dotyczy aktualizacja. Dwa terminy mogą się stykać, jeśli jeden kończy się dokładnie w chwili rozpoczęcia drugiego. [Reservation.php](aplikacja/app/Models/Reservation.php)
+
+### Bezpieczeństwo
+
 - Ochrona przed CSRF
-- Ograniczenia prędkości
+- Limity żądań
 - Walidacja wprowadzanych danych
-- Autoryzacja z wykorzystaniem szkieletu Laravel Breeze
-- Bezpieczne przetwarzanie haseł z hashowaniem
+- Uwierzytelnianie oparte na Laravel Breeze i autoryzacja przez middleware oraz polityki
+- Haszowanie haseł
 
-## Konfiguracja Rozwoju
+## Konfiguracja środowiska deweloperskiego
 
-### Polecenia Instalacji
+Wszystkie polecenia uruchamiaj z katalogu `aplikacja/`.
+
+### Instalacja
+
+`composer setup` instaluje zależności, kopiuje `.env.example` do `.env`, jeśli plik jeszcze nie istnieje, generuje klucz aplikacji, uruchamia migracje i buduje zasoby interfejsu. Aby dodać dane z `DatabaseSeeder`, uruchom osobno `php artisan db:seed`.
+
+Instalacja ręczna na nowej kopii projektu wygląda następująco. Jeśli używasz MySQL, wpisz ustawienia połączenia w `.env` przed uruchomieniem migracji.
+
 ```bash
-# Szybka instalacja
-composer setup
-
-# Krok po kroku instalacja
-cd aplikacja
 composer install
 cp .env.example .env
 php artisan key:generate
@@ -172,88 +189,74 @@ npm install
 npm run build
 ```
 
-### Serwer Rozwoju
+### Serwer deweloperski
+
 ```bash
-# Uruchom serwer rozwoju
+# Uruchom serwer Laravel
 php artisan serve
 
-# Uruchom wszystkie usługi
+# Uruchom serwer, kolejkę, logi i Vite
 composer dev
 
-# Obserwuj zmiany w kodzie前端
+# Uruchom sam serwer Vite
 npm run dev
 ```
 
 ### Testy
+
+Testy uruchamiają się na SQLite w pamięci dzięki konfiguracji w `phpunit.xml`.
+
 ```bash
 # Uruchom wszystkie testy
 php artisan test
 
-# Uruchom konkretny test
-php artisan test --filter=ProfileTest
-
-# Testuj bazę danych w pamięci
+# Uruchom testy edycji i anulowania wizyt
+php artisan test --filter=ReservationEditTest
 ```
 
-## Punkty końcowe API
+## Trasy aplikacji
 
-System głównie korzysta z tras sieciowych z komponentami Livewire dla interaktywności, ale przestrzega standardowych konwencji Laravel:
+Trasy paneli są zdefiniowane w `routes/dashboard.php`. Operacje w widokach obsługują komponenty Livewire. Logowanie, rejestracja, resetowanie hasła i weryfikacja adresu e-mail są zdefiniowane w `routes/auth.php`.
 
-- `/dashboard` - Główny dashboard z kategoriami usług
-- `/dashboard/profile` - Zarządzanie profilem użytkownika
-- `/dashboard/reservations` - Historia i zarządzanie rezerwacjami
-- Trasy autoryzacyjne w `routes/auth.php`
+| Trasa `GET` | Widok | Role |
+| --- | --- | --- |
+| `/dashboard` | Katalog usług i rezerwowanie wizyt | `client`, `employee`, `admin` |
+| `/dashboard/profile` | Konto, dane osobowe, hasło i ustawienia | `client`, `employee`, `admin` |
+| `/dashboard/reservations` | Lista własnych rezerwacji | `client`, `employee`, `admin` |
+| `/dashboard/employee` | Panel pracownika | `employee`, `admin` |
+| `/dashboard/admin` | Panel administratora | `admin` |
+| `/dashboard/admin/reports` | Raporty administratora | `admin` |
 
 ## Wdrożenie
 
-### Wdrożenie w Dockerze
+### Docker
+
+W katalogu `aplikacja/` ustaw `APP_KEY` w `.env`. Klucz do wklejenia wygenerujesz poleceniem `php artisan key:generate --show` po zainstalowaniu zależności PHP.
+
 ```bash
 docker compose up --build
 ```
 
-### Środowisko Produkcyjne
-- Używa MySQL (SQLite dla rozwoju)
-- SSL do połączenia z bazą danych
-- Platforma hostingu Render
+Aplikacja jest dostępna pod adresem `http://localhost:8080`. Obraz buduje zasoby Vite w osobnym etapie i uruchamia aplikację na PHP 8.3 z Apache. Kontener przy starcie wykonuje migracje i domyślnie przechowuje bazę SQLite w wolumenie `app-storage`.
 
-## Strategia Testowania
+### Wdrożenie na Render
 
-Aplikacja korzysta z PestPHP do testowania z:
-- Testami jednostkowymi dla modeli i logiki biznesowej
-- Testami funkcjonalnymi dla interakcji użytkownika
-- Testami integracyjnym些 dla złożonych przepływów pracy
-- Danych testowych z `Dump20261007.sql`
+Konfigurację środowiska opisanego w `README.md` przekazuje się do kontenera przez zmienne środowiskowe. Dla MySQL ustaw `DB_CONNECTION=mysql`, parametry `DB_*` i `MYSQL_ATTR_SSL_CA` ze ścieżką do certyfikatu CA używanego przez połączenie TLS. [README.md](README.md)
 
-## Rozważania dotyczące wydajności
+## Strategia testowania
 
-### Optymalizacja Bazy Danych
-- Poprawne indeksowanie kluczy obcych
-- Efektywne zapytania do sprawdzania dostępności
-- Zarządzanie transakcjami, aby zapobiec konfliktom
+Aplikacja korzysta z Pest 3. Testy funkcjonalne w `aplikacja/tests/Feature/` odtwarzają schemat przez `RefreshDatabase` i przygotowują własne dane. Zrzut `szczegoly/Dump20261007.sql` zawiera dane demonstracyjne.
 
-### Optymalizacja前端
-- Komunikacja komponentów Livewire za pomocą zdarzeń
-- Efektywne renderowanie kalendarza
-- Odpowiedni projekt z Tailwind CSS
+- `ReservationTest.php` sprawdza m.in. kolizje i odrzucenie terminu usuniętego z grafiku na początku transakcji.
+- `ReservationEditTest.php` obejmuje zasady anulowania w dniu wizyty, granicę godziny rozpoczęcia oraz odrzucenie zmiany terminu po usunięciu go z grafiku.
+- Testy paneli sprawdzają dostęp według ról, filtrowanie wizyt, dane raportów i eksport CSV.
 
 ## Rozwiązywanie problemów
 
-### Typowe Problemy
-1. **Połączenie z bazą danych**: Upewnij się, że konfiguracja bazy danych w `.env` jest poprawna
-2. **Brak zależności**: Uruchom `composer install` i `npm install`
-3. **Problemy z migracjami**: Użyj `php artisan migrate:fresh --seed`, aby zresetować bazę danych
-4. **Błędy uprawnień**: Sprawdź uprawnienia plików dla katalogów magazynowych
+- Przy błędzie połączenia sprawdź ustawienia bazy w `.env` i uruchom `php artisan config:clear`, jeśli konfiguracja była zapisana w pamięci podręcznej.
+- Przy braku zależności lub zasobów uruchom `composer install`, `npm install` i `npm run build`.
+- Przy błędzie zapisu sprawdź uprawnienia do `storage/` i `bootstrap/cache/`.
 
-### Wskazówki dla Rozwoju
-- Użyj `composer dev` dla pełnego środowiska rozwoju
-- Skorzystaj z systemu zdarzeń Livewire do komunikacji między komponentami
-- Testuj konflikty rezerwacji w scenariuszach z dostępem współbieżnym
+## Kierunki dalszego rozwoju
 
-## Przyszłe Wzmocnienia
 
-### Planowane Funkcje
-1. Zaawansowany panel raportów dla administratorów
-2. Powiadomienia SMS o rezerwacjach
-3. Rozszerzony widok kalendarza z zarządzaniem zasobami
-4. Wsparcie wielojęzyczne
-5. Integracja z zewnętrznymi systemami kalendarza
