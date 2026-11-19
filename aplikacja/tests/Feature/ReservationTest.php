@@ -5,8 +5,10 @@ use App\Models\Employee;
 use App\Models\Reservation;
 use App\Models\Service;
 use App\Models\User;
+use Illuminate\Database\Events\TransactionBeginning;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
 
@@ -136,6 +138,16 @@ test('service that would end after working hours is rejected', function () {
 test('day the employee does not work is rejected', function () {
     // Wednesday
     reserveSlot($this, '2026-10-14', '10:00')->assertHasErrors(['form.hour' => UNAVAILABLE]);
+
+    expect(Reservation::count())->toBe(0);
+});
+
+test('booking rejects a slot removed from the schedule as the transaction starts', function () {
+    Event::listen(TransactionBeginning::class, function () {
+        $this->employee->availability()->delete();
+    });
+
+    reserveSlot($this, '2026-10-13', '10:00')->assertHasErrors(['form.hour' => UNAVAILABLE]);
 
     expect(Reservation::count())->toBe(0);
 });

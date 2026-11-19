@@ -38,36 +38,7 @@ class ReservationForm extends Form
             'employee_id' => ['required', 'exists:employees,uuid', Rule::exists('employee_services', 'employee_id')->where('service_id', $this->service_id)],
             'date' => ['required', 'date_format:Y-m-d', 'after_or_equal:today'],
 
-            'hour' => ['bail', 'required', 'date_format:H:i',
-                function (string $attribute, mixed $value, \Closure $fail) {
-                    $service = Service::find($this->service_id);
-
-                    if (! $service || ! $this->employee_id || ! $this->date || ! Carbon::canBeCreatedFromFormat($this->date, 'Y-m-d')) {
-                        return;
-                    }
-                    [$start, $end] = $this->timeRange($service->duration);
-
-                    if (Carbon::parse("{$this->date} {$this->hour}")->isPast()) {
-                        return $fail('Nie można zarezerwować terminu w przeszłości');
-                    }
-
-                    $fits = EmployeeAvailability::where('employee_id', $this->employee_id)
-                        ->where('day_of_week', Carbon::parse($this->date)->isoWeekday())
-                        ->where('start_time', '<=', $start)
-                        ->where('end_time', '>=', $end)
-                        ->exists();
-
-                    if (! $fits) {
-                        return $fail('Pracownik nie jest dostępny w tym terminie.');
-                    }
-
-                    $taken = Reservation::overlapping($this->employee_id, $this->date, $start, $end, $this->reservation_id)->exists();
-
-                    if ($taken) {
-                        $fail(self::TAKEN);
-                    }
-                },
-            ],
+            'hour' => ['bail', 'required', 'date_format:H:i'],
         ];
     }
 
@@ -85,19 +56,39 @@ class ReservationForm extends Form
         return [$start->format('H:i:s'), $start->copy()->addMinutes($duration)->format('H:i:s')];
     }
 
+    private function validateSlot(string $start, string $end, ?string $exceptUuid = null): void
+    {
+        $slot = Carbon::parse("{$this->date} {$this->hour}");
+
+        if ($slot->isPast()) {
+            throw ValidationException::withMessages(['form.hour' => 'Nie można zarezerwować terminu w przeszłości']);
+        }
+
+        $availability = EmployeeAvailability::where('employee_id', $this->employee_id)
+            ->where('day_of_week', $slot->isoWeekday())
+            ->where('start_time', '<=', $start)
+            ->where('end_time', '>=', $end)
+            ->lockForUpdate()
+            ->first(['uuid']);
+
+        if (! $availability) {
+            throw ValidationException::withMessages(['form.hour' => 'Pracownik nie jest dostępny w tym terminie.']);
+        }
+
+        if (Reservation::overlapping($this->employee_id, $this->date, $start, $end, $exceptUuid)->exists()) {
+            throw ValidationException::withMessages(['form.hour' => self::TAKEN]);
+        }
+    }
+
     public function reserve()
     {
-        $service = Service::findOrFail($this->service_id);
-        [$start, $end] = $this->timeRange($service->duration);
-
-        return DB::transaction(function () use ($service, $start, $end) {
+        return DB::transaction(function () {
             Employee::whereKey($this->employee_id)->lockForUpdate()->first();
 
-            if (Reservation::overlapping($this->employee_id, $this->date, $start, $end)->exists()) {
-                throw ValidationException::withMessages([
-                    'form.hour' => self::TAKEN,
-                ]);
-            }
+            $service = Service::findOrFail($this->service_id);
+            [$start, $end] = $this->timeRange($service->duration);
+            $this->validateSlot($start, $end);
+
             Reservation::create([
                 'uuid' => (string) Str::uuid(),
                 'user_id' => auth()->id(),
@@ -115,17 +106,12 @@ class ReservationForm extends Form
 
     public function reschedule(Reservation $reservation)
     {
-        $service = Service::findOrFail($this->service_id);
-        [$start, $end] = $this->timeRange($service->duration);
-
-        return DB::transaction(function () use ($reservation, $start, $end) {
+        return DB::transaction(function () use ($reservation) {
             Employee::whereKey($this->employee_id)->lockForUpdate()->first();
 
-            if (Reservation::overlapping($this->employee_id, $this->date, $start, $end, $reservation->uuid)->exists()) {
-                throw ValidationException::withMessages([
-                    'form.hour' => self::TAKEN,
-                ]);
-            }
+            $service = Service::findOrFail($this->service_id);
+            [$start, $end] = $this->timeRange($service->duration);
+            $this->validateSlot($start, $end, $reservation->uuid);
 
             // a new date has to be confirmed again by the employee
             $reservation->update([

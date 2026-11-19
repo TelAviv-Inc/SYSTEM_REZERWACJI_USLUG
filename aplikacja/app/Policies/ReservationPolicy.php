@@ -27,7 +27,7 @@ class ReservationPolicy
         return $this->isAdmin($user) || $this->isClient($user, $reservation) || $this->isEmployee($user, $reservation);
     }
 
-    // clients and employees up to the day before; an admin also after the start, e.g. for a no-show
+    // clients and employees before the visit starts; an admin also after the start, e.g. for a no-show
     public function cancel(User $user, Reservation $reservation): bool
     {
         if (! $reservation->isActive()) {
@@ -35,10 +35,10 @@ class ReservationPolicy
         }
 
         return $this->isAdmin($user)
-            || (($this->isClient($user, $reservation) || $this->isEmployee($user, $reservation)) && $reservation->reservation_date->isFuture());
+            || (($this->isClient($user, $reservation) || $this->isEmployee($user, $reservation)) && ! $reservation->hasStarted());
     }
 
-    // the client who booked or an admin can move the visit; same time window as cancel
+    // the client who booked or an admin can move the visit before the day of the visit
     public function update(User $user, Reservation $reservation): bool
     {
         return ($this->isAdmin($user) || $this->isClient($user, $reservation))

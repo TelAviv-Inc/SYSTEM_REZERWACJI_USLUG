@@ -5,8 +5,10 @@ use App\Models\Employee;
 use App\Models\Reservation;
 use App\Models\Service;
 use App\Models\User;
+use Illuminate\Database\Events\TransactionBeginning;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
 
@@ -127,6 +129,21 @@ test('moving a reservation onto someone else\'s slot is rejected', function () {
     expect($this->reservation->fresh()->start_time->format('H:i'))->toBe('10:00');
 });
 
+test('rescheduling rejects a slot removed from the schedule as the transaction starts', function () {
+    Event::listen(TransactionBeginning::class, function () {
+        $this->employee->availability()->delete();
+    });
+
+    editModal($this)
+        ->call('startReschedule')
+        ->call('setDate', '2026-10-13')
+        ->call('setHour', '14:00')
+        ->call('reschedule')
+        ->assertHasErrors(['form.hour' => 'Pracownik nie jest dostępny w tym terminie.']);
+
+    expect($this->reservation->fresh()->start_time->format('H:i'))->toBe('10:00');
+});
+
 test('client can cancel a reservation', function () {
     editModal($this)
         ->call('startCancel')
@@ -136,6 +153,28 @@ test('client can cancel a reservation', function () {
         ->assertDispatched('reservationUpdated');
 
     expect($this->reservation->fresh()->status)->toBe('cancelled');
+});
+
+test('client can cancel a visit later today', function () {
+    $this->travelTo(Carbon::parse('2026-10-13 09:00'));
+
+    expect($this->employee->user->can('cancel', $this->reservation))->toBeTrue();
+
+    editModal($this)
+        ->call('startCancel')
+        ->assertSet('mode', 'cancel')
+        ->call('cancelReservation')
+        ->assertDispatched('reservationUpdated');
+
+    expect($this->reservation->fresh()->status)->toBe('cancelled');
+});
+
+test('only an admin can cancel an active visit once it starts', function () {
+    $this->travelTo(Carbon::parse('2026-10-13 10:00'));
+
+    expect($this->client->can('cancel', $this->reservation))->toBeFalse()
+        ->and($this->employee->user->can('cancel', $this->reservation))->toBeFalse()
+        ->and(User::factory()->create(['role' => 'admin', 'active' => 1])->can('cancel', $this->reservation))->toBeTrue();
 });
 
 test('summary counters refresh after a cancel', function () {

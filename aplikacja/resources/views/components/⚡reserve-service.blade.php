@@ -71,7 +71,6 @@ new class extends Component {
 
     public function reserve()
     {
-        //Sprawdzanie godziny musi byc w transakcji zeby nie bylo race condition DB::transaction()
         $this->form->fill([
             'service_id' => $this->selectedService?->uuid,
             'employee_id' => $this->selectedEmployee?->uuid,
