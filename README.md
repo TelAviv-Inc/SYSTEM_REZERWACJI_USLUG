@@ -1,16 +1,16 @@
 # System Rezerwacji Usług
 
-Aplikacja webowa oparta na frameworku Laravel do zarządzania rezerwacjami usług.
+Aplikacja Laravel do rezerwowania wizyt, zarządzania grafikami pracowników oraz raportowania rezerwacji i przychodów.
 
 [![Render](https://img.shields.io/badge/Render-live-46E3B7?logo=render&logoColor=white)](https://system-rezerwacji-uslug.onrender.com/)
 
-🌐 **Wersja online:** https://system-rezerwacji-uslug.onrender.com/
+[Wersja demonstracyjna na Render](https://system-rezerwacji-uslug.onrender.com/)
 
 ## O projekcie
 
-Użytkownik wybiera kategorię usług, następnie usługę, pracownika, dzień i godzinę wizyty. System sprawdza dostępność pracownika i kolizje z istniejącymi rezerwacjami, a zapis rezerwacji jest zabezpieczony przed jednoczesną rezerwacją tego samego terminu przez dwie osoby.
+Użytkownik wybiera kategorię, usługę, pracownika, dzień i godzinę wizyty. Przy tworzeniu i zmianie terminu system sprawdza grafik pracownika oraz kolizje z innymi wizytami w tej samej transakcji co zapis.
 
-Kod aplikacji znajduje się w katalogu `aplikacja/`.
+Kod aplikacji znajduje się w katalogu `aplikacja/`. Zasady rezerwacji, uprawnienia i architekturę opisuje [dokumentacja techniczna](DOCS.md).
 
 ## Konta testowe
 
@@ -20,101 +20,75 @@ Kod aplikacji znajduje się w katalogu `aplikacja/`.
 | `client`   | `tomasz.wojcik@example.com` | `password` |
 | `employee` | `marta.nowak@salon.test`    | `password` |
 
-Konta są dostępne w wersji online. Pochodzą ze zrzutu bazy `szczegoly/Dump20261007.sql`, a nie z seederów, więc po lokalnym `php artisan migrate --seed` ich nie będzie.
+Konta demonstracyjne pochodzą ze zrzutu `szczegoly/Dump20261007.sql`. Domyślny seeder tworzy osobny zestaw przykładowych użytkowników i kategorii.
 
-## Obecny stan rozwoju
-
-**Status**: Faza rozwoju, wersja testowa wdrożona na Render.
+## Funkcje
 
 ### Rezerwacje
-- Kategorie usług, usługi i przypisanie pracowników do usług
-- Dostępność pracowników (dni tygodnia, konkretne daty, godziny pracy)
-- Proces rezerwacji w Livewire: wybór kategorii → usługi → pracownika → dnia → godziny
-- Kalendarz tygodniowy z wyborem dnia do 6 tygodni w przód
-- Wybór godziny z kontrolą dostępności (frontend i backend)
-- Zapis rezerwacji w transakcji z blokadą wiersza pracownika (`lockForUpdate`) i wykrywaniem nakładających się rezerwacji
-- Statusy rezerwacji (`pending`, `confirmed`, `completed`, `cancelled`) z polskimi etykietami
-- Uprawnienia w `ReservationPolicy` (tworzenie, podgląd, anulowanie, potwierdzanie)
-- Zarządzanie rezerwacjami: podgląd, zmiana terminu, anulowanie i potwierdzanie
+
+- Kalendarz rezerwacji korzysta z tygodniowego grafiku pracownika i pozwala przeglądać terminy do sześciu tygodni naprzód.
+- W widoku „Moje rezerwacje” (`/dashboard/reservations`) klient przegląda wizyty, zmienia termin przed dniem wizyty i może anulować aktywną wizytę do chwili jej rozpoczęcia, także tego samego dnia.
+- Rezerwacja zachowuje cenę z chwili zapisu. Zmiana terminu przywraca status „Oczekująca”.
+
+### Panele pracownika i administratora
+
+- W panelu pracownika (`/dashboard/employee`) pracownik przegląda swoje wizyty, grafik i statystyki. Może potwierdzić lub anulować przypisaną wizytę przed jej rozpoczęciem i oznaczyć ją jako zakończoną od godziny rozpoczęcia.
+- Panel administratora (`/dashboard/admin`) obejmuje zarządzanie użytkownikami, pracownikami, usługami, kategoriami, grafikami i rezerwacjami.
+- Raporty (`/dashboard/admin/reports`) pokazują rezerwacje i przychody według kategorii, usług lub pracowników. Raport pracowników uwzględnia obłożenie grafików. Raporty oferują porównanie okresów, wykresy, eksport CSV i wydruk.
 
 ### Konto i profil
-- Rejestracja i logowanie (z animacją ładowania przycisków)
-- Role użytkowników: `client` (domyślna), `employee`, `admin`
-- Strona profilu (`/dashboard/profile`) z podsumowaniem konta i rezerwacji
-- Zakładki profilu: informacje o koncie, dane osobowe (email, telefon), zmiana hasła, ustawienia
-- Dezaktywacja i usuwanie konta; nieaktywni użytkownicy są wylogowywani (middleware `active`)
-- Walidacja i normalizacja numeru telefonu
 
-### Bezpieczeństwo i infrastruktura
-- Limity zapytań: 120/min dla stron, 300/min dla żądań Livewire, 10/min dla formularzy logowania, rejestracji i zmiany hasła
-- Własne strony błędów (403, 404, 419, 429, 500, 503)
-- Obraz Docker i wdrożenie na Render (MySQL z połączeniem SSL)
-
-### Zaimplementowane funkcjonalności
-- Panel użytkownika z kategoriami usług i procesem rezerwacji
-- Strona „Moje rezerwacje” (`/dashboard/reservations`) z możliwością zarządzania rezerwacjami
-- Panel pracownika
-- Panel administratora
-- Zarządzanie użytkownikami, pracownikami i ich dostępnością z poziomu interfejsu
-
-### W toku
-- Funkcjonalność raportów w panelu administratora
+- Rejestracja, logowanie i resetowanie hasła. Nowe konto otrzymuje rolę klienta (`client`).
+- Profil (`/dashboard/profile`) umożliwia edycję danych i zmianę hasła oraz dezaktywację lub usunięcie konta.
 
 ## Wykorzystane technologie
 
 ### Backend
+
 - Laravel 12.x, PHP 8.2+
-- Livewire 4
-- SQLite (lokalnie), MySQL (produkcja)
+- SQLite domyślnie, MySQL na Render
 - Eloquent ORM z kluczami głównymi UUID
 - Uwierzytelnianie oparte na Laravel Breeze
 - Pest 3 (testy), Laravel Pint (styl kodu)
 
 ### Frontend
-- Blade i komponenty jednoplikowe Livewire (pliki `⚡nazwa.blade.php`)
+
+- Blade i komponenty jednoplikowe Livewire 4 (pliki `⚡nazwa.blade.php`)
 - Tailwind CSS v4 i Alpine.js
-- Vite
-- Font Awesome i flatpickr
+- Vite, Chart.js i Font Awesome
 
 ### Wdrożenie
-- Docker (PHP 8.3 + Apache, wieloetapowy build z zasobami Vite)
+
+- Docker (PHP 8.3 i Apache, osobny etap budowania zasobów Vite)
 - Render
 
 ## Instalacja lokalna
 
-Wszystkie polecenia uruchamiaj w katalogu `aplikacja/`.
-
-Szybka instalacja:
+Potrzebujesz PHP 8.2+, Composera oraz Node.js 20.19+ w linii 20.x lub 22.12+ z npm. Na nowej kopii repozytorium uruchom poniższe polecenia.
 
 ```bash
+cd aplikacja
 composer setup
+php artisan serve
 ```
 
-Polecenie instaluje zależności, kopiuje `.env`, generuje klucz, uruchamia migracje i buduje zasoby frontendu.
+Aplikacja będzie dostępna pod adresem `http://127.0.0.1:8000`. `composer setup` instaluje zależności, tworzy `.env` na podstawie `.env.example`, generuje klucz, uruchamia migracje i buduje zasoby. Aby dodać przykładowe dane z seederów, uruchom `php artisan db:seed` w katalogu `aplikacja/`.
 
-Instalacja krok po kroku:
-
-1. Sklonuj repozytorium i przejdź do katalogu `aplikacja/`
-2. Uruchom `composer install`
-3. Skopiuj `.env.example` do `.env`
-4. Wygeneruj klucz aplikacji: `php artisan key:generate`
-5. Skonfiguruj bazę danych (domyślnie SQLite)
-6. Uruchom migracje z danymi testowymi: `php artisan migrate --seed`
-7. Zainstaluj zależności npm: `npm install`
-8. Skompiluj zasoby: `npm run build`
-9. Uruchom serwer: `php artisan serve` (lub `composer dev`, aby uruchomić serwer, kolejkę, logi i Vite jednocześnie)
+Instrukcja instalacji ręcznej i uruchamiania Vite znajduje się w [dokumentacji technicznej](DOCS.md#konfiguracja-środowiska-deweloperskiego).
 
 ## Docker
 
-W katalogu `aplikacja/` utwórz plik `.env` z kluczem aplikacji (`APP_KEY=...`, wygenerujesz go przez `php artisan key:generate --show`), a następnie:
+W katalogu `aplikacja/` wpisz `APP_KEY` do `.env`. Po zainstalowaniu zależności PHP możesz wygenerować klucz poleceniem `php artisan key:generate --show`. Następnie uruchom kontener.
 
 ```bash
 docker compose up --build
 ```
 
-Aplikacja będzie dostępna pod adresem http://localhost:8080. Przy starcie kontener sam uruchamia migracje. Domyślnie używa SQLite w wolumenie `storage/`; aby użyć MySQL, ustaw zmienne `DB_*`, a dla połączenia SSL także `MYSQL_ATTR_SSL_CA` (ścieżka do certyfikatu CA).
+Aplikacja będzie dostępna pod adresem `http://localhost:8080`. Przy starcie kontener uruchamia migracje i domyślnie przechowuje bazę SQLite w wolumenie `app-storage`. Aby użyć MySQL, przekaż parametry `DB_*` do środowiska kontenera, w tym `DB_CONNECTION=mysql`. Dla połączenia TLS podaj ścieżkę do certyfikatu CA w `MYSQL_ATTR_SSL_CA`.
 
 ## Testy
+
+Uruchom polecenie z katalogu `aplikacja/`. Testy korzystają z SQLite w pamięci.
 
 ```bash
 php artisan test
@@ -122,4 +96,4 @@ php artisan test
 
 ## Licencja
 
-Ta aplikacja to oprogramowanie typu open-source licencjonowane na warunkach [licencji MIT](https://opensource.org/licenses/MIT).
+Projekt jest udostępniany na warunkach [licencji MIT](LICENSE).
